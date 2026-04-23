@@ -48,3 +48,6 @@ public
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# ESLint flat config
+eslint.config.mjs
