@@ -12,6 +12,7 @@ import {
   FeaturedBooksSection,
 } from '@/features/homepage/components';
 import type { Field } from '@/lib/types/domain';
+import { generateWebSiteSchema, renderJsonLd } from '@/lib/utils/structuredData';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,15 +23,17 @@ interface FieldWithFirstCategory extends Field {
   firstCategorySlug?: string;
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://automationblog.vn';
+
 /**
  * Homepage - Server Component
- * 
+ *
  * Fetches data and renders:
  * - HeroSection with blog title, tagline, description
  * - RecentPostsSection with 6 most recent posts
  * - FieldsSection with all fields and post counts
  * - FeaturedBooksSection with 3 featured books
- * 
+ *
  * Navigation handlers:
  * - Post cards navigate to /fields/[fieldSlug]/[categorySlug]/[postSlug] (handled by PostCard)
  * - Field cards navigate to /fields/[fieldSlug]/[firstCategorySlug] (Requirement 11.7)
@@ -49,7 +52,7 @@ export default async function HomePage() {
       const categories = await contentRepository.getCategoriesByFieldId(field.id);
       // Categories are sorted by order, so first one is the first category
       const firstCategory = categories[0];
-      
+
       return {
         ...field,
         firstCategorySlug: firstCategory?.slug,
@@ -59,6 +62,14 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: renderJsonLd(generateWebSiteSchema(baseUrl)),
+        }}
+      />
+
       {/* Hero Section */}
       <HeroSection
         title="Automation Blog"

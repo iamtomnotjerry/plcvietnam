@@ -69,6 +69,24 @@ export interface CreateCommentInput {
   content: string;
 }
 
+/**
+ * Input for updating author information
+ */
+export interface UpdateAuthorInput {
+  name: string;
+  email: string;
+  bio: string;
+  avatarUrl?: string;
+  expertise: string[];
+  certifications: string[];
+  socialLinks: {
+    email?: string;
+    linkedin?: string;
+    github?: string;
+    twitter?: string;
+  };
+}
+
 export type AdminPostStatusFilter = 'all' | 'draft' | 'published';
 
 export interface AdminPostListOptions {
@@ -109,15 +127,18 @@ export interface ContentRepository {
   // Fields
   getFields(): Promise<Field[]>;
   getFieldBySlug(slug: string): Promise<Field | null>;
-  
+
   // Categories
   getCategoriesByFieldId(fieldId: string): Promise<Category[]>;
   getCategoryBySlug(fieldSlug: string, categorySlug: string): Promise<Category | null>;
-  
+
   // Posts
   getPosts(options?: PostQueryOptions): Promise<PaginatedResult<Post>>;
   getPostBySlug(fieldSlug: string, categorySlug: string, postSlug: string): Promise<Post | null>;
-  getPostsByCategory(categoryId: string, options?: PostQueryOptions): Promise<PaginatedResult<Post>>;
+  getPostsByCategory(
+    categoryId: string,
+    options?: PostQueryOptions
+  ): Promise<PaginatedResult<Post>>;
   getPostsByTag(tagSlug: string, options?: PostQueryOptions): Promise<PaginatedResult<Post>>;
   getRelatedPosts(postId: string, limit: number): Promise<Post[]>;
   getRecentPosts(limit: number): Promise<Post[]>;
@@ -129,26 +150,27 @@ export interface ContentRepository {
   createPost(input: CreatePostInput): Promise<Post>;
   updatePost(id: string, input: UpdatePostInput): Promise<Post | null>;
   deletePost(id: string): Promise<boolean>;
-  
+
   // Tags
   getTags(): Promise<Tag[]>;
   getTagBySlug(slug: string): Promise<Tag | null>;
-  
+
   // Books
   getBooks(options?: BookQueryOptions): Promise<PaginatedResult<Book>>;
   getFeaturedBooks(limit: number): Promise<Book[]>;
   getBookBySlug(slug: string): Promise<Book | null>;
-  
+
   // Comments
   getCommentsByPostId(postId: string): Promise<Comment[]>;
   createComment(comment: CreateCommentInput): Promise<Comment>;
-  
+
   // Search
   search(query: string): Promise<SearchResults>;
-  
+
   // Author
   getAuthor(): Promise<Author>;
-  
+  updateAuthor(input: UpdateAuthorInput): Promise<Author>;
+
   // Navigation
   getNavigationTree(): Promise<NavigationNode[]>;
 }

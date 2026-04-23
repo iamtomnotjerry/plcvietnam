@@ -61,10 +61,10 @@ export function MobileSearchOverlay() {
           w-11 h-11
           rounded-lg
           cursor-pointer
-          text-slate-600 dark:text-slate-300
-          hover:bg-slate-100 dark:hover:bg-slate-800
+          text-muted-foreground
+          hover:bg-muted hover:text-foreground
           transition-colors duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
         "
       >
         <svg
@@ -113,10 +113,10 @@ export function MobileSearchOverlay() {
                 w-11 h-11 shrink-0
                 rounded-lg
                 cursor-pointer
-                text-slate-600 dark:text-slate-300
-                hover:bg-slate-100 dark:hover:bg-slate-800
+                text-muted-foreground
+                hover:bg-muted hover:text-foreground
                 transition-colors duration-200
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
               "
             >
               <svg

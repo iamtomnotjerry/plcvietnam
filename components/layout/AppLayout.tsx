@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { NavigationTree } from '@/features/navigation/components/NavigationTree';
 import { MobileNavDrawer } from '@/components/ui/MobileNavDrawer';
 import { SiteHeader } from '@/components/layout/SiteHeader';
+import { SiteFooter } from '@/components/layout/SiteFooter';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -26,7 +27,10 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
           <NavigationTree />
         </aside>
-        <main className="flex-1 min-w-0 overflow-y-auto">{children}</main>
+        <main className="flex-1 min-w-0 overflow-y-auto flex flex-col">
+          <div className="flex-1">{children}</div>
+          <SiteFooter />
+        </main>
       </div>
       <MobileNavDrawer isOpen={drawerOpen} onClose={closeDrawer} />
     </div>

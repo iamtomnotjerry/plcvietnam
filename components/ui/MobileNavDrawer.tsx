@@ -109,7 +109,8 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
         className={`
           fixed top-0 left-0 z-50
           h-full w-72 max-w-[85vw]
-          bg-white dark:bg-slate-900
+          bg-background
+          border-r border-border
           shadow-xl
           flex flex-col
           transition-transform duration-300 ease-in-out
@@ -117,10 +118,8 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
         `}
       >
         {/* Drawer header with close button */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            Điều hướng
-          </span>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <span className="text-sm font-semibold text-foreground">Điều hướng</span>
           <button
             ref={closeButtonRef}
             type="button"
@@ -131,10 +130,10 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
               w-11 h-11
               rounded-lg
               cursor-pointer
-              text-slate-600 dark:text-slate-300
-              hover:bg-slate-100 dark:hover:bg-slate-800
+              text-muted-foreground
+              hover:bg-muted hover:text-foreground
               transition-colors duration-200
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
             "
           >
             <svg
@@ -156,7 +155,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
 
         {/* Scrollable navigation content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="grid grid-cols-2 gap-2 border-b border-slate-200 p-3 dark:border-slate-700">
+          <div className="grid grid-cols-2 gap-2 border-b border-border p-3">
             {(
               [
                 ['/', 'Trang chủ'],
@@ -170,7 +169,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
                 key={href}
                 href={href as Route}
                 onClick={onClose}
-                className="rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-medium text-slate-800 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                className="rounded-lg bg-muted px-3 py-2 text-center text-sm font-medium text-foreground transition-colors hover:bg-muted/80"
               >
                 {label}
               </Link>

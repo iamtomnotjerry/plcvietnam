@@ -7,6 +7,11 @@
 import { notFound } from 'next/navigation';
 import { contentRepository } from '@/lib/data/factory';
 import { PostDetail } from '@/features/posts/components/PostDetail';
+import {
+  generateArticleSchema,
+  generateBreadcrumbSchema,
+  renderJsonLd,
+} from '@/lib/utils/structuredData';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +30,7 @@ interface PostPageProps {
 export async function generateStaticParams() {
   const fields = await contentRepository.getFields();
   const params: { fieldSlug: string; categorySlug: string; postSlug: string }[] = [];
-  
+
   for (const field of fields) {
     const categories = await contentRepository.getCategoriesByFieldId(field.id);
     for (const category of categories) {
@@ -39,7 +44,7 @@ export async function generateStaticParams() {
       }
     }
   }
-  
+
   return params;
 }
 
@@ -48,18 +53,14 @@ export async function generateStaticParams() {
  */
 export async function generateMetadata({ params }: PostPageProps) {
   const { fieldSlug, categorySlug, postSlug } = await params;
-  const post = await contentRepository.getPostBySlug(
-    fieldSlug,
-    categorySlug,
-    postSlug
-  );
-  
+  const post = await contentRepository.getPostBySlug(fieldSlug, categorySlug, postSlug);
+
   if (!post) {
     return {
       title: 'Không tìm thấy bài viết',
     };
   }
-  
+
   return {
     title: post.seo.title || post.title,
     description: post.seo.description || post.excerpt,
@@ -72,7 +73,7 @@ export async function generateMetadata({ params }: PostPageProps) {
       publishedTime: post.publishedAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
       authors: post.author ? [post.author.name] : [],
-      tags: post.tags.map(tag => tag.name),
+      tags: post.tags.map((tag) => tag.name),
     },
   };
 }
@@ -83,29 +84,56 @@ export async function generateMetadata({ params }: PostPageProps) {
 export default async function PostPage({ params }: PostPageProps) {
   const { fieldSlug, categorySlug, postSlug } = await params;
   // Fetch post
-  const post = await contentRepository.getPostBySlug(
-    fieldSlug,
-    categorySlug,
-    postSlug
-  );
-  
+  const post = await contentRepository.getPostBySlug(fieldSlug, categorySlug, postSlug);
+
   // Handle 404 for invalid slugs
   if (!post) {
     notFound();
     return null; // TypeScript guard
   }
-  
+
   // Fetch related posts (up to 4)
   const relatedPosts = await contentRepository.getRelatedPosts(post.id, 4);
-  
+
+  // Generate structured data
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://automation-blog.com';
+  const postUrl = `${baseUrl}/fields/${fieldSlug}/${categorySlug}/${postSlug}`;
+
+  // Ensure author exists for schema generation
+  if (!post.author) {
+    notFound();
+    return null;
+  }
+
+  const articleSchema = generateArticleSchema(post, post.author, baseUrl, postUrl);
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Trang chủ', url: baseUrl },
+    { name: post.category?.field?.name || 'Lĩnh vực', url: `${baseUrl}/fields/${fieldSlug}` },
+    {
+      name: post.category?.name || 'Danh mục',
+      url: `${baseUrl}/fields/${fieldSlug}/${categorySlug}`,
+    },
+    { name: post.title },
+  ]);
+
   // Increment view count (client-side in mock provider)
   // This will be handled by the PostDetail component on mount
-  
+
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
-        <PostDetail post={post} relatedPosts={relatedPosts} />
-      </div>
-    </main>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: renderJsonLd(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
+      />
+      <main className="min-h-screen p-8">
+        <div className="max-w-7xl mx-auto">
+          <PostDetail post={post} relatedPosts={relatedPosts} />
+        </div>
+      </main>
+    </>
   );
 }
