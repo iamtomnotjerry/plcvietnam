@@ -9,8 +9,11 @@ const googleConfigured =
   Boolean(process.env.GOOGLE_CLIENT_SECRET?.trim());
 
 export const authOptions: NextAuthOptions = {
+  /** Required in production (e.g. Vercel). Set `NEXTAUTH_SECRET` in project env. */
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/auth/sign-in',
+    error: '/auth/error',
   },
   providers: [
     ...(googleConfigured

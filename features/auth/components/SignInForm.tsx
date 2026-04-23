@@ -30,6 +30,10 @@ export function SignInForm() {
         callbackUrl,
       });
       if (res?.error) {
+        if (res.error.toLowerCase() === 'configuration') {
+          router.push('/auth/error?error=Configuration' as Route);
+          return;
+        }
         setError('Email hoặc mật khẩu không đúng.');
         return;
       }
