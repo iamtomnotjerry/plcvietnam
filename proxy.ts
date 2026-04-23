@@ -2,8 +2,7 @@ import { withAuth } from 'next-auth/middleware';
 
 export default withAuth({
   callbacks: {
-    authorized: ({ token }) =>
-      token?.role === 'admin' || token?.role === 'editor',
+    authorized: ({ token }) => token?.role === 'admin' || token?.role === 'editor',
   },
   pages: {
     signIn: '/auth/sign-in',

@@ -1,9 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerMockUser } from '@/lib/auth/mockUserStore';
+import { checkRateLimit, getClientIdentifier, rateLimiters } from '@/lib/rate-limit';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Rate limiting
+  const identifier = getClientIdentifier(request);
+  const rateLimit = await checkRateLimit(identifier, rateLimiters.auth);
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      {
+        error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+        retryAfter: rateLimit.reset,
+      },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': rateLimit.limit?.toString() || '',
+          'X-RateLimit-Remaining': rateLimit.remaining?.toString() || '',
+          'X-RateLimit-Reset': rateLimit.reset?.toString() || '',
+        },
+      }
+    );
+  }
+
   let body: { email?: string; password?: string; name?: string };
   try {
     body = await request.json();
@@ -19,10 +41,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Email không hợp lệ' }, { status: 400 });
   }
   if (password.length < 8) {
-    return NextResponse.json(
-      { error: 'Mật khẩu tối thiểu 8 ký tự' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Mật khẩu tối thiểu 8 ký tự' }, { status: 400 });
   }
 
   try {

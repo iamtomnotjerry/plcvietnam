@@ -1,9 +1,16 @@
 {
-  "name": "plcvietnam",
+  "name": "automation-blog",
   "version": "0.1.0",
   "private": true,
-  "description": "",
+  "description": "Blog chuyên về tự động hóa công nghiệp, PLC, SCADA, và Siemens Automation",
   "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamtomnotjerry/plcvietnam.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,11 +23,9 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "analyze": "cross-env ANALYZE=true next build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
       "prettier --write"
@@ -30,6 +35,8 @@
     ]
   },
   "dependencies": {
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0",
     "framer-motion": "^12.38.0",
     "next": "^16.2.4",
     "next-auth": "^4.24.14",

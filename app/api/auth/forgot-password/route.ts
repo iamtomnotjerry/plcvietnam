@@ -1,10 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createMockPasswordResetToken } from '@/lib/auth/mockPasswordResetStore';
 import { findMockUserByEmail } from '@/lib/auth/mockUserStore';
+import { checkRateLimit, getClientIdentifier, rateLimiters } from '@/lib/rate-limit';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Rate limiting
+  const identifier = getClientIdentifier(request);
+  const rateLimit = await checkRateLimit(identifier, rateLimiters.auth);
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      {
+        error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+        retryAfter: rateLimit.reset,
+      },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': rateLimit.limit?.toString() || '',
+          'X-RateLimit-Remaining': rateLimit.remaining?.toString() || '',
+          'X-RateLimit-Reset': rateLimit.reset?.toString() || '',
+        },
+      }
+    );
+  }
+
   let body: { email?: string };
   try {
     body = await request.json();
