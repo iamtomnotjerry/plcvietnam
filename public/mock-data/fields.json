@@ -1,0 +1,32 @@
+[
+  {
+    "id": "field-1",
+    "slug": "plc",
+    "name": "Lập trình PLC",
+    "description": "Programmable Logic Controllers - Bộ điều khiển logic khả trình",
+    "icon": "cpu",
+    "postCount": 45,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "field-2",
+    "slug": "scada",
+    "name": "Hệ thống SCADA",
+    "description": "Supervisory Control and Data Acquisition - Giám sát và thu thập dữ liệu",
+    "icon": "monitor",
+    "postCount": 32,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "field-3",
+    "slug": "siemens",
+    "name": "Siemens Automation",
+    "description": "Giải pháp tự động hóa Siemens - TIA Portal, S7, WinCC",
+    "icon": "settings",
+    "postCount": 38,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  }
+]

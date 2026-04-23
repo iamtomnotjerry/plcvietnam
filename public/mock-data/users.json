@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mock-user-admin",
+    "email": "admin@demo.local",
+    "name": "Admin Demo",
+    "passwordHash": "0d36f947fdb81c918b6a4aa7445d346f99c9e8a36149e373e34e4070a80345e6",
+    "role": "admin"
+  },
+  {
+    "id": "mock-user-editor",
+    "email": "editor@demo.local",
+    "name": "Editor Demo",
+    "passwordHash": "6a9338619899194524a702181e8e4362ad987a81ed234bea82337f6d546c00e1",
+    "role": "editor"
+  }
+]

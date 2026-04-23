@@ -1,0 +1,230 @@
+[
+  {
+    "id": "post-1",
+    "slug": "gioi-thieu-ladder-logic",
+    "title": "Giới thiệu về Ladder Logic - Ngôn ngữ lập trình PLC cơ bản",
+    "excerpt": "Tìm hiểu về Ladder Logic, ngôn ngữ lập trình PLC phổ biến nhất trong công nghiệp. Bài viết giới thiệu các khái niệm cơ bản, ký hiệu và cách tiếp cận lập trình thang.",
+    "content": "<h2>Ladder Logic là gì?</h2><p>Ladder Logic (lập trình thang) là ngôn ngữ lập trình đồ họa được sử dụng rộng rãi nhất trong lập trình PLC. Tên gọi xuất phát từ cấu trúc giống như một chiếc thang, với hai thanh dọc (rails) và các nấc thang ngang (rungs) chứa logic điều khiển.</p><h3>Các thành phần cơ bản</h3><p>Ladder Logic bao gồm các thành phần chính: contacts (tiếp điểm), coils (cuộn dây), và các khối chức năng đặc biệt. Contacts đại diện cho đầu vào hoặc điều kiện, coils đại diện cho đầu ra hoặc kết quả.</p><h3>Ưu điểm của Ladder Logic</h3><p>Dễ học và trực quan cho kỹ sư điện, tương thích với hầu hết các PLC, và dễ dàng debug trực tiếp trên thiết bị.</p>",
+    "thumbnailUrl": "/images/posts/ladder-logic-intro.jpg",
+    "categoryId": "cat-1",
+    "authorId": "author-1",
+    "tagIds": ["tag-1", "tag-3"],
+    "publishedAt": "2024-01-15T10:00:00Z",
+    "updatedAt": "2024-01-15T10:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Giới thiệu về Ladder Logic - Ngôn ngữ lập trình PLC cơ bản",
+      "description": "Tìm hiểu về Ladder Logic, ngôn ngữ lập trình PLC phổ biến nhất trong công nghiệp",
+      "keywords": ["ladder logic", "PLC", "lập trình", "tự động hóa"]
+    }
+  },
+  {
+    "id": "post-2",
+    "slug": "timer-counter-trong-plc",
+    "title": "Timer và Counter trong lập trình PLC",
+    "excerpt": "Hướng dẫn chi tiết về cách sử dụng Timer (bộ đếm thời gian) và Counter (bộ đếm) trong lập trình PLC. Các loại timer phổ biến: TON, TOF, TP và ứng dụng thực tế.",
+    "content": "<h2>Timer trong PLC</h2><p>Timer là khối chức năng quan trọng trong PLC, cho phép tạo độ trễ thời gian trong logic điều khiển. Có ba loại timer chính: TON (Timer On-Delay), TOF (Timer Off-Delay), và TP (Timer Pulse).</p><h3>TON - Timer On-Delay</h3><p>TON kích hoạt đầu ra sau một khoảng thời gian delay kể từ khi đầu vào được bật. Ứng dụng: khởi động động cơ có độ trễ, chống rung phím nhấn.</p><h3>Counter trong PLC</h3><p>Counter đếm số lần xuất hiện của sự kiện. CTU (Count Up) đếm lên, CTD (Count Down) đếm xuống, CTUD kết hợp cả hai.</p><h3>Ứng dụng thực tế</h3><p>Đếm sản phẩm trên băng chuyền, kiểm soát chu kỳ máy, và giám sát số lần bảo trì thiết bị.</p>",
+    "thumbnailUrl": "/images/posts/timer-counter.jpg",
+    "categoryId": "cat-1",
+    "authorId": "author-1",
+    "tagIds": ["tag-1", "tag-3"],
+    "publishedAt": "2024-01-20T14:30:00Z",
+    "updatedAt": "2024-01-20T14:30:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Timer và Counter trong lập trình PLC - Hướng dẫn chi tiết",
+      "description": "Hướng dẫn chi tiết về cách sử dụng Timer và Counter trong lập trình PLC",
+      "keywords": ["timer", "counter", "PLC", "TON", "CTU"]
+    }
+  },
+  {
+    "id": "post-3",
+    "slug": "structured-text-co-ban",
+    "title": "Structured Text - Ngôn ngữ lập trình văn bản cho PLC",
+    "excerpt": "Tìm hiểu về Structured Text (ST), ngôn ngữ lập trình bậc cao cho PLC. Cú pháp tương tự Pascal, phù hợp cho thuật toán phức tạp và xử lý dữ liệu.",
+    "content": "<h2>Structured Text là gì?</h2><p>Structured Text (ST) là ngôn ngữ lập trình văn bản bậc cao theo chuẩn IEC 61131-3. Cú pháp tương tự Pascal/C, cho phép viết code phức tạp dễ dàng hơn Ladder Logic.</p><h3>Cú pháp cơ bản</h3><p>ST sử dụng các câu lệnh như IF-THEN-ELSE, FOR, WHILE, CASE. Ví dụ: IF temperature > 80 THEN alarm := TRUE; END_IF;</p><h3>Khi nào dùng ST?</h3><p>ST phù hợp cho tính toán toán học phức tạp, xử lý chuỗi, thuật toán điều khiển nâng cao, và quản lý dữ liệu lớn.</p><h3>So sánh với Ladder Logic</h3><p>ST mạnh hơn cho logic phức tạp nhưng khó debug hơn. Ladder Logic trực quan hơn cho logic đơn giản.</p>",
+    "thumbnailUrl": "/images/posts/structured-text.jpg",
+    "categoryId": "cat-2",
+    "authorId": "author-1",
+    "tagIds": ["tag-1", "tag-2"],
+    "publishedAt": "2024-01-25T09:00:00Z",
+    "updatedAt": "2024-01-25T09:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Structured Text - Ngôn ngữ lập trình văn bản cho PLC",
+      "description": "Tìm hiểu về Structured Text, ngôn ngữ lập trình bậc cao cho PLC",
+      "keywords": ["structured text", "ST", "PLC", "IEC 61131-3"]
+    }
+  },
+  {
+    "id": "post-4",
+    "slug": "function-block-diagram",
+    "title": "Function Block Diagram - Lập trình khối chức năng",
+    "excerpt": "Hướng dẫn về Function Block Diagram (FBD), ngôn ngữ lập trình đồ họa sử dụng các khối chức năng được kết nối với nhau. Phù hợp cho điều khiển quy trình.",
+    "content": "<h2>Function Block Diagram</h2><p>FBD là ngôn ngữ lập trình đồ họa sử dụng các khối chức năng (function blocks) được kết nối bởi các đường tín hiệu. Mỗi khối thực hiện một chức năng cụ thể.</p><h3>Cấu trúc FBD</h3><p>Các khối có đầu vào (inputs) bên trái và đầu ra (outputs) bên phải. Tín hiệu chảy từ trái sang phải, từ trên xuống dưới.</p><h3>Ưu điểm của FBD</h3><p>Trực quan cho điều khiển quy trình, dễ tái sử dụng code, và phù hợp với kỹ sư điều khiển tự động.</p><h3>Ứng dụng</h3><p>Điều khiển PID, xử lý tín hiệu analog, và logic điều khiển quy trình phức tạp.</p>",
+    "thumbnailUrl": "/images/posts/fbd.jpg",
+    "categoryId": "cat-3",
+    "authorId": "author-1",
+    "tagIds": ["tag-1", "tag-4"],
+    "publishedAt": "2024-02-01T11:00:00Z",
+    "updatedAt": "2024-02-01T11:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Function Block Diagram - Lập trình khối chức năng",
+      "description": "Hướng dẫn về Function Block Diagram, ngôn ngữ lập trình đồ họa cho PLC",
+      "keywords": ["FBD", "function block", "PLC", "lập trình"]
+    }
+  },
+  {
+    "id": "post-5",
+    "slug": "thiet-ke-hmi-hieu-qua",
+    "title": "Thiết kế HMI hiệu quả cho hệ thống SCADA",
+    "excerpt": "Nguyên tắc thiết kế giao diện HMI (Human Machine Interface) chuyên nghiệp. Bố cục, màu sắc, cảnh báo và best practices trong công nghiệp.",
+    "content": "<h2>Nguyên tắc thiết kế HMI</h2><p>HMI tốt phải rõ ràng, trực quan và giúp vận hành viên đưa ra quyết định nhanh chóng. Tuân thủ chuẩn ISA-101 về thiết kế HMI công nghiệp.</p><h3>Bố cục màn hình</h3><p>Chia màn hình thành các vùng: header (tiêu đề), navigation (điều hướng), main view (hiển thị chính), và alarm banner (băng cảnh báo).</p><h3>Màu sắc và ý nghĩa</h3><p>Xám làm nền, màu chỉ dùng cho trạng thái: xanh lá (bình thường), vàng (cảnh báo), đỏ (nguy hiểm). Tránh lạm dụng màu sắc.</p><h3>Cảnh báo và Alarm</h3><p>Phân loại alarm theo mức độ: Critical, High, Medium, Low. Hiển thị rõ ràng và có âm thanh phù hợp.</p>",
+    "thumbnailUrl": "/images/posts/hmi-design.jpg",
+    "categoryId": "cat-4",
+    "authorId": "author-1",
+    "tagIds": ["tag-8", "tag-9"],
+    "publishedAt": "2024-02-05T13:00:00Z",
+    "updatedAt": "2024-02-05T13:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Thiết kế HMI hiệu quả cho hệ thống SCADA",
+      "description": "Nguyên tắc thiết kế giao diện HMI chuyên nghiệp cho hệ thống SCADA",
+      "keywords": ["HMI", "SCADA", "thiết kế", "ISA-101"]
+    }
+  },
+  {
+    "id": "post-6",
+    "slug": "data-logging-scada",
+    "title": "Ghi nhận và lưu trữ dữ liệu trong SCADA",
+    "excerpt": "Hướng dẫn thiết lập data logging trong hệ thống SCADA. Lựa chọn database, tần suất ghi, và tối ưu hóa hiệu năng lưu trữ dữ liệu công nghiệp.",
+    "content": "<h2>Data Logging trong SCADA</h2><p>Data logging là quá trình thu thập và lưu trữ dữ liệu từ các thiết bị công nghiệp vào database. Dữ liệu này dùng cho phân tích, báo cáo và tuân thủ quy định.</p><h3>Lựa chọn Database</h3><p>SQL Server cho dữ liệu quan hệ, InfluxDB cho time-series data, hoặc các giải pháp chuyên dụng như OSIsoft PI.</p><h3>Tần suất ghi dữ liệu</h3><p>Cân bằng giữa độ chi tiết và dung lượng lưu trữ. Dữ liệu quan trọng: 1-5 giây, dữ liệu thống kê: 1-5 phút.</p><h3>Tối ưu hóa</h3><p>Sử dụng deadband để giảm ghi dữ liệu không thay đổi, nén dữ liệu cũ, và partition database theo thời gian.</p>",
+    "thumbnailUrl": "/images/posts/data-logging.jpg",
+    "categoryId": "cat-5",
+    "authorId": "author-1",
+    "tagIds": ["tag-10", "tag-11"],
+    "publishedAt": "2024-02-10T10:30:00Z",
+    "updatedAt": "2024-02-10T10:30:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Ghi nhận và lưu trữ dữ liệu trong SCADA",
+      "description": "Hướng dẫn thiết lập data logging trong hệ thống SCADA",
+      "keywords": ["data logging", "SCADA", "database", "time-series"]
+    }
+  },
+  {
+    "id": "post-7",
+    "slug": "tia-portal-co-ban",
+    "title": "Bắt đầu với TIA Portal - Môi trường lập trình Siemens",
+    "excerpt": "Hướng dẫn cài đặt và làm quen với TIA Portal (Totally Integrated Automation Portal). Tạo project đầu tiên, cấu hình hardware và lập trình cơ bản.",
+    "content": "<h2>TIA Portal là gì?</h2><p>TIA Portal là môi trường phát triển tích hợp của Siemens cho tất cả các nhiệm vụ tự động hóa: lập trình PLC, cấu hình HMI, motion control, và safety.</p><h3>Cài đặt TIA Portal</h3><p>Download từ Siemens Support Center, cần license (trial 21 ngày có sẵn). Yêu cầu: Windows 10/11, 8GB RAM tối thiểu, 50GB ổ cứng.</p><h3>Tạo project đầu tiên</h3><p>Chọn Add new device → S7-1200/1500 → Cấu hình địa chỉ IP → Thêm I/O modules → Viết chương trình → Download to device.</p><h3>Giao diện TIA Portal</h3><p>Project tree bên trái, work area giữa, properties/inspector bên phải. Task card dưới cùng cho compile và diagnostics.</p>",
+    "thumbnailUrl": "/images/posts/tia-portal.jpg",
+    "categoryId": "cat-6",
+    "authorId": "author-1",
+    "tagIds": ["tag-1"],
+    "publishedAt": "2024-02-15T08:00:00Z",
+    "updatedAt": "2024-02-15T08:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Bắt đầu với TIA Portal - Môi trường lập trình Siemens",
+      "description": "Hướng dẫn cài đặt và làm quen với TIA Portal",
+      "keywords": ["TIA Portal", "Siemens", "S7-1200", "S7-1500"]
+    }
+  },
+  {
+    "id": "post-8",
+    "slug": "s7-1200-hardware",
+    "title": "Tìm hiểu về PLC Siemens S7-1200",
+    "excerpt": "Giới thiệu chi tiết về dòng PLC S7-1200 của Siemens. Cấu hình hardware, module mở rộng, thông số kỹ thuật và ứng dụng phù hợp.",
+    "content": "<h2>Siemens S7-1200</h2><p>S7-1200 là dòng PLC compact của Siemens, phù hợp cho ứng dụng vừa và nhỏ. Hiệu năng cao, giá thành hợp lý, dễ lập trình với TIA Portal.</p><h3>Các model CPU</h3><p>CPU 1211C (6 DI, 4 DO), CPU 1212C (8 DI, 6 DO), CPU 1214C (14 DI, 10 DO), CPU 1215C (14 DI, 10 DO, 2 AI), CPU 1217C (10 DI, 6 DO, 2 AI, 2 AO).</p><h3>Module mở rộng</h3><p>Signal modules (SM) cho I/O thêm, Communication modules (CM) cho Profibus/Profinet, Signal boards (SB) gắn trực tiếp lên CPU.</p><h3>Ứng dụng</h3><p>Máy đóng gói, băng chuyền, hệ thống HVAC, xử lý nước, và các ứng dụng OEM.</p>",
+    "thumbnailUrl": "/images/posts/s7-1200.jpg",
+    "categoryId": "cat-7",
+    "authorId": "author-1",
+    "tagIds": ["tag-1"],
+    "publishedAt": "2024-02-20T09:30:00Z",
+    "updatedAt": "2024-02-20T09:30:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Tìm hiểu về PLC Siemens S7-1200",
+      "description": "Giới thiệu chi tiết về dòng PLC S7-1200 của Siemens",
+      "keywords": ["S7-1200", "Siemens", "PLC", "hardware"]
+    }
+  },
+  {
+    "id": "post-9",
+    "slug": "modbus-communication",
+    "title": "Truyền thông Modbus trong tự động hóa công nghiệp",
+    "excerpt": "Giao thức Modbus RTU và Modbus TCP/IP. Cấu hình master-slave, function codes, và triển khai Modbus trong PLC.",
+    "content": "<h2>Giao thức Modbus</h2><p>Modbus là giao thức truyền thông công nghiệp phổ biến nhất, đơn giản và mở. Có hai biến thể chính: Modbus RTU (serial) và Modbus TCP/IP (Ethernet).</p><h3>Modbus RTU</h3><p>Truyền thông qua RS-485, tốc độ 9600-115200 baud. Cấu trúc master-slave, master poll từng slave theo địa chỉ (1-247).</p><h3>Function Codes</h3><p>FC01: Read Coils, FC03: Read Holding Registers, FC05: Write Single Coil, FC06: Write Single Register, FC16: Write Multiple Registers.</p><h3>Triển khai trong PLC</h3><p>Sử dụng communication modules hoặc built-in ports. Cấu hình baud rate, parity, stop bits. Viết logic đọc/ghi registers.</p>",
+    "thumbnailUrl": "/images/posts/modbus.jpg",
+    "categoryId": "cat-1",
+    "authorId": "author-1",
+    "tagIds": ["tag-5", "tag-6"],
+    "publishedAt": "2024-02-25T14:00:00Z",
+    "updatedAt": "2024-02-25T14:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Truyền thông Modbus trong tự động hóa công nghiệp",
+      "description": "Giao thức Modbus RTU và Modbus TCP/IP trong PLC",
+      "keywords": ["Modbus", "RTU", "TCP/IP", "truyền thông"]
+    }
+  },
+  {
+    "id": "post-10",
+    "slug": "profinet-basics",
+    "title": "Profinet - Mạng công nghiệp Ethernet của Siemens",
+    "excerpt": "Tìm hiểu về Profinet, chuẩn truyền thông Ethernet công nghiệp. Topology, device classes, và cấu hình Profinet trong TIA Portal.",
+    "content": "<h2>Profinet là gì?</h2><p>Profinet là chuẩn truyền thông Ethernet công nghiệp của Siemens, kế thừa Profibus. Real-time, deterministic, và tích hợp sâu với TIA Portal.</p><h3>Device Classes</h3><p>IO-Controller (PLC), IO-Device (I/O modules, drives), IO-Supervisor (HMI, SCADA). Controller quản lý và trao đổi dữ liệu với devices.</p><h3>Topology và Cabling</h3><p>Star, line, hoặc ring topology. Sử dụng Industrial Ethernet cables và switches. Ring topology cho redundancy.</p><h3>Cấu hình trong TIA Portal</h3><p>Add devices vào network view, assign IP addresses, configure I/O addresses. TIA Portal tự động generate communication code.</p>",
+    "thumbnailUrl": "/images/posts/profinet.jpg",
+    "categoryId": "cat-7",
+    "authorId": "author-1",
+    "tagIds": ["tag-5", "tag-7"],
+    "publishedAt": "2024-03-01T10:00:00Z",
+    "updatedAt": "2024-03-01T10:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Profinet - Mạng công nghiệp Ethernet của Siemens",
+      "description": "Tìm hiểu về Profinet, chuẩn truyền thông Ethernet công nghiệp",
+      "keywords": ["Profinet", "Siemens", "Ethernet", "industrial network"]
+    }
+  },
+  {
+    "id": "post-11",
+    "slug": "analog-signal-processing",
+    "title": "Xử lý tín hiệu Analog trong PLC",
+    "excerpt": "Hướng dẫn đọc và xử lý tín hiệu analog (4-20mA, 0-10V). Scaling, filtering, và ứng dụng trong đo lường nhiệt độ, áp suất, lưu lượng.",
+    "content": "<h2>Tín hiệu Analog</h2><p>Tín hiệu analog đại diện cho giá trị liên tục như nhiệt độ, áp suất, lưu lượng. Chuẩn công nghiệp: 4-20mA (current loop) và 0-10V (voltage).</p><h3>Đọc tín hiệu Analog</h3><p>PLC đọc giá trị digital (0-27648 cho 16-bit). Cần scaling để chuyển về đơn vị kỹ thuật. Ví dụ: 4mA = 0°C, 20mA = 100°C.</p><h3>Scaling Formula</h3><p>Output = ((Input - InputMin) / (InputMax - InputMin)) * (OutputMax - OutputMin) + OutputMin</p><h3>Filtering</h3><p>Sử dụng moving average hoặc low-pass filter để giảm nhiễu. Cân bằng giữa độ mượt và thời gian phản hồi.</p>",
+    "thumbnailUrl": "/images/posts/analog.jpg",
+    "categoryId": "cat-3",
+    "authorId": "author-1",
+    "tagIds": ["tag-4", "tag-2"],
+    "publishedAt": "2024-03-05T11:30:00Z",
+    "updatedAt": "2024-03-05T11:30:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Xử lý tín hiệu Analog trong PLC",
+      "description": "Hướng dẫn đọc và xử lý tín hiệu analog trong PLC",
+      "keywords": ["analog", "4-20mA", "scaling", "PLC"]
+    }
+  },
+  {
+    "id": "post-12",
+    "slug": "troubleshooting-plc",
+    "title": "Xử lý sự cố PLC - Phương pháp và công cụ",
+    "excerpt": "Kỹ thuật troubleshooting hệ thống PLC hiệu quả. Sử dụng diagnostic tools, đọc error codes, và phương pháp loại trừ từng bước.",
+    "content": "<h2>Phương pháp Troubleshooting</h2><p>Troubleshooting PLC yêu cầu tư duy logic và hiểu biết hệ thống. Bắt đầu từ triệu chứng, thu thập thông tin, phân tích và kiểm tra giả thuyết.</p><h3>Diagnostic Tools</h3><p>Online monitoring trong TIA Portal/RSLogix, force I/O để test, data logging để phát hiện pattern, và oscilloscope cho tín hiệu analog.</p><h3>Common Issues</h3><p>I/O không hoạt động: kiểm tra wiring, power supply, và configuration. Communication errors: kiểm tra cables, IP addresses, và network settings.</p><h3>Best Practices</h3><p>Document mọi thay đổi, backup program trước khi sửa, và test kỹ trước khi đưa vào vận hành.</p>",
+    "thumbnailUrl": "/images/posts/troubleshooting.jpg",
+    "categoryId": "cat-1",
+    "authorId": "author-1",
+    "tagIds": ["tag-12", "tag-2"],
+    "publishedAt": "2024-03-10T13:00:00Z",
+    "updatedAt": "2024-03-10T13:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Xử lý sự cố PLC - Phương pháp và công cụ",
+      "description": "Kỹ thuật troubleshooting hệ thống PLC hiệu quả",
+      "keywords": ["troubleshooting", "PLC", "diagnostic", "sự cố"]
+    }
+  }
+]

@@ -1,0 +1,61 @@
+[
+  {
+    "id": "book-1",
+    "slug": "plc-programming-handbook",
+    "title": "Cẩm nang Lập trình PLC Toàn tập",
+    "description": "Hướng dẫn toàn diện về lập trình PLC từ cơ bản đến nâng cao. Bao gồm Ladder Logic, Structured Text, Function Blocks và các ứng dụng thực tế trong công nghiệp.",
+    "coverImageUrl": "/images/books/plc-handbook.jpg",
+    "authorName": "Nguyễn Văn Tự Động",
+    "series": "Industrial Automation Series",
+    "downloadUrl": "/downloads/plc-handbook.pdf",
+    "publishedYear": 2023,
+    "createdAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "book-2",
+    "slug": "scada-systems-guide",
+    "title": "Hệ thống SCADA - Thiết kế và Triển khai",
+    "description": "Kiến thức chuyên sâu về thiết kế, cấu hình và vận hành hệ thống SCADA. Bao gồm HMI design, data logging, alarm management và network architecture.",
+    "coverImageUrl": "/images/books/scada-guide.jpg",
+    "authorName": "Nguyễn Văn Tự Động",
+    "series": "Industrial Automation Series",
+    "downloadUrl": "/downloads/scada-guide.pdf",
+    "publishedYear": 2023,
+    "createdAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "book-3",
+    "slug": "tia-portal-mastery",
+    "title": "TIA Portal - Từ Cơ bản đến Chuyên nghiệp",
+    "description": "Làm chủ TIA Portal với hướng dẫn chi tiết về lập trình S7-1200/1500, cấu hình Profinet, WinCC HMI và Safety Integrated. Kèm theo 50+ ví dụ thực tế.",
+    "coverImageUrl": "/images/books/tia-portal.jpg",
+    "authorName": "Nguyễn Văn Tự Động",
+    "series": "Siemens Automation Series",
+    "downloadUrl": "/downloads/tia-portal-mastery.pdf",
+    "publishedYear": 2024,
+    "createdAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "book-4",
+    "slug": "industrial-networks",
+    "title": "Mạng Truyền thông Công nghiệp",
+    "description": "Tổng quan về các giao thức truyền thông công nghiệp: Modbus, Profinet, EtherNet/IP, OPC UA. Hướng dẫn cấu hình, troubleshooting và best practices.",
+    "coverImageUrl": "/images/books/industrial-networks.jpg",
+    "authorName": "Nguyễn Văn Tự Động",
+    "series": "Industrial Automation Series",
+    "externalUrl": "https://example.com/industrial-networks",
+    "publishedYear": 2023,
+    "createdAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "book-5",
+    "slug": "automation-projects",
+    "title": "50 Dự án Tự động hóa Thực tế",
+    "description": "Tuyển tập 50 dự án tự động hóa từ đơn giản đến phức tạp. Mỗi dự án bao gồm yêu cầu, thiết kế, code mẫu và hướng dẫn triển khai chi tiết.",
+    "coverImageUrl": "/images/books/automation-projects.jpg",
+    "authorName": "Nguyễn Văn Tự Động",
+    "downloadUrl": "/downloads/automation-projects.pdf",
+    "publishedYear": 2024,
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
+]

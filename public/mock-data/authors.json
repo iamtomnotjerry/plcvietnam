@@ -1,0 +1,26 @@
+{
+  "id": "author-1",
+  "name": "Nguyễn Văn Tự Động",
+  "email": "contact@automation-blog.com",
+  "bio": "Chuyên gia tự động hóa công nghiệp với hơn 15 năm kinh nghiệm trong lĩnh vực lập trình PLC, SCADA và các hệ thống điều khiển công nghiệp. Đã triển khai thành công hơn 100 dự án tự động hóa cho các nhà máy sản xuất tại Việt Nam và khu vực Đông Nam Á.",
+  "avatarUrl": "/images/author-avatar.jpg",
+  "expertise": [
+    "Lập trình PLC (Siemens, Allen-Bradley, Mitsubishi)",
+    "Hệ thống SCADA (WinCC, Ignition, Wonderware)",
+    "Siemens TIA Portal & Step 7",
+    "Truyền thông công nghiệp (Profinet, Modbus, OPC UA)",
+    "Thiết kế HMI và giám sát",
+    "Tối ưu hóa quy trình sản xuất"
+  ],
+  "certifications": [
+    "Siemens Certified Programmer - TIA Portal",
+    "Rockwell Automation Certified Professional",
+    "Certified Automation Professional (CAP)",
+    "Industrial Network Security Specialist"
+  ],
+  "socialLinks": {
+    "email": "contact@automation-blog.com",
+    "linkedin": "https://linkedin.com/in/automation-expert",
+    "github": "https://github.com/automation-blog"
+  }
+}

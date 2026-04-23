@@ -1,0 +1,79 @@
+[
+  {
+    "id": "cat-1",
+    "slug": "ladder-logic",
+    "name": "Ladder Logic",
+    "description": "Lập trình thang - Ngôn ngữ lập trình PLC cơ bản",
+    "fieldId": "field-1",
+    "postCount": 15,
+    "order": 1,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-2",
+    "slug": "structured-text",
+    "name": "Structured Text",
+    "description": "Ngôn ngữ lập trình văn bản có cấu trúc cho PLC",
+    "fieldId": "field-1",
+    "postCount": 12,
+    "order": 2,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-3",
+    "slug": "function-blocks",
+    "name": "Function Blocks",
+    "description": "Lập trình khối chức năng - FBD",
+    "fieldId": "field-1",
+    "postCount": 10,
+    "order": 3,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-4",
+    "slug": "hmi-design",
+    "name": "Thiết kế HMI",
+    "description": "Giao diện người máy cho hệ thống SCADA",
+    "fieldId": "field-2",
+    "postCount": 18,
+    "order": 1,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-5",
+    "slug": "data-logging",
+    "name": "Ghi nhận dữ liệu",
+    "description": "Thu thập và lưu trữ dữ liệu công nghiệp",
+    "fieldId": "field-2",
+    "postCount": 14,
+    "order": 2,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-6",
+    "slug": "tia-portal",
+    "name": "TIA Portal",
+    "description": "Totally Integrated Automation Portal - Môi trường lập trình Siemens",
+    "fieldId": "field-3",
+    "postCount": 20,
+    "order": 1,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-7",
+    "slug": "s7-1200-1500",
+    "name": "S7-1200/1500",
+    "description": "Bộ điều khiển PLC Siemens S7-1200 và S7-1500",
+    "fieldId": "field-3",
+    "postCount": 18,
+    "order": 2,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  }
+]

@@ -1,0 +1,2 @@
+# Feature modules will be organized here
+# Each feature contains: components/, hooks/, types.ts, and optionally utils/

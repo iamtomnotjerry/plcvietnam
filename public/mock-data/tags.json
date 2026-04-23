@@ -1,0 +1,74 @@
+[
+  {
+    "id": "tag-1",
+    "slug": "co-ban",
+    "name": "Cơ bản",
+    "postCount": 25
+  },
+  {
+    "id": "tag-2",
+    "slug": "nang-cao",
+    "name": "Nâng cao",
+    "postCount": 18
+  },
+  {
+    "id": "tag-3",
+    "slug": "timer-counter",
+    "name": "Timer & Counter",
+    "postCount": 12
+  },
+  {
+    "id": "tag-4",
+    "slug": "analog",
+    "name": "Analog I/O",
+    "postCount": 10
+  },
+  {
+    "id": "tag-5",
+    "slug": "communication",
+    "name": "Truyền thông",
+    "postCount": 15
+  },
+  {
+    "id": "tag-6",
+    "slug": "modbus",
+    "name": "Modbus",
+    "postCount": 8
+  },
+  {
+    "id": "tag-7",
+    "slug": "profinet",
+    "name": "Profinet",
+    "postCount": 9
+  },
+  {
+    "id": "tag-8",
+    "slug": "visualization",
+    "name": "Trực quan hóa",
+    "postCount": 14
+  },
+  {
+    "id": "tag-9",
+    "slug": "alarm",
+    "name": "Báo động",
+    "postCount": 11
+  },
+  {
+    "id": "tag-10",
+    "slug": "database",
+    "name": "Cơ sở dữ liệu",
+    "postCount": 7
+  },
+  {
+    "id": "tag-11",
+    "slug": "optimization",
+    "name": "Tối ưu hóa",
+    "postCount": 6
+  },
+  {
+    "id": "tag-12",
+    "slug": "troubleshooting",
+    "name": "Xử lý sự cố",
+    "postCount": 13
+  }
+]
