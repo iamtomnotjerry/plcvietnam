@@ -121,13 +121,11 @@ describe('createContentRepository Factory', () => {
     }
   });
 
-  it('should throw error when SupabaseProvider is not yet implemented', () => {
+  it('should return SupabaseProvider when DATA_PROVIDER is supabase', () => {
     const originalEnv = process.env.DATA_PROVIDER;
     process.env.DATA_PROVIDER = 'supabase';
 
-    expect(() => createContentRepository()).toThrow(
-      'SupabaseProvider not yet implemented'
-    );
+    expect(() => createContentRepository()).not.toThrow();
 
     // Restore environment
     if (originalEnv) {
