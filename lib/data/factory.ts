@@ -6,19 +6,13 @@
 
 import type { ContentRepository } from './repository';
 import { MockProvider } from './providers/mock';
+import { SupabaseProvider } from './providers/supabase';
 
 /**
  * Creates a ContentRepository instance based on DATA_PROVIDER environment variable
- * 
- * @returns ContentRepository implementation (MockProvider or SupabaseProvider)
- * 
+ *
  * Environment Variables:
  * - DATA_PROVIDER: 'mock' | 'supabase' (defaults to 'mock')
- * 
- * Examples:
- * - DATA_PROVIDER=mock -> MockProvider
- * - DATA_PROVIDER=supabase -> SupabaseProvider
- * - (not set) -> MockProvider (default)
  */
 export function createContentRepository(): ContentRepository {
   const provider = process.env.DATA_PROVIDER || 'mock';
@@ -27,8 +21,7 @@ export function createContentRepository(): ContentRepository {
     case 'mock':
       return new MockProvider();
     case 'supabase':
-      // Will be implemented in future tasks
-      throw new Error('SupabaseProvider not yet implemented. Will be available in future tasks.');
+      return new SupabaseProvider();
     default:
       throw new Error(`Unknown data provider: ${provider}. Valid options: 'mock', 'supabase'`);
   }
@@ -37,11 +30,11 @@ export function createContentRepository(): ContentRepository {
 /**
  * Lazy-initialized singleton instance of ContentRepository
  * Use this exported instance throughout the application for data access
- * 
+ *
  * Example usage:
  * ```typescript
  * import { contentRepository } from '@/lib/data/factory';
- * 
+ *
  * const posts = await contentRepository.getPosts({ page: 1, limit: 20 });
  * const author = await contentRepository.getAuthor();
  * ```
@@ -60,7 +53,7 @@ export const contentRepository = new Proxy({} as ContentRepository, {
 /**
  * Get the singleton ContentRepository instance
  * Alternative to using the contentRepository proxy
- * 
+ *
  * @returns ContentRepository instance
  */
 export function getRepository(): ContentRepository {

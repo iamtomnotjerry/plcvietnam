@@ -1,5 +1,9 @@
--- Enable UUID extension
+﻿-- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Enable gen_random_uuid function (built-in in Postgres 13+)
+-- gen_random_uuid() is from uuid-ossp extension
+-- gen_random_uuid() is built-in and preferred
 
 -- Create custom types
 CREATE TYPE post_status AS ENUM ('draft', 'published', 'archived');
@@ -34,11 +38,11 @@ CREATE POLICY "Users can update own profile"
   USING (auth.uid() = id);
 
 -- ============================================
--- FIELDS (Lĩnh vực)
+-- FIELDS (LÄ©nh vá»±c)
 -- ============================================
 
 CREATE TABLE public.fields (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
@@ -64,11 +68,11 @@ CREATE POLICY "Only admins can modify fields"
   );
 
 -- ============================================
--- CATEGORIES (Danh mục)
+-- CATEGORIES (Danh má»¥c)
 -- ============================================
 
 CREATE TABLE public.categories (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
@@ -98,7 +102,7 @@ CREATE POLICY "Only admins can modify categories"
 -- ============================================
 
 CREATE TABLE public.tags (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   post_count INTEGER DEFAULT 0,
@@ -126,7 +130,7 @@ CREATE POLICY "Only admins can modify tags"
 -- ============================================
 
 CREATE TABLE public.posts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   title TEXT NOT NULL,
   excerpt TEXT,
@@ -222,7 +226,7 @@ CREATE POLICY "Post tags are viewable by everyone"
 -- ============================================
 
 CREATE TABLE public.comments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE,
   parent_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
   
@@ -272,11 +276,11 @@ CREATE POLICY "Only admins can delete comments"
   );
 
 -- ============================================
--- BOOKS (Sách tham khảo)
+-- BOOKS (SÃ¡ch tham kháº£o)
 -- ============================================
 
 CREATE TABLE public.books (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
@@ -318,11 +322,11 @@ CREATE POLICY "Only admins can modify books"
   );
 
 -- ============================================
--- AUTHOR INFO (Thông tin tác giả)
+-- AUTHOR INFO (ThÃ´ng tin tÃ¡c giáº£)
 -- ============================================
 
 CREATE TABLE public.author_info (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   bio TEXT,
   avatar_url TEXT,
