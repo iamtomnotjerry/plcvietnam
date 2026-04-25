@@ -6,6 +6,7 @@ import { NavigationProgress } from '@/components/ui/NavigationProgress';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AuthSessionProvider } from '@/components/auth/AuthSessionProvider';
 import { WebVitals } from './web-vitals';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const sans = Plus_Jakarta_Sans({
   subsets: ['latin', 'vietnamese'],
@@ -37,13 +38,15 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
       <body className={`${sans.className} antialiased`}>
-        <ThemeProvider>
-          <AuthSessionProvider>
-            <NavigationProgress />
-            <AppLayout>{children}</AppLayout>
-            <WebVitals />
-          </AuthSessionProvider>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <AuthSessionProvider>
+              <NavigationProgress />
+              <AppLayout>{children}</AppLayout>
+              <WebVitals />
+            </AuthSessionProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

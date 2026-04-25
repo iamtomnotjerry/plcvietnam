@@ -10,6 +10,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Post } from '@/lib/types/domain';
 import { postHref } from '@/lib/utils/routes';
+import { formatDate } from '@/lib/utils/date';
+import { truncate } from '@/lib/utils/text';
+import { Badge } from '@/components/ui/Badge';
+import { VALIDATION } from '@/lib/constants';
 
 export interface PostCardProps {
   post: Post;
@@ -18,9 +22,30 @@ export interface PostCardProps {
   showThumbnail?: boolean;
 }
 
+const VARIANT_CONFIG = {
+  featured: {
+    imageHeight: 'h-[300px]',
+    padding: 'p-6',
+    titleSize: 'text-2xl',
+    excerptLines: 'line-clamp-3',
+  },
+  compact: {
+    imageHeight: 'h-[160px]',
+    padding: 'p-4',
+    titleSize: 'text-base',
+    excerptLines: 'line-clamp-2',
+  },
+  default: {
+    imageHeight: 'h-[200px]',
+    padding: 'p-5',
+    titleSize: 'text-lg',
+    excerptLines: 'line-clamp-3',
+  },
+} as const;
+
 /**
  * PostCard Component
- * 
+ *
  * Displays post summary with:
  * - Title (truncated to 2 lines)
  * - Excerpt (max 200 chars)
@@ -28,7 +53,7 @@ export interface PostCardProps {
  * - Reading time
  * - Category name (optional)
  * - Thumbnail image (optional)
- * 
+ *
  * Variants:
  * - default: Full card with all metadata
  * - compact: Smaller card for grids
@@ -40,129 +65,63 @@ export function PostCard({
   showCategory = true,
   showThumbnail = true,
 }: PostCardProps) {
-  const fieldSlug = post.category?.field?.slug ?? '';
-  const categorySlug = post.category?.slug ?? '';
+  // Validate post has required data
+  if (!post.category) {
+    console.error('PostCard: post missing category', post.id);
+    return null;
+  }
+
+  const fieldSlug = post.category.field?.slug;
+  const categorySlug = post.category.slug;
+
+  // Validate category structure
+  if (!fieldSlug || !categorySlug) {
+    console.error('PostCard: invalid category structure', post.id, post.category);
+    return null;
+  }
+
   const postUrl = postHref(fieldSlug, categorySlug, post.slug);
-  
-  /**
-   * Format date to Vietnamese locale
-   */
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(new Date(date));
-  };
-  
-  /**
-   * Truncate excerpt to max 200 characters
-   */
-  const truncateExcerpt = (text: string, maxLength: number = 200) => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength).trim() + '...';
-  };
-  
-  /**
-   * Render thumbnail image if available and enabled
-   */
-  const renderThumbnail = () => {
-    if (!showThumbnail || !post.thumbnailUrl) return null;
-    
-    const imageHeight = variant === 'featured' ? 300 : variant === 'compact' ? 160 : 200;
-    
-    return (
-      <div className={`relative w-full overflow-hidden rounded-t-lg ${
-        variant === 'featured' ? 'h-[300px]' : variant === 'compact' ? 'h-[160px]' : 'h-[200px]'
-      }`}>
-        <Image
-          src={post.thumbnailUrl}
-          alt={post.title}
-          fill
-          className="object-cover transition-transform duration-300 hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
-      </div>
-    );
-  };
-  
-  /**
-   * Render category badge
-   */
-  const renderCategory = () => {
-    if (!showCategory || !post.category) return null;
-    
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-        {post.category.name}
-      </span>
-    );
-  };
-  
-  /**
-   * Get card padding based on variant
-   */
-  const getCardPadding = () => {
-    if (variant === 'featured') return 'p-6';
-    if (variant === 'compact') return 'p-4';
-    return 'p-5';
-  };
-  
-  /**
-   * Get title size based on variant
-   */
-  const getTitleSize = () => {
-    if (variant === 'featured') return 'text-2xl';
-    if (variant === 'compact') return 'text-base';
-    return 'text-lg';
-  };
-  
+  const config = VARIANT_CONFIG[variant];
+
   return (
     <Link
       href={postUrl}
-      className={`
-        group block h-full
-        bg-card border border-border rounded-lg
-        overflow-hidden
-        transition-all duration-200
-        hover:shadow-lg hover:border-primary/50
-        cursor-pointer
-      `}
+      className="group block h-full bg-card border border-border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary/50 cursor-pointer"
     >
       {/* Thumbnail */}
-      {renderThumbnail()}
-      
+      {showThumbnail && post.thumbnailUrl && (
+        <div className={`relative w-full overflow-hidden rounded-t-lg ${config.imageHeight}`}>
+          <Image
+            src={post.thumbnailUrl}
+            alt={post.title}
+            fill
+            className="object-cover transition-transform duration-300 hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </div>
+      )}
+
       {/* Content */}
-      <div className={getCardPadding()}>
+      <div className={config.padding}>
         {/* Category badge */}
         {showCategory && post.category && (
           <div className="mb-3">
-            {renderCategory()}
+            <Badge>{post.category.name}</Badge>
           </div>
         )}
-        
+
         {/* Title - truncated to 2 lines */}
-        <h3 className={`
-          ${getTitleSize()} font-semibold
-          text-card-foreground
-          line-clamp-2
-          mb-2
-          group-hover:text-primary
-          transition-colors duration-200
-        `}>
+        <h3
+          className={`${config.titleSize} font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200`}
+        >
           {post.title}
         </h3>
-        
+
         {/* Excerpt - max 200 chars */}
-        <p className={`
-          text-sm text-muted-foreground
-          line-clamp-3
-          mb-4
-          ${variant === 'compact' ? 'line-clamp-2' : 'line-clamp-3'}
-        `}>
-          {truncateExcerpt(post.excerpt)}
+        <p className={`text-sm text-muted-foreground ${config.excerptLines} mb-4`}>
+          {truncate(post.excerpt, 200)}
         </p>
-        
+
         {/* Metadata */}
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           {/* Publication date */}
@@ -181,9 +140,9 @@ export function PostCard({
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <span>{formatDate(post.publishedAt)}</span>
+            <time dateTime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
           </div>
-          
+
           {/* Reading time */}
           <div className="flex items-center gap-1">
             <svg
