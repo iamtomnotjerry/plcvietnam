@@ -1,55 +1,52 @@
-import { describe, it, expect, afterEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST as forgotPost } from './route';
-import { POST as resetPost } from '../reset-password/route';
-import { updateMockUserPassword } from '@/lib/auth/mockUserStore';
 
-describe('forgot-password + reset-password (mock)', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-    try {
-      updateMockUserPassword('editor@demo.local', 'demo123');
-    } catch {
-      /* ignore */
-    }
-  });
+// Mock Supabase auth - forgot-password now delegates to Supabase
+vi.mock('@/lib/auth/supabase-auth', () => ({
+  requestPasswordReset: vi.fn().mockResolvedValue(undefined),
+}));
 
-  it('returns ok without leaking token for unknown user', async () => {
-    vi.stubEnv('NODE_ENV', 'production');
+describe('forgot-password', () => {
+  it('returns ok for any email (no account enumeration)', async () => {
     const res = await forgotPost(
       new NextRequest('http://localhost/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'nobody@example.com' }),
+        body: JSON.stringify({ email: 'anyone@example.com' }),
       })
     );
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.ok).toBe(true);
+    // No token leakage - Supabase sends email directly
     expect(json.devResetToken).toBeUndefined();
   });
 
-  it('in development returns devResetToken and reset-password works (editor seed)', async () => {
-    vi.stubEnv('NODE_ENV', 'development');
+  it('returns 400 for invalid email', async () => {
     const res = await forgotPost(
       new NextRequest('http://localhost/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'editor@demo.local' }),
+        body: JSON.stringify({ email: 'not-an-email' }),
+      })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('returns ok even when Supabase throws (no account enumeration)', async () => {
+    const { requestPasswordReset } = await import('@/lib/auth/supabase-auth');
+    vi.mocked(requestPasswordReset).mockRejectedValueOnce(new Error('User not found'));
+
+    const res = await forgotPost(
+      new NextRequest('http://localhost/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'unknown@example.com' }),
       })
     );
     expect(res.status).toBe(200);
     const json = await res.json();
-    expect(typeof json.devResetToken).toBe('string');
-    expect(json.devResetToken.length).toBeGreaterThan(10);
-
-    const reset = await resetPost(
-      new NextRequest('http://localhost/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: json.devResetToken, password: 'newpass123' }),
-      })
-    );
-    expect(reset.status).toBe(200);
+    expect(json.ok).toBe(true);
   });
 });

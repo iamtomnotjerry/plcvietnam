@@ -1,10 +1,35 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: '14.5';
+  };
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
   public: {
     Tables: {
@@ -292,6 +317,7 @@ export type Database = {
           id: string;
           published_at: string | null;
           reading_time: number | null;
+          search_vector: unknown;
           seo_description: string | null;
           seo_keywords: string[] | null;
           seo_title: string | null;
@@ -313,6 +339,7 @@ export type Database = {
           id?: string;
           published_at?: string | null;
           reading_time?: number | null;
+          search_vector?: unknown;
           seo_description?: string | null;
           seo_keywords?: string[] | null;
           seo_title?: string | null;
@@ -334,6 +361,7 @@ export type Database = {
           id?: string;
           published_at?: string | null;
           reading_time?: number | null;
+          search_vector?: unknown;
           seo_description?: string | null;
           seo_keywords?: string[] | null;
           seo_title?: string | null;
@@ -433,7 +461,42 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      approve_comment: { Args: { comment_id: string }; Returns: undefined };
+      get_user_role: { Args: { user_id: string }; Returns: string };
+      increment_post_view: { Args: { post_id: string }; Returns: undefined };
+      is_admin: { Args: never; Returns: boolean };
+      is_editor: { Args: never; Returns: boolean };
+      search_posts: {
+        Args: { query: string; result_limit?: number };
+        Returns: {
+          author_id: string | null;
+          category_id: string | null;
+          comment_count: number | null;
+          content: string;
+          created_at: string | null;
+          excerpt: string | null;
+          field_id: string | null;
+          id: string;
+          published_at: string | null;
+          reading_time: number | null;
+          search_vector: unknown;
+          seo_description: string | null;
+          seo_keywords: string[] | null;
+          seo_title: string | null;
+          slug: string;
+          status: Database['public']['Enums']['post_status'] | null;
+          thumbnail_url: string | null;
+          title: string;
+          updated_at: string | null;
+          view_count: number | null;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'posts';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
     };
     Enums: {
       post_status: 'draft' | 'published' | 'archived';
@@ -561,6 +624,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       post_status: ['draft', 'published', 'archived'],

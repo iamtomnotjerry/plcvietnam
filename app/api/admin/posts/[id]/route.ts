@@ -12,14 +12,11 @@ function unauthorized() {
 async function requireEditor() {
   const session = await getServerSession(authOptions);
   const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'editor')) return null;
+  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
   return session;
 }
 
-export async function GET(
-  _request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   if (!(await requireEditor())) return unauthorized();
   const { id } = await context.params;
   const post = await contentRepository.getPostById(id);
@@ -27,10 +24,7 @@ export async function GET(
   return NextResponse.json(post);
 }
 
-export async function PATCH(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   if (!(await requireEditor())) return unauthorized();
   const { id } = await context.params;
 
@@ -76,10 +70,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   if (!(await requireEditor())) return unauthorized();
   const { id } = await context.params;
   const ok = await contentRepository.deletePost(id);

@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 export function AdminHeaderLink() {
   const { data } = useSession();
   const role = data?.user?.role;
-  if (role !== 'admin' && role !== 'editor') return null;
+  if (role !== 'admin' && role !== 'author') return null;
   return (
     <Link
       href={'/admin/posts' as Route}

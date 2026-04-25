@@ -12,7 +12,7 @@ function unauthorized() {
 async function requireEditor() {
   const session = await getServerSession(authOptions);
   const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'editor')) return null;
+  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
   return session;
 }
 
@@ -47,9 +47,13 @@ export async function POST(request: NextRequest) {
   const excerpt = typeof body.excerpt === 'string' ? body.excerpt : '';
   const content = typeof body.content === 'string' ? body.content : '';
   const categoryId = typeof body.categoryId === 'string' ? body.categoryId : '';
-  const tagIds = Array.isArray(body.tagIds) ? body.tagIds.filter((id): id is string => typeof id === 'string') : [];
+  const tagIds = Array.isArray(body.tagIds)
+    ? body.tagIds.filter((id): id is string => typeof id === 'string')
+    : [];
   const thumbnailUrl =
-    typeof body.thumbnailUrl === 'string' && body.thumbnailUrl.trim() ? body.thumbnailUrl.trim() : undefined;
+    typeof body.thumbnailUrl === 'string' && body.thumbnailUrl.trim()
+      ? body.thumbnailUrl.trim()
+      : undefined;
   const status = body.status === 'draft' ? 'draft' : 'published';
   const seoRaw = body.seo;
   const seo: SEOMetadata =

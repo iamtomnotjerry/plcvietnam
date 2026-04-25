@@ -1,6 +1,9 @@
 /**
  * Supabase Data Provider
- * Implements ContentRepository using Supabase as the backend
+ * Implements ContentRepository using Supabase as the backend.
+ *
+ * Uses anon client for public reads (no auth needed).
+ * Uses service-role client for admin writes (bypasses RLS safely on server).
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -28,14 +31,24 @@ import type {
   NavigationNode,
 } from '@/lib/types/domain';
 
-function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// ── Clients ───────────────────────────────────────────────────────────────────
+
+function getAnonClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   if (!url || !key) throw new Error('Missing Supabase environment variables');
-  return createClient<Database>(url, key);
+  return createClient<Database>(url, key, { auth: { persistSession: false } });
 }
 
-// ── Mappers ──────────────────────────────────────────────────────────────────
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  // Service role key bypasses RLS - only use server-side
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  if (!url || !key) throw new Error('Missing Supabase environment variables');
+  return createClient<Database>(url, key, { auth: { persistSession: false } });
+}
+
+// ── Mappers ───────────────────────────────────────────────────────────────────
 
 function mapField(row: Database['public']['Tables']['fields']['Row']): Field {
   return {
@@ -138,26 +151,36 @@ function mapAuthor(row: Database['public']['Tables']['author_info']['Row']): Aut
   };
 }
 
+function mapBook(row: Database['public']['Tables']['books']['Row']): Book {
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    description: row.description ?? '',
+    coverImageUrl: row.cover_url ?? '',
+    authorName: row.author ?? '',
+    downloadUrl: row.download_url ?? undefined,
+    externalUrl: row.amazon_url ?? undefined,
+    publishedYear: row.published_year ?? undefined,
+    createdAt: new Date(row.created_at ?? Date.now()),
+  };
+}
+
 function estimateReadingTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
   return Math.max(1, Math.round(words / 200));
 }
 
-function paginate<T>(items: T[], page = 1, limit = 20): PaginatedResult<T> {
-  const total = items.length;
-  const totalPages = Math.ceil(total / limit);
-  const start = (page - 1) * limit;
-  return {
-    data: items.slice(start, start + limit),
-    pagination: { page, limit, total, totalPages },
-  };
-}
-
-// ── Provider ─────────────────────────────────────────────────────────────────
+// ── Provider ──────────────────────────────────────────────────────────────────
 
 export class SupabaseProvider implements ContentRepository {
+  // Public reads use anon client (respects RLS)
   private get db() {
-    return getSupabaseClient();
+    return getAnonClient();
+  }
+  // Admin writes use service client (bypasses RLS, server-side only)
+  private get admin() {
+    return getServiceClient();
   }
 
   // ── Fields ────────────────────────────────────────────────────────────────
@@ -169,8 +192,7 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getFieldBySlug(slug: string): Promise<Field | null> {
-    const { data, error } = await this.db.from('fields').select('*').eq('slug', slug).single();
-    if (error) return null;
+    const { data } = await this.db.from('fields').select('*').eq('slug', slug).single();
     return data ? mapField(data) : null;
   }
 
@@ -189,14 +211,12 @@ export class SupabaseProvider implements ContentRepository {
   async getCategoryBySlug(fieldSlug: string, categorySlug: string): Promise<Category | null> {
     const field = await this.getFieldBySlug(fieldSlug);
     if (!field) return null;
-
-    const { data, error } = await this.db
+    const { data } = await this.db
       .from('categories')
       .select('*')
       .eq('slug', categorySlug)
       .eq('field_id', field.id)
       .single();
-    if (error) return null;
     return data ? mapCategory(data, field) : null;
   }
 
@@ -204,7 +224,6 @@ export class SupabaseProvider implements ContentRepository {
 
   async getPosts(options: PostQueryOptions = {}): Promise<PaginatedResult<Post>> {
     const { page = 1, limit = 20, sortBy = 'publishedAt', sortOrder = 'desc' } = options;
-
     const colMap: Record<string, string> = {
       publishedAt: 'published_at',
       viewCount: 'view_count',
@@ -228,12 +247,7 @@ export class SupabaseProvider implements ContentRepository {
 
     return {
       data: posts,
-      pagination: {
-        page,
-        limit,
-        total: count ?? 0,
-        totalPages: Math.ceil((count ?? 0) / limit),
-      },
+      pagination: { page, limit, total: count ?? 0, totalPages: Math.ceil((count ?? 0) / limit) },
     };
   }
 
@@ -245,7 +259,7 @@ export class SupabaseProvider implements ContentRepository {
     const category = await this.getCategoryBySlug(fieldSlug, categorySlug);
     if (!category) return null;
 
-    const { data, error } = await this.db
+    const { data } = await this.db
       .from('posts')
       .select('*, post_tags(tag_id, tags(*))')
       .eq('slug', postSlug)
@@ -253,7 +267,7 @@ export class SupabaseProvider implements ContentRepository {
       .eq('status', 'published')
       .single();
 
-    if (error) return null;
+    if (!data) return null;
     const tags = (data.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
     return mapPost(data, tags, category);
   }
@@ -263,7 +277,6 @@ export class SupabaseProvider implements ContentRepository {
     options: PostQueryOptions = {}
   ): Promise<PaginatedResult<Post>> {
     const { page = 1, limit = 20 } = options;
-
     const { data, error, count } = await this.db
       .from('posts')
       .select('*, post_tags(tag_id, tags(*))', { count: 'exact' })
@@ -273,12 +286,10 @@ export class SupabaseProvider implements ContentRepository {
       .range((page - 1) * limit, page * limit - 1);
 
     if (error) throw error;
-
     const posts = (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
       return mapPost(row, tags);
     });
-
     return {
       data: posts,
       pagination: { page, limit, total: count ?? 0, totalPages: Math.ceil((count ?? 0) / limit) },
@@ -290,7 +301,6 @@ export class SupabaseProvider implements ContentRepository {
     options: PostQueryOptions = {}
   ): Promise<PaginatedResult<Post>> {
     const { page = 1, limit = 20 } = options;
-
     const tag = await this.getTagBySlug(tagSlug);
     if (!tag) return { data: [], pagination: { page, limit, total: 0, totalPages: 0 } };
 
@@ -301,13 +311,11 @@ export class SupabaseProvider implements ContentRepository {
       .range((page - 1) * limit, page * limit - 1);
 
     if (error) throw error;
-
     const posts = (data ?? []).map((row: any) => {
       const postRow = row.posts;
       const tags = (postRow.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
       return mapPost(postRow, tags);
     });
-
     return {
       data: posts,
       pagination: { page, limit, total: count ?? 0, totalPages: Math.ceil((count ?? 0) / limit) },
@@ -315,18 +323,14 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getRelatedPosts(postId: string, limit: number): Promise<Post[]> {
-    // Get the post's category and tags first
     const { data: postData } = await this.db
       .from('posts')
-      .select('category_id, post_tags(tag_id)')
+      .select('category_id')
       .eq('id', postId)
       .single();
-
     if (!postData) return [];
 
-    const tagIds = (postData.post_tags ?? []).map((pt: any) => pt.tag_id);
-
-    const { data, error } = await this.db
+    const { data } = await this.db
       .from('posts')
       .select('*, post_tags(tag_id, tags(*))')
       .eq('status', 'published')
@@ -335,8 +339,6 @@ export class SupabaseProvider implements ContentRepository {
       .order('published_at', { ascending: false })
       .limit(limit);
 
-    if (error) return [];
-
     return (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
       return mapPost(row, tags);
@@ -344,14 +346,12 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getRecentPosts(limit: number): Promise<Post[]> {
-    const { data, error } = await this.db
+    const { data } = await this.db
       .from('posts')
       .select('*, post_tags(tag_id, tags(*))')
       .eq('status', 'published')
       .order('published_at', { ascending: false })
       .limit(limit);
-
-    if (error) return [];
 
     return (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
@@ -360,14 +360,7 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async incrementViewCount(postId: string): Promise<void> {
-    // Increment view count directly via update
-    const { data } = await this.db.from('posts').select('view_count').eq('id', postId).single();
-    if (data) {
-      await this.db
-        .from('posts')
-        .update({ view_count: (data.view_count ?? 0) + 1 })
-        .eq('id', postId);
-    }
+    await this.db.rpc('increment_post_view' as any, { post_id: postId });
   }
 
   // ── Admin Posts ───────────────────────────────────────────────────────────
@@ -375,15 +368,13 @@ export class SupabaseProvider implements ContentRepository {
   async listPostsForAdmin(options: AdminPostListOptions = {}): Promise<PaginatedResult<Post>> {
     const { page = 1, limit = 20, status } = options;
 
-    let query = this.db
+    let query = this.admin
       .from('posts')
       .select('*, post_tags(tag_id, tags(*))', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1);
 
-    if (status && status !== 'all') {
-      query = query.eq('status', status);
-    }
+    if (status && status !== 'all') query = query.eq('status', status);
 
     const { data, error, count } = await query;
     if (error) throw error;
@@ -392,7 +383,6 @@ export class SupabaseProvider implements ContentRepository {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
       return mapPost(row, tags);
     });
-
     return {
       data: posts,
       pagination: { page, limit, total: count ?? 0, totalPages: Math.ceil((count ?? 0) / limit) },
@@ -400,19 +390,18 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getPostById(id: string): Promise<Post | null> {
-    const { data, error } = await this.db
+    const { data } = await this.admin
       .from('posts')
       .select('*, post_tags(tag_id, tags(*))')
       .eq('id', id)
       .single();
-
-    if (error) return null;
+    if (!data) return null;
     const tags = (data.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
     return mapPost(data, tags);
   }
 
   async createPost(input: CreatePostInput): Promise<Post> {
-    const { data, error } = await this.db
+    const { data, error } = await this.admin
       .from('posts')
       .insert({
         slug: input.slug,
@@ -425,6 +414,7 @@ export class SupabaseProvider implements ContentRepository {
         seo_title: input.seo.title,
         seo_description: input.seo.description,
         seo_keywords: input.seo.keywords,
+        reading_time: estimateReadingTime(input.content),
         published_at: input.status === 'published' ? new Date().toISOString() : null,
       })
       .select()
@@ -432,9 +422,8 @@ export class SupabaseProvider implements ContentRepository {
 
     if (error) throw error;
 
-    // Insert tags
     if (input.tagIds.length > 0) {
-      await this.db
+      await this.admin
         .from('post_tags')
         .insert(input.tagIds.map((tag_id) => ({ post_id: data.id, tag_id })));
     }
@@ -448,7 +437,10 @@ export class SupabaseProvider implements ContentRepository {
     if (input.slug !== undefined) updateData.slug = input.slug;
     if (input.title !== undefined) updateData.title = input.title;
     if (input.excerpt !== undefined) updateData.excerpt = input.excerpt;
-    if (input.content !== undefined) updateData.content = input.content;
+    if (input.content !== undefined) {
+      updateData.content = input.content;
+      updateData.reading_time = estimateReadingTime(input.content);
+    }
     if (input.categoryId !== undefined) updateData.category_id = input.categoryId;
     if (input.thumbnailUrl !== undefined) updateData.thumbnail_url = input.thumbnailUrl;
     if (input.status !== undefined) {
@@ -461,20 +453,18 @@ export class SupabaseProvider implements ContentRepository {
       if (input.seo.keywords) updateData.seo_keywords = input.seo.keywords;
     }
 
-    const { data, error } = await this.db
+    const { data, error } = await this.admin
       .from('posts')
       .update(updateData)
       .eq('id', id)
       .select()
       .single();
-
     if (error) return null;
 
-    // Update tags if provided
     if (input.tagIds !== undefined) {
-      await this.db.from('post_tags').delete().eq('post_id', id);
+      await this.admin.from('post_tags').delete().eq('post_id', id);
       if (input.tagIds.length > 0) {
-        await this.db
+        await this.admin
           .from('post_tags')
           .insert(input.tagIds.map((tag_id) => ({ post_id: id, tag_id })));
       }
@@ -484,7 +474,7 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async deletePost(id: string): Promise<boolean> {
-    const { error } = await this.db.from('posts').delete().eq('id', id);
+    const { error } = await this.admin.from('posts').delete().eq('id', id);
     return !error;
   }
 
@@ -497,8 +487,7 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getTagBySlug(slug: string): Promise<Tag | null> {
-    const { data, error } = await this.db.from('tags').select('*').eq('slug', slug).single();
-    if (error) return null;
+    const { data } = await this.db.from('tags').select('*').eq('slug', slug).single();
     return data ? mapTag(data) : null;
   }
 
@@ -506,7 +495,6 @@ export class SupabaseProvider implements ContentRepository {
 
   async getBooks(options: BookQueryOptions = {}): Promise<PaginatedResult<Book>> {
     const { page = 1, limit = 20 } = options;
-
     const { data, error, count } = await this.db
       .from('books')
       .select('*', { count: 'exact' })
@@ -514,57 +502,35 @@ export class SupabaseProvider implements ContentRepository {
       .range((page - 1) * limit, page * limit - 1);
 
     if (error) throw error;
-
-    const books = (data ?? []).map((row) => this.mapBook(row));
     return {
-      data: books,
+      data: (data ?? []).map(mapBook),
       pagination: { page, limit, total: count ?? 0, totalPages: Math.ceil((count ?? 0) / limit) },
     };
   }
 
   async getFeaturedBooks(limit: number): Promise<Book[]> {
-    const { data, error } = await this.db
+    const { data } = await this.db
       .from('books')
       .select('*')
       .order('download_count', { ascending: false })
       .limit(limit);
-
-    if (error) return [];
-    return (data ?? []).map((row) => this.mapBook(row));
+    return (data ?? []).map(mapBook);
   }
 
   async getBookBySlug(slug: string): Promise<Book | null> {
-    const { data, error } = await this.db.from('books').select('*').eq('slug', slug).single();
-    if (error) return null;
-    return data ? this.mapBook(data) : null;
-  }
-
-  private mapBook(row: Database['public']['Tables']['books']['Row']): Book {
-    return {
-      id: row.id,
-      slug: row.slug,
-      title: row.title,
-      description: row.description ?? '',
-      coverImageUrl: row.cover_url ?? '',
-      authorName: row.author ?? '',
-      downloadUrl: row.download_url ?? undefined,
-      externalUrl: row.amazon_url ?? undefined,
-      publishedYear: row.published_year ?? undefined,
-      createdAt: new Date(row.created_at ?? Date.now()),
-    };
+    const { data } = await this.db.from('books').select('*').eq('slug', slug).single();
+    return data ? mapBook(data) : null;
   }
 
   // ── Comments ──────────────────────────────────────────────────────────────
 
   async getCommentsByPostId(postId: string): Promise<Comment[]> {
-    const { data, error } = await this.db
+    const { data } = await this.db
       .from('comments')
       .select('*')
       .eq('post_id', postId)
       .eq('is_approved', true)
       .order('created_at', { ascending: true });
-
-    if (error) return [];
     return (data ?? []).map(mapComment);
   }
 
@@ -593,21 +559,12 @@ export class SupabaseProvider implements ContentRepository {
     const q = `%${query}%`;
 
     const [postsResult, booksResult] = await Promise.all([
-      this.db
-        .from('posts')
-        .select('*, post_tags(tag_id, tags(*))')
-        .eq('status', 'published')
-        .or(`title.ilike.${q},excerpt.ilike.${q}`)
-        .limit(10),
+      this.db.rpc('search_posts' as any, { query, result_limit: 10 }),
       this.db.from('books').select('*').or(`title.ilike.${q},description.ilike.${q}`).limit(5),
     ]);
 
-    const posts = (postsResult.data ?? []).map((row) => {
-      const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      return mapPost(row, tags);
-    });
-
-    const books = (booksResult.data ?? []).map((row) => this.mapBook(row));
+    const posts = (postsResult.data ?? []).map((row: any) => mapPost(row, []));
+    const books = (booksResult.data ?? []).map(mapBook);
 
     return { posts, books, totalResults: posts.length + books.length };
   }
@@ -615,9 +572,8 @@ export class SupabaseProvider implements ContentRepository {
   // ── Author ────────────────────────────────────────────────────────────────
 
   async getAuthor(): Promise<Author> {
-    const { data, error } = await this.db.from('author_info').select('*').limit(1).single();
-
-    if (error || !data) {
+    const { data } = await this.db.from('author_info').select('*').limit(1).single();
+    if (!data) {
       return {
         id: '',
         name: 'PLC Vietnam',
@@ -629,13 +585,11 @@ export class SupabaseProvider implements ContentRepository {
         socialLinks: {},
       };
     }
-
     return mapAuthor(data);
   }
 
   async updateAuthor(input: UpdateAuthorInput): Promise<Author> {
-    const { data: existing } = await this.db.from('author_info').select('id').limit(1).single();
-
+    const { data: existing } = await this.admin.from('author_info').select('id').limit(1).single();
     const payload = {
       name: input.name,
       email: input.email,
@@ -645,7 +599,7 @@ export class SupabaseProvider implements ContentRepository {
     };
 
     if (existing) {
-      const { data, error } = await this.db
+      const { data, error } = await this.admin
         .from('author_info')
         .update(payload)
         .eq('id', existing.id)
@@ -654,7 +608,11 @@ export class SupabaseProvider implements ContentRepository {
       if (error) throw error;
       return mapAuthor(data);
     } else {
-      const { data, error } = await this.db.from('author_info').insert(payload).select().single();
+      const { data, error } = await this.admin
+        .from('author_info')
+        .insert(payload)
+        .select()
+        .single();
       if (error) throw error;
       return mapAuthor(data);
     }
@@ -663,31 +621,29 @@ export class SupabaseProvider implements ContentRepository {
   // ── Navigation ────────────────────────────────────────────────────────────
 
   async getNavigationTree(): Promise<NavigationNode[]> {
-    const fields = await this.getFields();
+    // Single query: fields with their categories
+    const { data: fields, error } = await this.db
+      .from('fields')
+      .select('*, categories(*)')
+      .order('name');
 
-    const tree = await Promise.all(
-      fields.map(async (field) => {
-        const categories = await this.getCategoriesByFieldId(field.id);
+    if (error) throw error;
 
-        return {
-          id: field.id,
-          type: 'field' as const,
-          label: field.name,
-          slug: field.slug,
-          url: `/${field.slug}`,
-          postCount: field.postCount,
-          children: categories.map((cat) => ({
-            id: cat.id,
-            type: 'category' as const,
-            label: cat.name,
-            slug: cat.slug,
-            url: `/${field.slug}/${cat.slug}`,
-            postCount: cat.postCount,
-          })),
-        };
-      })
-    );
-
-    return tree;
+    return (fields ?? []).map((field) => ({
+      id: field.id,
+      type: 'field' as const,
+      label: field.name,
+      slug: field.slug,
+      url: `/${field.slug}`,
+      postCount: field.post_count ?? 0,
+      children: ((field as any).categories ?? []).map((cat: any) => ({
+        id: cat.id,
+        type: 'category' as const,
+        label: cat.name,
+        slug: cat.slug,
+        url: `/${field.slug}/${cat.slug}`,
+        postCount: cat.post_count ?? 0,
+      })),
+    }));
   }
 }

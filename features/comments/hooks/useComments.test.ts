@@ -7,6 +7,11 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { useComments } from './useComments';
 import type { Comment } from '@/lib/types/domain';
 
+// Mock Supabase realtime - not needed in unit tests
+vi.mock('@/lib/supabase/realtime', () => ({
+  subscribeToComments: vi.fn(() => () => {}),
+}));
+
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
@@ -102,7 +107,7 @@ describe('useComments', () => {
   describe('submitComment', () => {
     it('optimistically adds comment before API response', async () => {
       let resolveSubmit!: (value: Response) => void;
-      const pendingPost = new Promise<Response>(res => {
+      const pendingPost = new Promise<Response>((res) => {
         resolveSubmit = res;
       });
 
@@ -153,14 +158,12 @@ describe('useComments', () => {
     });
 
     it('rolls back optimistic comment on API error', async () => {
-      mockFetch
-        .mockResolvedValueOnce(jsonResponse([]))
-        .mockResolvedValueOnce(
-          new Response(JSON.stringify({ error: 'Unauthorized' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
+      mockFetch.mockResolvedValueOnce(jsonResponse([])).mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
 
       const { result } = renderHook(() => useComments('post-1'));
       await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -174,7 +177,9 @@ describe('useComments', () => {
     });
 
     it('rolls back optimistic comment on network error', async () => {
-      mockFetch.mockResolvedValueOnce(jsonResponse([])).mockRejectedValueOnce(new Error('Network failure'));
+      mockFetch
+        .mockResolvedValueOnce(jsonResponse([]))
+        .mockRejectedValueOnce(new Error('Network failure'));
 
       const { result } = renderHook(() => useComments('post-1'));
       await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -227,7 +232,9 @@ describe('useComments', () => {
       const existing = makeComment({ id: 'existing-1', content: 'Existing' });
       mockFetch
         .mockResolvedValueOnce(jsonResponse([existing]))
-        .mockResolvedValueOnce(jsonResponse(makeComment({ id: 'real-2', content: 'New comment' }), 201));
+        .mockResolvedValueOnce(
+          jsonResponse(makeComment({ id: 'real-2', content: 'New comment' }), 201)
+        );
 
       const { result } = renderHook(() => useComments('post-1'));
       await waitFor(() => expect(result.current.isLoading).toBe(false));

@@ -1,26 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { registerMockUser } from '@/lib/auth/mockUserStore';
+import { registerUser } from '@/lib/auth/supabase-auth';
 import { checkRateLimit, getClientIdentifier, rateLimiters } from '@/lib/rate-limit';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Rate limiting
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, rateLimiters.auth);
 
   if (!rateLimit.success) {
     return NextResponse.json(
-      {
-        error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
-        retryAfter: rateLimit.reset,
-      },
+      { error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.', retryAfter: rateLimit.reset },
       {
         status: 429,
         headers: {
-          'X-RateLimit-Limit': rateLimit.limit?.toString() || '',
-          'X-RateLimit-Remaining': rateLimit.remaining?.toString() || '',
-          'X-RateLimit-Reset': rateLimit.reset?.toString() || '',
+          'X-RateLimit-Limit': rateLimit.limit?.toString() ?? '',
+          'X-RateLimit-Remaining': rateLimit.remaining?.toString() ?? '',
+          'X-RateLimit-Reset': rateLimit.reset?.toString() ?? '',
         },
       }
     );
@@ -45,7 +41,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const user = registerMockUser({ email, password, name: name || email.split('@')[0] });
+    const user = await registerUser({ email, password, name: name || email.split('@')[0] });
     return NextResponse.json(
       { id: user.id, email: user.email, name: user.name, role: user.role },
       { status: 201 }
@@ -54,7 +50,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (e instanceof Error && e.message === 'EMAIL_TAKEN') {
       return NextResponse.json({ error: 'Email đã được đăng ký' }, { status: 409 });
     }
-    console.error(e);
+    console.error('[register]', e);
     return NextResponse.json({ error: 'Đăng ký thất bại' }, { status: 500 });
   }
 }

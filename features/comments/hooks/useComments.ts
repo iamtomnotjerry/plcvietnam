@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Comment } from '@/lib/types/domain';
+import { subscribeToComments } from '@/lib/supabase/realtime';
 
 function reviveComments(data: unknown): Comment[] {
   if (!Array.isArray(data)) return [];
@@ -92,8 +93,30 @@ export function useComments(postId: string): UseCommentsReturn {
 
     fetchComments();
 
+    // Subscribe to realtime comment approvals
+    const unsubscribe = subscribeToComments(postId, (newComment) => {
+      const mapped = reviveComments([
+        {
+          id: newComment.id,
+          postId: newComment.post_id,
+          userId: newComment.user_id,
+          userName: newComment.author_name,
+          userAvatar: newComment.author_avatar,
+          content: newComment.content,
+          createdAt: newComment.created_at,
+          updatedAt: newComment.updated_at,
+        },
+      ])[0];
+      setComments((prev) => {
+        // Avoid duplicates
+        if (prev.some((c) => c.id === mapped.id)) return prev;
+        return [...prev, mapped];
+      });
+    });
+
     return () => {
       isMounted = false;
+      unsubscribe();
     };
   }, [postId]);
 
@@ -121,7 +144,7 @@ export function useComments(postId: string): UseCommentsReturn {
       };
 
       // Optimistically add to list
-      setComments(prev => [...prev, optimisticComment]);
+      setComments((prev) => [...prev, optimisticComment]);
       setIsSubmitting(true);
 
       try {
@@ -140,12 +163,10 @@ export function useComments(postId: string): UseCommentsReturn {
         const realComment = reviveComments([raw])[0];
 
         // Replace optimistic comment with real one
-        setComments(prev =>
-          prev.map(c => (c.id === optimisticId ? realComment : c))
-        );
+        setComments((prev) => prev.map((c) => (c.id === optimisticId ? realComment : c)));
       } catch (err) {
         // Roll back optimistic comment
-        setComments(prev => prev.filter(c => c.id !== optimisticId));
+        setComments((prev) => prev.filter((c) => c.id !== optimisticId));
         throw err instanceof Error ? err : new Error('Không thể gửi bình luận');
       } finally {
         setIsSubmitting(false);
