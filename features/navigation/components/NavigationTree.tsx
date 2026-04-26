@@ -14,13 +14,13 @@ import type { NavigationNode as NavigationNodeType } from '@/lib/types/domain';
 
 /**
  * NavigationTree Component
- * 
+ *
  * Main container component that:
  * - Fetches navigation tree data using useNavigationTree hook
  * - Displays search input when there are more than 10 fields
  * - Filters tree nodes based on search query
  * - Renders NavigationNode components recursively
- * 
+ *
  * Requirement 1.6: Search input for >10 fields
  */
 export function NavigationTree({
@@ -28,22 +28,16 @@ export function NavigationTree({
   onNodeClick,
   searchable = true,
 }: NavigationTreeProps) {
-  const {
-    tree,
-    expandedIds,
-    toggleNode,
-    isLoading,
-    error,
-  } = useNavigationTree(initialExpanded);
-  
+  const { tree, expandedIds, toggleNode, isLoading, error } = useNavigationTree(initialExpanded);
+
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   /**
    * Determine if search should be shown
    * Show search when there are more than 10 fields
    */
   const shouldShowSearch = searchable && tree.length > 10;
-  
+
   /**
    * Filter tree nodes based on search query
    * Searches in field names, category names, and post titles
@@ -52,9 +46,9 @@ export function NavigationTree({
     if (!searchQuery.trim()) {
       return tree;
     }
-    
+
     const query = searchQuery.toLowerCase().trim();
-    
+
     /**
      * Recursively filter nodes and their children
      * A node matches if:
@@ -63,12 +57,12 @@ export function NavigationTree({
      */
     function filterNode(node: NavigationNodeType): NavigationNodeType | null {
       const labelMatches = node.label.toLowerCase().includes(query);
-      
+
       // Filter children recursively
       const filteredChildren = node.children
-        ?.map(child => filterNode(child))
+        ?.map((child) => filterNode(child))
         .filter((child): child is NavigationNodeType => child !== null);
-      
+
       // Include node if label matches OR any children match
       if (labelMatches || (filteredChildren && filteredChildren.length > 0)) {
         return {
@@ -76,29 +70,29 @@ export function NavigationTree({
           children: filteredChildren,
         };
       }
-      
+
       return null;
     }
-    
+
     return tree
-      .map(node => filterNode(node))
+      .map((node) => filterNode(node))
       .filter((node): node is NavigationNodeType => node !== null);
   }, [tree, searchQuery]);
-  
+
   /**
    * Handle search input change
    */
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
-  
+
   /**
    * Clear search query
    */
   const handleClearSearch = () => {
     setSearchQuery('');
   };
-  
+
   /**
    * Loading state
    */
@@ -107,23 +101,21 @@ export function NavigationTree({
       <div className="w-full p-4">
         <div className="space-y-2">
           {/* Search skeleton */}
-          {shouldShowSearch && (
-            <div className="h-10 bg-muted rounded-md animate-pulse mb-4" />
-          )}
-          
+          {shouldShowSearch && <div className="h-10 bg-muted rounded-md animate-pulse mb-4" />}
+
           {/* Tree skeleton */}
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
               className="h-10 bg-muted rounded-md animate-pulse"
-              style={{ width: `${80 + Math.random() * 20}%` }}
+              style={{ width: ['85%', '70%', '90%', '75%', '80%'][i] }}
             />
           ))}
         </div>
       </div>
     );
   }
-  
+
   /**
    * Error state
    */
@@ -137,20 +129,18 @@ export function NavigationTree({
       </div>
     );
   }
-  
+
   /**
    * Empty state
    */
   if (tree.length === 0) {
     return (
       <div className="w-full p-4">
-        <p className="text-sm text-muted-foreground">
-          Chưa có nội dung
-        </p>
+        <p className="text-sm text-muted-foreground">Chưa có nội dung</p>
       </div>
     );
   }
-  
+
   /**
    * No search results
    */
@@ -191,7 +181,7 @@ export function NavigationTree({
             )}
           </div>
         )}
-        
+
         {/* No results message */}
         <p className="text-sm text-muted-foreground">
           Không tìm thấy kết quả cho &quot;{searchQuery}&quot;
@@ -199,7 +189,7 @@ export function NavigationTree({
       </div>
     );
   }
-  
+
   /**
    * Main render
    */
@@ -255,7 +245,7 @@ export function NavigationTree({
           </div>
         </div>
       )}
-      
+
       {/* Navigation tree */}
       <nav className="p-2" aria-label="Cây điều hướng nội dung">
         <div className="space-y-1">
