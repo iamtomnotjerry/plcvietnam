@@ -151,6 +151,19 @@ function mapAuthor(row: Database['public']['Tables']['author_info']['Row']): Aut
   };
 }
 
+function mapProfile(row: Database['public']['Tables']['profiles']['Row']): Author {
+  return {
+    id: row.id,
+    name: row.full_name ?? row.email.split('@')[0],
+    email: row.email,
+    bio: row.bio ?? '',
+    avatarUrl: row.avatar_url ?? undefined,
+    expertise: [],
+    certifications: [],
+    socialLinks: {},
+  };
+}
+
 function mapBook(row: Database['public']['Tables']['books']['Row']): Book {
   return {
     id: row.id,
@@ -263,7 +276,7 @@ export class SupabaseProvider implements ContentRepository {
 
     const { data } = await this.db
       .from('posts')
-      .select('*, post_tags(tag_id, tags(*))')
+      .select('*, profiles(id, full_name, email, bio, avatar_url), post_tags(tag_id, tags(*))')
       .eq('slug', postSlug)
       .eq('category_id', category.id)
       .eq('status', 'published')
@@ -271,7 +284,9 @@ export class SupabaseProvider implements ContentRepository {
 
     if (!data) return null;
     const tags = (data.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-    return mapPost(data, tags, category);
+    const profileRow = (data as any).profiles;
+    const author = profileRow ? mapProfile(profileRow) : undefined;
+    return { ...mapPost(data, tags, category), author };
   }
 
   async getPostsByCategory(

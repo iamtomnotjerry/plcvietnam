@@ -99,13 +99,18 @@ export default async function PostPage({ params }: PostPageProps) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://automation-blog.com';
   const postUrl = `${baseUrl}/fields/${fieldSlug}/${categorySlug}/${postSlug}`;
 
-  // Ensure author exists for schema generation
-  if (!post.author) {
-    notFound();
-    return null;
-  }
+  // Ensure author exists for schema generation - use fallback instead of 404
+  const author = post.author ?? {
+    id: '',
+    name: 'PLC Vietnam',
+    email: '',
+    bio: '',
+    expertise: [],
+    certifications: [],
+    socialLinks: {},
+  };
 
-  const articleSchema = generateArticleSchema(post, post.author, baseUrl, postUrl);
+  const articleSchema = generateArticleSchema(post, author, baseUrl, postUrl);
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Trang chủ', url: baseUrl },
     { name: post.category?.field?.name || 'Lĩnh vực', url: `${baseUrl}/fields/${fieldSlug}` },
