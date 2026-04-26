@@ -2,7 +2,7 @@
 
 ## Tổng quan
 
-Hệ thống audit frontend toàn diện cho dự án Automation Blog - phân tích, đánh giá và báo cáo chi tiết về chất lượng source code, kiến trúc, design system, performance, security, accessibility, và SEO. Hệ thống sẽ kiểm tra 100% files, functions, và dòng code, không bỏ sót bất kỳ thành phần nào.
+Hệ thống audit frontend toàn diện cho dự án PLC Việt Nam - phân tích, đánh giá và báo cáo chi tiết về chất lượng source code, kiến trúc, design system, performance, security, accessibility, và SEO. Hệ thống sẽ kiểm tra 100% files, functions, và dòng code, không bỏ sót bất kỳ thành phần nào.
 
 **Mục tiêu chính:**
 - Audit toàn bộ frontend codebase (không bỏ sót file nào)

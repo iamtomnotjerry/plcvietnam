@@ -1,4 +1,4 @@
-# Automation Blog
+# PLC Việt Nam
 
 Blog chuyên về tự động hóa công nghiệp, PLC, SCADA, và Siemens Automation.
 

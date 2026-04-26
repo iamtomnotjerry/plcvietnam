@@ -164,17 +164,23 @@ function mapProfile(row: Database['public']['Tables']['profiles']['Row']): Autho
   };
 }
 
-function mapBook(row: Database['public']['Tables']['books']['Row']): Book {
+function mapBook(row: any): Book {
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     description: row.description ?? '',
-    coverImageUrl: row.cover_url ?? '',
-    authorName: row.author ?? '',
+    coverImageUrl: row.cover_image_url ?? row.cover_url ?? '',
+    authorName: row.author_name ?? row.author ?? '',
+    series: row.series ?? undefined,
+    volume: row.volume ?? undefined,
+    publisher: row.publisher ?? undefined,
+    publishedYear: row.published_year ?? undefined,
+    pages: row.pages ?? undefined,
+    isbn: row.isbn ?? undefined,
     downloadUrl: row.download_url ?? undefined,
     externalUrl: row.amazon_url ?? undefined,
-    publishedYear: row.published_year ?? undefined,
+    featured: row.featured ?? false,
     createdAt: new Date(row.created_at ?? Date.now()),
   };
 }
@@ -532,10 +538,11 @@ export class SupabaseProvider implements ContentRepository {
 
   async getBooks(options: BookQueryOptions = {}): Promise<PaginatedResult<Book>> {
     const { page = 1, limit = 20 } = options;
-    const { data, error, count } = await this.db
-      .from('books')
-      .select('*', { count: 'exact' })
-      .order('title')
+    const { data, error, count } = await (
+      this.db.from('books').select('*', { count: 'exact' }) as any
+    )
+      .order('volume', { ascending: true, nullsFirst: false })
+      .order('title', { ascending: true })
       .range((page - 1) * limit, page * limit - 1);
 
     if (error) throw error;
@@ -546,10 +553,9 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getFeaturedBooks(limit: number): Promise<Book[]> {
-    const { data } = await this.db
-      .from('books')
-      .select('*')
-      .order('download_count', { ascending: false })
+    const { data } = await (this.db.from('books').select('*') as any)
+      .eq('featured', true)
+      .order('volume', { ascending: true })
       .limit(limit);
     return (data ?? []).map(mapBook);
   }

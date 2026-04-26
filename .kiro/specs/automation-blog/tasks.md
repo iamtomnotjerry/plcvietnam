@@ -1,8 +1,8 @@
-# Implementation Plan: Automation Blog
+# Implementation Plan: PLC Việt Nam
 
 ## Overview
 
-This implementation plan breaks down the Automation Blog feature into discrete coding tasks following a bottom-up approach: Foundation → Core Features → Secondary Features → User Interaction → Polish → Testing. Each task builds incrementally, with checkpoints to ensure stability before proceeding.
+This implementation plan breaks down the PLC Việt Nam feature into discrete coding tasks following a bottom-up approach: Foundation → Core Features → Secondary Features → User Interaction → Polish → Testing. Each task builds incrementally, with checkpoints to ensure stability before proceeding.
 
 The implementation uses Next.js 14+ with App Router, TypeScript (strict mode), Tailwind CSS, and a feature-based architecture with data abstraction layer supporting both mock data and Supabase providers.
 

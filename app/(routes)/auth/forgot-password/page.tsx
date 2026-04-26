@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ForgotPasswordForm } from '@/features/auth/components/ForgotPasswordForm';
 
 export const metadata: Metadata = {
-  title: 'Quên mật khẩu | Automation Blog',
+  title: 'Quên mật khẩu | PLC Việt Nam',
 };
 
 export default function ForgotPasswordPage() {

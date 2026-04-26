@@ -12,7 +12,7 @@ interface PostsPageProps {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Tất cả bài viết | Automation Blog',
+    title: 'Tất cả bài viết | PLC Việt Nam',
     description: 'Danh sách bài viết về PLC, SCADA, Siemens và tự động hóa công nghiệp',
   };
 }

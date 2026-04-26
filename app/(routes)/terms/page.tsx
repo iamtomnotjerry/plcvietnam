@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Điều khoản sử dụng - Automation Blog',
-  description: 'Điều khoản và điều kiện sử dụng dịch vụ của Automation Blog',
+  title: 'Điều khoản sử dụng - PLC Việt Nam',
+  description: 'Điều khoản và điều kiện sử dụng dịch vụ của PLC Việt Nam',
 };
 
 export default function TermsPage() {
@@ -32,21 +32,21 @@ export default function TermsPage() {
         <h1>Điều khoản sử dụng</h1>
 
         <p className="lead">
-          Chào mừng bạn đến với Automation Blog. Bằng việc truy cập và sử dụng website này, bạn đồng
-          ý tuân thủ các điều khoản và điều kiện sau đây.
+          Chào mừng bạn đến với PLC Việt Nam. Bằng việc truy cập và sử dụng website này, bạn đồng ý
+          tuân thủ các điều khoản và điều kiện sau đây.
         </p>
 
         <h2>1. Chấp nhận điều khoản</h2>
         <p>
-          Khi truy cập và sử dụng Automation Blog, bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý bị
-          ràng buộc bởi các điều khoản này. Nếu bạn không đồng ý với bất kỳ phần nào của điều khoản,
-          vui lòng không sử dụng dịch vụ của chúng tôi.
+          Khi truy cập và sử dụng PLC Việt Nam, bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý bị ràng
+          buộc bởi các điều khoản này. Nếu bạn không đồng ý với bất kỳ phần nào của điều khoản, vui
+          lòng không sử dụng dịch vụ của chúng tôi.
         </p>
 
         <h2>2. Sử dụng dịch vụ</h2>
         <h3>2.1. Quyền truy cập</h3>
         <p>
-          Chúng tôi cấp cho bạn quyền truy cập và sử dụng Automation Blog cho mục đích cá nhân, phi
+          Chúng tôi cấp cho bạn quyền truy cập và sử dụng PLC Việt Nam cho mục đích cá nhân, phi
           thương mại. Bạn không được:
         </p>
         <ul>
@@ -69,7 +69,7 @@ export default function TermsPage() {
 
         <h2>3. Nội dung người dùng</h2>
         <h3>3.1. Trách nhiệm của bạn</h3>
-        <p>Khi đăng bình luận hoặc nội dung khác trên Automation Blog, bạn đảm bảo rằng:</p>
+        <p>Khi đăng bình luận hoặc nội dung khác trên PLC Việt Nam, bạn đảm bảo rằng:</p>
         <ul>
           <li>Nội dung không vi phạm pháp luật hoặc quyền của bên thứ ba</li>
           <li>Nội dung không chứa thông tin sai lệch, xúc phạm, hoặc có hại</li>
@@ -79,7 +79,7 @@ export default function TermsPage() {
 
         <h3>3.2. Quyền sử dụng nội dung</h3>
         <p>
-          Bằng việc đăng nội dung, bạn cấp cho Automation Blog quyền không độc quyền, miễn phí, toàn
+          Bằng việc đăng nội dung, bạn cấp cho PLC Việt Nam quyền không độc quyền, miễn phí, toàn
           cầu để sử dụng, hiển thị và phân phối nội dung đó trên website.
         </p>
 
@@ -92,9 +92,9 @@ export default function TermsPage() {
         <h2>4. Quyền sở hữu trí tuệ</h2>
         <h3>4.1. Nội dung của chúng tôi</h3>
         <p>
-          Tất cả nội dung trên Automation Blog (bài viết, hình ảnh, logo, thiết kế) thuộc quyền sở
-          hữu của chúng tôi hoặc được cấp phép sử dụng hợp pháp. Nội dung được bảo vệ bởi luật bản
-          quyền và sở hữu trí tuệ.
+          Tất cả nội dung trên PLC Việt Nam (bài viết, hình ảnh, logo, thiết kế) thuộc quyền sở hữu
+          của chúng tôi hoặc được cấp phép sử dụng hợp pháp. Nội dung được bảo vệ bởi luật bản quyền
+          và sở hữu trí tuệ.
         </p>
 
         <h3>4.2. Sử dụng hợp lý</h3>
@@ -111,15 +111,14 @@ export default function TermsPage() {
 
         <h2>5. Liên kết bên ngoài</h2>
         <p>
-          Automation Blog có thể chứa liên kết đến các website bên thứ ba. Chúng tôi không kiểm soát
-          và không chịu trách nhiệm về nội dung, chính sách bảo mật hoặc thực tiễn của các website
-          này.
+          PLC Việt Nam có thể chứa liên kết đến các website bên thứ ba. Chúng tôi không kiểm soát và
+          không chịu trách nhiệm về nội dung, chính sách bảo mật hoặc thực tiễn của các website này.
         </p>
 
         <h2>6. Từ chối bảo đảm</h2>
         <p>
-          Automation Blog được cung cấp "nguyên trạng" mà không có bất kỳ bảo đảm nào, rõ ràng hay
-          ngụ ý. Chúng tôi không đảm bảo rằng:
+          PLC Việt Nam được cung cấp "nguyên trạng" mà không có bất kỳ bảo đảm nào, rõ ràng hay ngụ
+          ý. Chúng tôi không đảm bảo rằng:
         </p>
         <ul>
           <li>Dịch vụ sẽ không bị gián đoạn hoặc không có lỗi</li>
@@ -129,8 +128,8 @@ export default function TermsPage() {
 
         <h2>7. Giới hạn trách nhiệm</h2>
         <p>
-          Trong phạm vi tối đa được pháp luật cho phép, Automation Blog không chịu trách nhiệm cho
-          bất kỳ thiệt hại trực tiếp, gián tiếp, ngẫu nhiên, đặc biệt hoặc hậu quả nào phát sinh từ:
+          Trong phạm vi tối đa được pháp luật cho phép, PLC Việt Nam không chịu trách nhiệm cho bất
+          kỳ thiệt hại trực tiếp, gián tiếp, ngẫu nhiên, đặc biệt hoặc hậu quả nào phát sinh từ:
         </p>
         <ul>
           <li>Việc sử dụng hoặc không thể sử dụng dịch vụ</li>
@@ -141,8 +140,8 @@ export default function TermsPage() {
 
         <h2>8. Bồi thường</h2>
         <p>
-          Bạn đồng ý bồi thường và giữ cho Automation Blog, các giám đốc, nhân viên và đối tác không
-          bị thiệt hại từ bất kỳ khiếu nại, tổn thất, trách nhiệm pháp lý nào phát sinh từ:
+          Bạn đồng ý bồi thường và giữ cho PLC Việt Nam, các giám đốc, nhân viên và đối tác không bị
+          thiệt hại từ bất kỳ khiếu nại, tổn thất, trách nhiệm pháp lý nào phát sinh từ:
         </p>
         <ul>
           <li>Vi phạm điều khoản sử dụng này</li>
@@ -152,8 +151,8 @@ export default function TermsPage() {
 
         <h2>9. Chấm dứt</h2>
         <p>
-          Chúng tôi có quyền tạm ngưng hoặc chấm dứt quyền truy cập của bạn vào Automation Blog bất
-          cứ lúc nào, với hoặc không có lý do, với hoặc không có thông báo trước.
+          Chúng tôi có quyền tạm ngưng hoặc chấm dứt quyền truy cập của bạn vào PLC Việt Nam bất cứ
+          lúc nào, với hoặc không có lý do, với hoặc không có thông báo trước.
         </p>
 
         <h2>10. Thay đổi điều khoản</h2>

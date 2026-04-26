@@ -1,8 +1,8 @@
-# Design Document: Automation Blog
+# Design Document: PLC Việt Nam
 
 ## Overview
 
-Automation Blog is a technical blog platform specialized in industrial automation content (PLC, SCADA, Siemens). The system enables readers to browse hierarchical content (Fields → Categories → Posts), search articles, leave comments via Google OAuth, and access technical books and resources.
+PLC Việt Nam is a technical blog platform specialized in industrial automation content (PLC, SCADA, Siemens). The system enables readers to browse hierarchical content (Fields → Categories → Posts), search articles, leave comments via Google OAuth, and access technical books and resources.
 
 ### Key Design Goals
 
@@ -1550,7 +1550,7 @@ export async function GET() {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Automation Blog</title>
+    <title>PLC Việt Nam</title>
     <link>${process.env.NEXT_PUBLIC_SITE_URL}</link>
     <description>Chia sẻ kiến thức tự động hóa công nghiệp</description>
     <language>vi</language>
@@ -1596,7 +1596,7 @@ export default function RootLayout({ children }) {
         <link 
           rel="alternate" 
           type="application/rss+xml" 
-          title="Automation Blog RSS Feed" 
+          title="PLC Việt Nam RSS Feed" 
           href="/rss.xml" 
         />
       </head>
@@ -1768,7 +1768,7 @@ generateRSS();
 
 ## Conclusion
 
-This design document provides a comprehensive blueprint for implementing the Automation Blog platform. The feature-based architecture ensures scalability and maintainability, while the data abstraction layer enables flexible deployment strategies. The combination of unit tests and property-based tests ensures both concrete behavior verification and universal correctness guarantees.
+This design document provides a comprehensive blueprint for implementing the PLC Việt Nam platform. The feature-based architecture ensures scalability and maintainability, while the data abstraction layer enables flexible deployment strategies. The combination of unit tests and property-based tests ensures both concrete behavior verification and universal correctness guarantees.
 
 Key success factors:
 - Strict adherence to TypeScript types for compile-time safety

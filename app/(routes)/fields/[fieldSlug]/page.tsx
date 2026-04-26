@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: FieldPageProps) {
     return { title: 'Không tìm thấy' };
   }
   return {
-    title: `${field.name} | Automation Blog`,
+    title: `${field.name} | PLC Việt Nam`,
     description: `Danh mục và bài viết: ${field.name}`,
   };
 }

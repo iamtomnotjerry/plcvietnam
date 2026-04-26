@@ -95,7 +95,7 @@ export function generateWebSiteSchema(baseUrl: string): WebSiteSchema {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Automation Blog',
+    name: 'PLC Việt Nam',
     description: 'Blog chuyên về tự động hóa công nghiệp, PLC, SCADA, và Siemens Automation',
     url: baseUrl,
     potentialAction: {
@@ -132,7 +132,7 @@ export function generateArticleSchema(
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Automation Blog',
+      name: 'PLC Việt Nam',
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/logo.png`,

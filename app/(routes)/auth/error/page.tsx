@@ -4,7 +4,7 @@ import type { Route } from 'next';
 import { AuthErrorContent } from '@/features/auth/components/AuthErrorContent';
 
 export const metadata: Metadata = {
-  title: 'Lỗi đăng nhập | Automation Blog',
+  title: 'Lỗi đăng nhập | PLC Việt Nam',
 };
 
 export default function AuthErrorPage() {

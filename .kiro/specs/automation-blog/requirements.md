@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Automation Blog là một nền tảng blog chuyên biệt để chia sẻ kiến thức về tự động hóa công nghiệp, bao gồm hệ thống PLC, SCADA, và Siemens Automation. Nền tảng cho phép tác giả đăng bài viết kỹ thuật, chia sẻ sách, và tổ chức nội dung theo cấu trúc phân cấp rõ ràng. Người đọc có thể tìm kiếm nội dung dễ dàng và để lại bình luận thông qua đăng nhập Google. Hệ thống được xây dựng bằng Next.js với kiến trúc feature-based, sử dụng mock data ban đầu và có abstraction layer sẵn sàng kết nối Supabase.
+PLC Việt Nam là một nền tảng blog chuyên biệt để chia sẻ kiến thức về tự động hóa công nghiệp, bao gồm hệ thống PLC, SCADA, và Siemens Automation. Nền tảng cho phép tác giả đăng bài viết kỹ thuật, chia sẻ sách, và tổ chức nội dung theo cấu trúc phân cấp rõ ràng. Người đọc có thể tìm kiếm nội dung dễ dàng và để lại bình luận thông qua đăng nhập Google. Hệ thống được xây dựng bằng Next.js với kiến trúc feature-based, sử dụng mock data ban đầu và có abstraction layer sẵn sàng kết nối Supabase.
 
 ## Glossary
 

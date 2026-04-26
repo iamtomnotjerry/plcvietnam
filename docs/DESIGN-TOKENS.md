@@ -1,6 +1,6 @@
 # Design Tokens Documentation
 
-Tài liệu này mô tả hệ thống design tokens được sử dụng trong Automation Blog.
+Tài liệu này mô tả hệ thống design tokens được sử dụng trong PLC Việt Nam.
 
 ## 📋 Mục lục
 

@@ -31,6 +31,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 Chỉnh sửa Giới thiệu
               </Link>
               <Link
+                href={'/admin/books' as Route}
+                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Quản lý Sách
+              </Link>
+              <Link
                 href={'/' as Route}
                 className="mt-4 rounded-md px-3 py-2 text-muted-foreground hover:underline"
               >

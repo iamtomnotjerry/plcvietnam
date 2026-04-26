@@ -11,7 +11,7 @@ const googleConfigured =
   process.env.GOOGLE_CLIENT_SECRET.trim().length > 0;
 
 export const metadata: Metadata = {
-  title: 'Đăng nhập | Automation Blog',
+  title: 'Đăng nhập | PLC Việt Nam',
   description: 'Đăng nhập để bình luận và quản lý nội dung (demo).',
 };
 

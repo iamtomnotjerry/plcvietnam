@@ -1,5 +1,5 @@
 /**
- * Shared domain types for the Automation Blog
+ * Shared domain types for the PLC Việt Nam
  * Matches design document specifications
  */
 
@@ -34,7 +34,7 @@ export interface Post {
   slug: string;
   title: string;
   excerpt: string;
-  content: string;              // Markdown or HTML
+  content: string; // Markdown or HTML
   thumbnailUrl?: string;
   categoryId: string;
   category?: Category;
@@ -46,7 +46,7 @@ export interface Post {
   publishedAt: Date;
   updatedAt: Date;
   viewCount: number;
-  readingTimeMinutes: number;   // Calculated field
+  readingTimeMinutes: number; // Calculated field
   seo: SEOMetadata;
 }
 
@@ -65,9 +65,14 @@ export interface Book {
   coverImageUrl: string;
   authorName: string;
   series?: string;
+  volume?: number; // Tập số (1, 2, 3...)
+  publisher?: string; // Nhà xuất bản
+  publishedYear?: number;
+  pages?: number; // Số trang
+  isbn?: string;
   downloadUrl?: string;
   externalUrl?: string;
-  publishedYear?: number;
+  featured?: boolean;
   createdAt: Date;
 }
 

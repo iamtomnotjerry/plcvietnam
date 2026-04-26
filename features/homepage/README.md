@@ -9,6 +9,7 @@ This feature contains all components for the blog homepage.
 Displays the hero section with blog title, tagline, description, and CTA button.
 
 **Props:**
+
 - `title`: Blog title
 - `tagline`: Blog tagline (e.g., "Chia sẻ kiến thức tự động hóa công nghiệp")
 - `description`: Brief description of blog focus area
@@ -20,9 +21,11 @@ Displays the hero section with blog title, tagline, description, and CTA button.
 Displays the 6 most recent posts in a grid layout.
 
 **Props:**
+
 - `posts`: Array of Post objects (displays maximum 6)
 
 **Features:**
+
 - Grid layout (3 columns on desktop, 2 on tablet, 1 on mobile)
 - Uses PostCard component with 'compact' variant
 - Shows category, publication date, and reading time
@@ -34,9 +37,11 @@ Displays the 6 most recent posts in a grid layout.
 Displays all fields with post counts in a grid layout.
 
 **Props:**
+
 - `fields`: Array of Field objects
 
 **Features:**
+
 - Grid layout (3 columns on desktop, 2 on tablet, 1 on mobile)
 - Shows field name, description, icon, and post count
 - Links to field pages
@@ -48,9 +53,11 @@ Displays all fields with post counts in a grid layout.
 Displays 3 featured books in a grid layout.
 
 **Props:**
+
 - `books`: Array of Book objects (displays maximum 3)
 
 **Features:**
+
 - Grid layout (3 columns on desktop, 2 on tablet, 1 on mobile)
 - Uses BookCard component with 'grid' variant
 - Link to books page
@@ -71,7 +78,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection
-        title="Automation Blog"
+        title="PLC Việt Nam"
         tagline="Chia sẻ kiến thức tự động hóa công nghiệp"
         description="Khám phá kiến thức về PLC, SCADA, và Siemens Automation"
       />
@@ -86,12 +93,14 @@ export default function HomePage() {
 ## Testing
 
 All components have comprehensive unit tests covering:
+
 - Rendering of all elements
 - Correct props handling
 - Edge cases (empty data, maximum limits)
 - Accessibility (semantic HTML, ARIA labels)
 
 Run tests:
+
 ```bash
 npm test features/homepage/components
 ```

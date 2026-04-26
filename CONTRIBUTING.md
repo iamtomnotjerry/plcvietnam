@@ -1,6 +1,6 @@
-# 🤝 Contributing to Automation Blog
+# 🤝 Contributing to PLC Việt Nam
 
-Cảm ơn bạn đã quan tâm đến việc đóng góp cho Automation Blog! Tài liệu này sẽ hướng dẫn bạn quy trình đóng góp.
+Cảm ơn bạn đã quan tâm đến việc đóng góp cho PLC Việt Nam! Tài liệu này sẽ hướng dẫn bạn quy trình đóng góp.
 
 ## 📋 Mục lục
 
@@ -336,7 +336,7 @@ describe('PostCard', () => {
 
 ## 🙏 Thank You!
 
-Cảm ơn bạn đã đóng góp cho Automation Blog! Mọi đóng góp, dù lớn hay nhỏ, đều được đánh giá cao.
+Cảm ơn bạn đã đóng góp cho PLC Việt Nam! Mọi đóng góp, dù lớn hay nhỏ, đều được đánh giá cao.
 
 Nếu có câu hỏi, vui lòng tạo issue hoặc liên hệ maintainers.
 

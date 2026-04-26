@@ -28,7 +28,7 @@ vi.mock('@/lib/data/factory', () => ({
 vi.mock('@/features/posts/components/PostList', () => ({
   PostList: ({ posts }: { posts: Post[] }) => (
     <div data-testid="post-list">
-      {posts.map(post => (
+      {posts.map((post) => (
         <div key={post.id}>{post.title}</div>
       ))}
     </div>
@@ -93,9 +93,7 @@ describe('CategoryPage', () => {
 
       const params = await generateStaticParams();
 
-      expect(params).toEqual([
-        { fieldSlug: 'plc', categorySlug: 'ladder-logic' },
-      ]);
+      expect(params).toEqual([{ fieldSlug: 'plc', categorySlug: 'ladder-logic' }]);
       expect(contentRepository.getFields).toHaveBeenCalledOnce();
       expect(contentRepository.getCategoriesByFieldId).toHaveBeenCalledWith('field-1');
     });
@@ -109,7 +107,7 @@ describe('CategoryPage', () => {
         params: Promise.resolve({ fieldSlug: 'plc', categorySlug: 'ladder-logic' }),
       });
 
-      expect(metadata.title).toBe('Ladder Logic - PLC Programming | Automation Blog');
+      expect(metadata.title).toBe('Ladder Logic - PLC Programming | PLC Việt Nam');
       expect(metadata.description).toBe('Learn ladder logic programming');
     });
 

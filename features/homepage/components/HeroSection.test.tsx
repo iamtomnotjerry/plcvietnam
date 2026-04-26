@@ -9,28 +9,30 @@ import { HeroSection } from './HeroSection';
 
 describe('HeroSection', () => {
   const defaultProps = {
-    title: 'Automation Blog',
+    title: 'PLC Việt Nam',
     tagline: 'Chia sẻ kiến thức tự động hóa công nghiệp',
     description: 'Khám phá kiến thức về PLC, SCADA, và Siemens Automation',
   };
 
   it('renders title correctly', () => {
     render(<HeroSection {...defaultProps} />);
-    
+
     const title = screen.getByRole('heading', { level: 1 });
-    expect(title).toHaveTextContent('Automation Blog');
+    expect(title).toHaveTextContent('PLC Việt Nam');
   });
 
   it('renders tagline correctly', () => {
     render(<HeroSection {...defaultProps} />);
-    
+
     expect(screen.getByText('Chia sẻ kiến thức tự động hóa công nghiệp')).toBeInTheDocument();
   });
 
   it('renders description correctly', () => {
     render(<HeroSection {...defaultProps} />);
-    
-    expect(screen.getByText('Khám phá kiến thức về PLC, SCADA, và Siemens Automation')).toBeInTheDocument();
+
+    expect(
+      screen.getByText('Khám phá kiến thức về PLC, SCADA, và Siemens Automation')
+    ).toBeInTheDocument();
   });
 
   it('renders primary and secondary CTAs', () => {
@@ -49,9 +51,9 @@ describe('HeroSection', () => {
       tagline: 'Custom Tagline',
       description: 'Custom Description',
     };
-    
+
     render(<HeroSection {...customProps} />);
-    
+
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Custom Title');
     expect(screen.getByText('Custom Tagline')).toBeInTheDocument();
     expect(screen.getByText('Custom Description')).toBeInTheDocument();

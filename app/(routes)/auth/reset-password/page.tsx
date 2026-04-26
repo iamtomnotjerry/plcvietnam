@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ResetPasswordForm } from '@/features/auth/components/ResetPasswordForm';
 
 export const metadata: Metadata = {
-  title: 'Đặt lại mật khẩu | Automation Blog',
+  title: 'Đặt lại mật khẩu | PLC Việt Nam',
 };
 
 export default function ResetPasswordPage() {

@@ -26,7 +26,7 @@ interface CategoryPageProps {
 export async function generateStaticParams() {
   const fields = await contentRepository.getFields();
   const params: { fieldSlug: string; categorySlug: string }[] = [];
-  
+
   for (const field of fields) {
     const categories = await contentRepository.getCategoriesByFieldId(field.id);
     for (const category of categories) {
@@ -36,7 +36,7 @@ export async function generateStaticParams() {
       });
     }
   }
-  
+
   return params;
 }
 
@@ -45,19 +45,16 @@ export async function generateStaticParams() {
  */
 export async function generateMetadata({ params }: CategoryPageProps) {
   const { fieldSlug, categorySlug } = await params;
-  const category = await contentRepository.getCategoryBySlug(
-    fieldSlug,
-    categorySlug
-  );
-  
+  const category = await contentRepository.getCategoryBySlug(fieldSlug, categorySlug);
+
   if (!category) {
     return {
       title: 'Không tìm thấy danh mục',
     };
   }
-  
+
   return {
-    title: `${category.name} - ${category.field?.name} | Automation Blog`,
+    title: `${category.name} - ${category.field?.name} | PLC Việt Nam`,
     description: category.description,
   };
 }
@@ -68,17 +65,14 @@ export async function generateMetadata({ params }: CategoryPageProps) {
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { fieldSlug, categorySlug } = await params;
   // Fetch category
-  const category = await contentRepository.getCategoryBySlug(
-    fieldSlug,
-    categorySlug
-  );
-  
+  const category = await contentRepository.getCategoryBySlug(fieldSlug, categorySlug);
+
   // Handle 404 for invalid slugs
   if (!category) {
     notFound();
     return null; // TypeScript guard
   }
-  
+
   // Fetch posts for this category (first page, 20 posts)
   const postsResult = await contentRepository.getPostsByCategory(category.id, {
     page: 1,
@@ -86,7 +80,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     sortBy: 'publishedAt',
     sortOrder: 'desc',
   });
-  
+
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
@@ -94,25 +88,23 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <nav className="mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-muted-foreground">
             <li>
-              <Link
-                href="/"
-                className="hover:text-primary transition-colors duration-200"
-              >
+              <Link href="/" className="hover:text-primary transition-colors duration-200">
                 Trang chủ
               </Link>
             </li>
             <li>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </li>
             <li>
               <Link
-                href={
-                  category.field?.slug
-                    ? fieldHref(category.field.slug)
-                    : '/'
-                }
+                href={category.field?.slug ? fieldHref(category.field.slug) : '/'}
                 className="hover:text-primary transition-colors duration-200"
               >
                 {category.field?.name}
@@ -120,34 +112,27 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             </li>
             <li>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </li>
-            <li className="text-foreground font-medium">
-              {category.name}
-            </li>
+            <li className="text-foreground font-medium">{category.name}</li>
           </ol>
         </nav>
-        
+
         {/* Category Header */}
         <header className="mb-8">
-          <h1 className="text-4xl font-bold text-card-foreground mb-4">
-            {category.name}
-          </h1>
-          <p className="text-lg text-muted-foreground mb-2">
-            {category.description}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {category.postCount} bài viết
-          </p>
+          <h1 className="text-4xl font-bold text-card-foreground mb-4">{category.name}</h1>
+          <p className="text-lg text-muted-foreground mb-2">{category.description}</p>
+          <p className="text-sm text-muted-foreground">{category.postCount} bài viết</p>
         </header>
-        
+
         {/* Post List */}
-        <PostList
-          posts={postsResult.data}
-          showCategory={false}
-          showThumbnail={true}
-        />
+        <PostList posts={postsResult.data} showCategory={false} showThumbnail={true} />
       </div>
     </main>
   );

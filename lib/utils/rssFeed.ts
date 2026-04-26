@@ -61,7 +61,7 @@ export function generateRSSFeed(posts: Post[], baseUrl: string, author: Author):
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml('Automation Blog')}</title>
+    <title>${escapeXml('PLC Việt Nam')}</title>
     <link>${baseUrl}</link>
     <description>${escapeXml('Chia sẻ kiến thức tự động hóa công nghiệp')}</description>
     <language>vi</language>

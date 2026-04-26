@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Chính sách bảo mật - Automation Blog',
-  description: 'Chính sách bảo mật và xử lý dữ liệu cá nhân của Automation Blog',
+  title: 'Chính sách bảo mật - PLC Việt Nam',
+  description: 'Chính sách bảo mật và xử lý dữ liệu cá nhân của PLC Việt Nam',
 };
 
 export default function PrivacyPage() {
@@ -32,12 +32,12 @@ export default function PrivacyPage() {
         <h1>Chính sách bảo mật</h1>
 
         <p className="lead">
-          Automation Blog cam kết bảo vệ quyền riêng tư và thông tin cá nhân của người dùng. Chính
-          sách này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin của bạn.
+          PLC Việt Nam cam kết bảo vệ quyền riêng tư và thông tin cá nhân của người dùng. Chính sách
+          này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin của bạn.
         </p>
 
         <h2>1. Thông tin chúng tôi thu thập</h2>
-        <p>Khi bạn sử dụng Automation Blog, chúng tôi có thể thu thập các loại thông tin sau:</p>
+        <p>Khi bạn sử dụng PLC Việt Nam, chúng tôi có thể thu thập các loại thông tin sau:</p>
         <ul>
           <li>
             <strong>Thông tin tài khoản:</strong> Tên, email, ảnh đại diện khi bạn đăng nhập qua
@@ -111,9 +111,9 @@ export default function PrivacyPage() {
 
         <h2>7. Liên kết đến website bên thứ ba</h2>
         <p>
-          Automation Blog có thể chứa liên kết đến các website khác. Chúng tôi không chịu trách
-          nhiệm về chính sách bảo mật của các website này. Vui lòng đọc chính sách bảo mật của họ
-          trước khi cung cấp thông tin.
+          PLC Việt Nam có thể chứa liên kết đến các website khác. Chúng tôi không chịu trách nhiệm
+          về chính sách bảo mật của các website này. Vui lòng đọc chính sách bảo mật của họ trước
+          khi cung cấp thông tin.
         </p>
 
         <h2>8. Thay đổi chính sách</h2>

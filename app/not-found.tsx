@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Trang không tìm thấy - Automation Blog',
+  title: 'Trang không tìm thấy - PLC Việt Nam',
 };
 
 export default function NotFound() {
@@ -16,9 +16,7 @@ export default function NotFound() {
       <div className="max-w-md w-full text-center space-y-6">
         <div className="space-y-2">
           <p className="text-8xl font-bold text-primary">404</p>
-          <h1 className="text-2xl font-semibold text-foreground">
-            Trang không tìm thấy
-          </h1>
+          <h1 className="text-2xl font-semibold text-foreground">Trang không tìm thấy</h1>
           <p className="text-muted-foreground">
             Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.
           </p>

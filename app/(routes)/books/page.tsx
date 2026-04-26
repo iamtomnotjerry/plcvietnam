@@ -19,7 +19,7 @@ interface BooksPageProps {
  */
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Sách - Automation Blog',
+    title: 'Sách - PLC Việt Nam',
     description: 'Khám phá các sách và tài liệu kỹ thuật về tự động hóa công nghiệp',
   };
 }
