@@ -14,6 +14,7 @@ import {
 import type { Field } from '@/lib/types/domain';
 import { generateWebSiteSchema, renderJsonLd } from '@/lib/utils/structuredData';
 import { ErrorRetryButton } from '@/components/ui/ErrorRetryButton';
+import { EmailConfirmRedirect } from '@/components/auth/EmailConfirmRedirect';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,6 +72,9 @@ export default async function HomePage() {
             __html: renderJsonLd(generateWebSiteSchema(baseUrl)),
           }}
         />
+
+        {/* Detect email confirmation redirect from Supabase */}
+        <EmailConfirmRedirect />
 
         {/* Hero Section */}
         <HeroSection

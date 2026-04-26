@@ -18,7 +18,6 @@ export default async function ConfirmedPage({ searchParams }: Props) {
       <div className="rounded-2xl border border-border bg-card p-8 text-center space-y-6">
         {isError ? (
           <>
-            {/* Error state */}
             <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
               <svg
                 className="w-8 h-8 text-destructive"
@@ -58,7 +57,6 @@ export default async function ConfirmedPage({ searchParams }: Props) {
           </>
         ) : (
           <>
-            {/* Success state */}
             <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
               <svg
                 className="w-8 h-8 text-green-600 dark:text-green-400"
