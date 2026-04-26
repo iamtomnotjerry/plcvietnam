@@ -2,23 +2,25 @@
   "id": "author-1",
   "name": "Trần Văn Hiếu",
   "email": "tran.van.hieu@siemens.com",
-  "bio": "Chuyên gia tư vấn tự động hóa công nghiệp và Quản lý Trung tâm Đào tạo SITRAIN tại Siemens Việt Nam. Với hơn 15 năm kinh nghiệm triển khai các giải pháp tự động hóa cho hơn 50 dự án lớn tại Việt Nam — từ thực phẩm, xi măng, cảng biển đến thủy điện và năng lượng. Tác giả bộ sách \"Thiết kế hệ thống tự động hóa với TIA Portal\" (S7-300, S7-1200, S7-1500, HMI/SCADA, Industrial Network). Admin diễn đàn cộng đồng PLC Việt Nam với hơn 5.000 thành viên kỹ sư tự động hóa.",
+  "bio": "Chuyên gia tư vấn tự động hóa công nghiệp và Quản lý Trung tâm Đào tạo SITRAIN tại Siemens Việt Nam (RC-VN DI – FA). Tốt nghiệp Kỹ sư Điện – Điện tử (Tự động hóa) tại Đại học Bách Khoa TP.HCM năm 2010. Hơn 15 năm kinh nghiệm triển khai 50+ dự án tự động hóa công nghiệp tại Việt Nam — từ thực phẩm, xi măng, cảng biển đến thủy điện và năng lượng. Tác giả bộ sách \"Thiết kế hệ thống tự động hóa với TIA Portal\" (5 cuốn). Admin diễn đàn cộng đồng PLC Việt Nam với hơn 5.000 thành viên kỹ sư tự động hóa.",
   "avatarUrl": "/images/author-avatar.jpg",
   "expertise": [
     "Siemens TIA Portal (S7-300, S7-1200, S7-1500)",
-    "SIMATIC PLC & WinCC SCADA",
+    "SIMATIC PLC & WinCC SCADA / WinCC Unified",
     "PCS 7 Process Control System",
-    "Truyền thông công nghiệp (PROFINET, PROFIBUS, Modbus, OPC UA)",
+    "Truyền thông công nghiệp (PROFINET, PROFIBUS, Modbus RTU/TCP, OPC UA, IEC 61850, IEC 104)",
     "Thiết kế HMI và hệ thống giám sát",
-    "Tư vấn & triển khai dự án tự động hóa",
+    "Tư vấn & triển khai dự án tự động hóa thủy điện",
     "Đào tạo & chuyển giao công nghệ SITRAIN",
-    "Tối ưu hóa quy trình sản xuất công nghiệp"
+    "DCS/SCADA cho nhà máy thủy điện"
   ],
   "certifications": [
-    "Siemens Certified Automation Professional - TIA Portal",
-    "SITRAIN Certified Trainer - Siemens Vietnam",
-    "Automation Consultant - Siemens Vietnam",
-    "Industrial Network & Communication Specialist"
+    "2021: Siemens Certified Trainer",
+    "2015: Factory Automation Consultant Training – Siemens",
+    "2016: SCADA System with WinCC V7 and WinCC Professional (TIA Portal)",
+    "2017: Migration Workshop from Rockwell/Mitsubishi to Siemens",
+    "2012: PROFIBUS & PROFINET Communication Networks – Siemens",
+    "2012: PLC S7-1200 and TIA Portal – Siemens"
   ],
   "socialLinks": {
     "email": "tran.van.hieu@siemens.com",

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * About Page Route
  * Display author information and credentials
  */
@@ -436,11 +436,11 @@ export default async function AboutPage() {
           <div className="bg-card border border-border rounded-xl p-6">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
               {[
-                { title: 'SIMATIC S7-300', sub: 'PLC Programming' },
-                { title: 'SIMATIC S7-1200', sub: 'Advanced PLC' },
-                { title: 'SIMATIC S7-1500', sub: 'High Performance' },
-                { title: 'HMI/SCADA', sub: 'WinCC & Interface' },
-                { title: 'Industrial Network', sub: 'Communication' },
+                { title: 'Automation PLC S7-300 with TIA Portal', sub: '2014 · Ed. 2016, 2019' },
+                { title: 'Automation PLC S7-1200 with TIA Portal', sub: '2015 · Ed. 2019, 2021' },
+                { title: 'Designing HMI/SCADA System with TIA Portal', sub: '2017 · Ed. 2019' },
+                { title: 'Designing Industrial Network System with TIA Portal', sub: '2018' },
+                { title: 'Automation PLC S7-1500 with TIA Portal', sub: '2021' },
               ].map((book) => (
                 <div key={book.title} className="flex flex-col items-center">
                   <div className="w-full aspect-[3/4] bg-gradient-to-br from-primary to-blue-700 rounded-lg flex flex-col items-center justify-center p-3 shadow-md mb-2">
@@ -675,6 +675,427 @@ export default async function AboutPage() {
                   <div className="text-xs text-muted-foreground">Hài lòng</div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Học vấn & Kinh nghiệm làm việc */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Học vấn & Kinh nghiệm</h2>
+          <div className="space-y-4">
+            {[
+              {
+                period: '06/2015 – Nay',
+                role: 'Junior Technical Consultant / SITRAIN Manager',
+                org: 'Siemens Vietnam – RC-VN DI FA',
+                desc: 'Chuẩn bị hồ sơ thầu và đề xuất kỹ thuật. Phát triển phần mềm cho hệ thống tiện ích (làm lạnh, xử lý nước thải). Triển khai chương trình đào tạo chuyên nghiệp cho khách hàng và đối tác. Tư vấn kỹ thuật chuyên sâu về tự động hóa thủy điện, giải pháp DCS/SCADA.',
+                type: 'work',
+              },
+              {
+                period: '09/2011 – 06/2015',
+                role: 'Automation Teacher / Trainer & Programmer',
+                org: 'Giảng dạy & Lập trình tự động hóa',
+                desc: 'Giảng dạy tự động hóa, đào tạo kỹ sư và lập trình PLC cho các dự án thực tế.',
+                type: 'work',
+              },
+              {
+                period: '09/2005 – 06/2010',
+                role: 'Kỹ sư Điện – Điện tử (Tự động hóa)',
+                org: 'Đại học Bách Khoa TP.HCM',
+                desc: 'Chuyên ngành Tự động hóa, Khoa Điện – Điện tử.',
+                type: 'edu',
+              },
+            ].map((item) => (
+              <div
+                key={item.period}
+                className="flex gap-4 p-5 bg-card border border-border rounded-xl"
+              >
+                <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mt-0.5">
+                  <svg
+                    className="w-5 h-5 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    {item.type === 'edu' ? (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                      />
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    )}
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <span className="text-xs font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                      {item.period}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{item.org}</span>
+                  </div>
+                  <div className="font-semibold text-foreground mb-1">{item.role}</div>
+                  <div className="text-sm text-muted-foreground leading-relaxed">{item.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Kinh nghiệm dự án */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Kinh nghiệm dự án tiêu biểu</h2>
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/60 border-b border-border">
+                  <th className="text-left px-4 py-3 font-semibold text-foreground whitespace-nowrap">
+                    Dự án
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-foreground whitespace-nowrap">
+                    Năm
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-foreground whitespace-nowrap">
+                    Công nghệ
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-foreground">Vai trò</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  {
+                    name: 'Sai Gon – Mien Trung Beer JSC',
+                    year: '2012',
+                    tech: 'Modicon Schneider',
+                    role: 'Design Software & Site Commissioning (Water Supply)',
+                  },
+                  {
+                    name: 'San Miguel Hormel (VN)',
+                    year: '2012',
+                    tech: 'WinCC V7',
+                    role: 'Design SCADA & Site Commissioning',
+                  },
+                  {
+                    name: 'Coca-Cola Da Nang',
+                    year: '2012',
+                    tech: 'STEP 7, S7-300',
+                    role: 'Design Software & Site Commissioning (Utilities)',
+                  },
+                  {
+                    name: 'Pepsico Amatar',
+                    year: '2013',
+                    tech: 'STEP 7, S7-300/400, SIMATIC Net',
+                    role: 'Site Service & Commissioning',
+                  },
+                  {
+                    name: 'Cong Thanh Cement',
+                    year: '2013',
+                    tech: 'STEP 7, S7-300, ABB Inverter',
+                    role: 'Design Software & Commissioning (Profibus)',
+                  },
+                  {
+                    name: 'Henkel Vietnam',
+                    year: '2013',
+                    tech: 'STEP 7, S7-300/400, SIMATIC HMI',
+                    role: 'Chief of Software Division',
+                  },
+                  {
+                    name: 'Sai Gon New Port',
+                    year: '2014',
+                    tech: 'STEP 7, S5→S7-300',
+                    role: 'Chief of Software Division – Migrate S5 to S7-300',
+                  },
+                  {
+                    name: 'GODACO Tien Giang',
+                    year: '2014',
+                    tech: 'TIA Portal, S7-1500, SIMATIC HMI',
+                    role: 'Chief of Software Division',
+                  },
+                  {
+                    name: 'Hydropower Sêrêpôk 4',
+                    year: '2015',
+                    tech: 'PCS 7, S7-400H',
+                    role: 'Site Service & Commissioning',
+                  },
+                  {
+                    name: 'GODACO Long An',
+                    year: '2016',
+                    tech: 'TIA Portal, S7-1500, SIMATIC HMI',
+                    role: 'Chief of Software Division',
+                  },
+                  {
+                    name: 'Tetrapak Binh Duong',
+                    year: '2018',
+                    tech: 'TIA Portal, S7-1500, SINAMICS Drives',
+                    role: 'Bidding, Programming, Training & Commissioning',
+                  },
+                  {
+                    name: 'Coca-Cola Thu Duc',
+                    year: '2018',
+                    tech: 'STEP 7, S7-300, SIMATIC HMI',
+                    role: 'Site Service & Commissioning',
+                  },
+                ].map((p, i) => (
+                  <tr
+                    key={i}
+                    className={`border-b border-border last:border-0 ${i % 2 === 0 ? '' : 'bg-muted/20'}`}
+                  >
+                    <td className="px-4 py-3 font-medium text-foreground">{p.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{p.year}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.tech}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.role}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Dự án thủy điện */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Kinh nghiệm dự án Thủy điện</h2>
+          <p className="text-muted-foreground mb-6">
+            Tư vấn kỹ thuật tự động hóa và giải pháp DCS/SCADA cho nhà máy thủy điện dựa trên công
+            nghệ Siemens
+          </p>
+          <div className="bg-card border border-border rounded-xl p-6 mb-4">
+            <ul className="space-y-3">
+              {[
+                'Tham gia toàn bộ vòng đời dự án — từ khảo sát hiện trạng, thiết kế giải pháp kỹ thuật đến triển khai thực địa.',
+                'Thực hiện thành công Factory Acceptance Test (FAT) và Site Acceptance Test (SAT) đảm bảo chất lượng hệ thống trước khi đưa vào vận hành.',
+                'Đào tạo chuyên sâu cho kỹ sư và vận hành viên: TIA Portal, S7-1500H (high-availability), SCADA WinCC, truyền thông công nghiệp (Modbus RTU/TCP, PROFINET, IEC 61850, IEC 104).',
+              ].map((item, i) => (
+                <li key={i} className="flex gap-3 items-start">
+                  <svg
+                    className="w-5 h-5 text-primary flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <span className="text-sm text-muted-foreground leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { name: 'Da Dang 2 Hydropower', org: 'SHP', capacity: '34 MW' },
+              { name: 'A Luoi Hydropower', org: 'CHP', capacity: '170 MW' },
+              { name: "Da M'bri Hydropower", org: 'SHP', capacity: '75 MW' },
+            ].map((p) => (
+              <div
+                key={p.name}
+                className="bg-card border border-border rounded-xl p-5 flex gap-3 items-start"
+              >
+                <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-semibold text-foreground text-sm">{p.name}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {p.org} · {p.capacity}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Kinh nghiệm đào tạo */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Kinh nghiệm đào tạo tiêu biểu</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              {
+                year: '2012',
+                client: 'Southern Steel Company',
+                content: 'SIMATIC S7-300 & Profibus Network',
+              },
+              { year: '2012', client: 'SABECO', content: 'SIMATIC S7-300 & SCADA WinCC V7' },
+              { year: '2012', client: 'VietSov Petro', content: 'SIMATIC S7-300 & SCADA' },
+              { year: '2013', client: 'Pepsi Suntory', content: 'SIMATIC S7-300 & SIMATIC Net' },
+              { year: '2014', client: 'Unilever', content: 'SIMATIC S7-300 Basic & Advanced' },
+              {
+                year: '2017',
+                client: 'Tetrapak',
+                content: 'TIA Portal, S7-1500, WinCC V7, HMI & SIMATIC Net',
+              },
+              { year: '2018', client: 'Vinfast', content: 'TIA Portal, S7-1500 & HMI' },
+              {
+                year: '2019/2021',
+                client: 'Coca-Cola',
+                content: 'SIMATIC S7-300 Advanced & SIMATIC Net',
+              },
+              {
+                year: '2019/2021',
+                client: 'Heineken',
+                content: 'TIA Portal, S7-1500 & SIMATIC Net',
+              },
+              { year: '2019/2022', client: 'SABECO', content: 'SIMATIC S7-300/400 & SIMATIC Net' },
+              { year: '2021', client: 'Nike', content: 'TIA Portal & S7-1500' },
+              { year: '2021', client: 'Saint Gobain', content: 'TIA Portal, S7-1500 & WinCC V7' },
+              {
+                year: '2022',
+                client: 'SHP Da Dang Hydro Power',
+                content: 'TIA Portal SIMATIC Programming',
+              },
+              {
+                year: '2022',
+                client: 'EDH JSC',
+                content: 'Industrial Communication SIMATIC NET in TIA Portal',
+              },
+              { year: '2023', client: 'Friesland Campina Vietnam', content: 'PROFIBUS System' },
+              { year: '2023', client: 'SMS Group', content: 'TIA Portal SIMATIC Programming 1' },
+              { year: '2024', client: 'Heineken', content: 'TIA Portal Tailor Service 01' },
+              {
+                year: '2024',
+                client: 'A Luoi Hydro Power Plant',
+                content: 'TIA Portal Programming 1 Customized',
+              },
+              {
+                year: '2025',
+                client: 'Heineken',
+                content: 'PROFINET with Industrial Ethernet in TIA Portal',
+              },
+            ].map((t, i) => (
+              <div
+                key={i}
+                className="flex gap-3 items-start p-3 bg-card border border-border rounded-lg"
+              >
+                <span className="flex-shrink-0 text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-md whitespace-nowrap">
+                  {t.year}
+                </span>
+                <div>
+                  <div className="text-sm font-semibold text-foreground">{t.client}</div>
+                  <div className="text-xs text-muted-foreground">{t.content}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Kỹ năng kỹ thuật */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Kỹ năng kỹ thuật</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-card border border-border rounded-xl p-5">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"
+                  />
+                </svg>
+                Mạng công nghiệp
+              </h3>
+              <ul className="space-y-1.5">
+                {[
+                  'Modbus RTU / Modbus TCP/IP',
+                  'AS-i, PROFIBUS / PROFINET',
+                  'CANopen',
+                  'IEC 61850, IEC 104',
+                ].map((s) => (
+                  <li key={s} className="text-sm text-muted-foreground flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-5">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"
+                  />
+                </svg>
+                Điều khiển PLC
+              </h3>
+              <ul className="space-y-1.5">
+                {[
+                  'TIA Portal, SIMATIC Manager, SIMATIC Net',
+                  'S7-200/300/400, S7-1200/1500',
+                  'Remote I/Os, Distributed I/Os',
+                  'Twido Suite, RSLogix (Basic)',
+                  'Mitsubishi PLC (FX)',
+                ].map((s) => (
+                  <li key={s} className="text-sm text-muted-foreground flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-5">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"
+                  />
+                </svg>
+                SCADA / HMI
+              </h3>
+              <ul className="space-y-1.5">
+                {[
+                  'SIMATIC WinCC V7',
+                  'WinCC Professional (TIA Portal)',
+                  'SIMATIC WinCC Unified',
+                ].map((s) => (
+                  <li key={s} className="text-sm text-muted-foreground flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
