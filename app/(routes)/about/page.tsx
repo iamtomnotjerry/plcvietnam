@@ -110,7 +110,7 @@ export default async function AboutPage() {
             <span className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-semibold">
               SITRAIN Manager
             </span>
-            <span className="px-4 py-1.5 bg-green-100 text-green-700 border border-green-300 rounded-md text-sm font-semibold dark:bg-green-900/30 dark:text-green-400 dark:border-green-700">
+            <span className="px-4 py-1.5 bg-primary/10 text-primary border border-primary/30 rounded-md text-sm font-semibold">
               15+ năm kinh nghiệm
             </span>
           </div>
