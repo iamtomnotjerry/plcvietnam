@@ -22,6 +22,11 @@ export interface PostCardProps {
   showThumbnail?: boolean;
 }
 
+function isValidImageUrl(url: string | undefined | null): url is string {
+  if (!url || url.trim() === '') return false;
+  return url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://');
+}
+
 const VARIANT_CONFIG = {
   featured: {
     imageHeight: 'h-[300px]',
@@ -80,7 +85,7 @@ export function PostCard({
       className="group block h-full bg-card border border-border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary/50 cursor-pointer"
     >
       {/* Thumbnail */}
-      {showThumbnail && post.thumbnailUrl && (
+      {showThumbnail && isValidImageUrl(post.thumbnailUrl) && (
         <div className={`relative w-full overflow-hidden rounded-t-lg ${config.imageHeight}`}>
           <Image
             src={post.thumbnailUrl}
