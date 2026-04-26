@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tác giả sách - Trần Văn Hiếu</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Open+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: #f8fafc;
+        }
+        
+        .slide-container {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 720px;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+        
+        .main-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 660px;
+            z-index: 2;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page-title {
+            font-size: 38px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        
+        .page-subtitle {
+            font-size: 20px;
+            color: #64748b;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .bookshelf-container {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            flex: 1;
+        }
+        
+        .books-row {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            justify-content: center;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .book-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            max-width: 200px;
+        }
+        
+        .book-cover {
+            width: 180px;
+            height: 250px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .book-icon {
+            font-size: 56px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .book-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            padding: 0 16px;
+            line-height: 1.3;
+        }
+        
+        .book-subtitle {
+            font-size: 12px;
+            margin-top: 4px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+        
+        .book-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+        }
+        
+        .value-props {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        
+        .value-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .value-icon {
+            width: 54px;
+            height: 54px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .value-content {
+            flex: 1;
+        }
+        
+        .value-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+        
+        .value-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        
+        .bottom-bar {
+            position: absolute;
+            top: 660px;
+            left: 0;
+            width: 1280px;
+            height: 60px;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+            z-index: 3;
+        }
+        
+        .bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+        }
+        
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+        
+        .contact-item i {
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+<div class="bg-pattern"></div>
+<div class="main-content">
+<!-- Header -->
+<div class="header">
+<div class="header-left">
+<div class="page-title">Tác giả bộ sách "Thiết kế hệ thống tự động hóa với TIA Portal"</div>
+<div class="page-subtitle">Hệ thống hóa kiến thức PLC/HMI/SCADA cho kỹ sư tự động hóa</div>
+</div>
+</div>
+<!-- Bookshelf -->
+<div class="bookshelf-container">
+<div class="books-row">
+<div class="book-item">
+<div class="book-cover">
+<i class="fas fa-microchip book-icon"></i>
+<div class="book-title">SIMATIC S7-300</div>
+<div class="book-subtitle">PLC Programming</div>
+</div>
+<div class="book-label">S7-300</div>
+</div>
+<div class="book-item">
+<div class="book-cover">
+<i class="fas fa-microchip book-icon"></i>
+<div class="book-title">SIMATIC S7-1200</div>
+<div class="book-subtitle">Advanced PLC</div>
+</div>
+<div class="book-label">S7-1200</div>
+</div>
+<div class="book-item">
+<div class="book-cover">
+<i class="fas fa-microchip book-icon"></i>
+<div class="book-title">SIMATIC S7-1500</div>
+<div class="book-subtitle">High Performance</div>
+</div>
+<div class="book-label">S7-1500</div>
+</div>
+<div class="book-item">
+<div class="book-cover">
+<i class="fas fa-desktop book-icon"></i>
+<div class="book-title">HMI/SCADA</div>
+<div class="book-subtitle">WinCC &amp; Interface</div>
+</div>
+<div class="book-label">HMI/SCADA</div>
+</div>
+<div class="book-item">
+<div class="book-cover">
+<i class="fas fa-network-wired book-icon"></i>
+<div class="book-title">Industrial Network</div>
+<div class="book-subtitle">Communication</div>
+</div>
+<div class="book-label">Network</div>
+</div>
+</div>
+<!-- Value Props -->
+<div class="value-props">
+<div class="value-card">
+<div class="value-icon"><i class="fas fa-layer-group"></i></div>
+<div class="value-content">
+<div class="value-title">Hệ thống hóa kiến thức</div>
+<div class="value-desc">Nội dung chuyên sâu về PLC, HMI, SCADA</div>
+</div>
+</div>
+<div class="value-card">
+<div class="value-icon"><i class="fas fa-book-reader"></i></div>
+<div class="value-content">
+<div class="value-title">Lý thuyết + Thực tiễn</div>
+<div class="value-desc">Kết hợp nền tảng lý thuyết với kinh nghiệm thực tế</div>
+</div>
+</div>
+<div class="value-card">
+<div class="value-icon"><i class="fas fa-users"></i></div>
+<div class="value-content">
+<div class="value-title">Ứng dụng rộng rãi</div>
+<div class="value-desc">Sử dụng trong đào tạo và triển khai dự án</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom bar -->
+<div class="bottom-bar">
+<div class="bottom-left">
+<span style="font-size: 18px; font-weight: 700; letter-spacing: 0.5px;">Trần Văn Hiếu</span>
+<span style="color: #475569; font-weight: 300;">|</span>
+<span style="font-size: 15px; color: #94a3b8; font-weight: 500;">Automation Consultant &amp; Author</span>
+</div>
+<div class="bottom-right">
+<div class="contact-item">
+<i class="fas fa-envelope"></i>
+<span>tran.van.hieu@siemens.com</span>
+</div>
+<div class="contact-item">
+<i class="fas fa-phone"></i>
+<span>+84 xxx xxx xxx</span>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

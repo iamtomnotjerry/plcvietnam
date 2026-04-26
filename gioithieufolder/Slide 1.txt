@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trần Văn Hiếu - Automation Consultant</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Open+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: #f8fafc;
+        }
+        
+        .slide-container {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 512px;
+            width: 768px;
+            height: 720px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
+            clip-path: polygon(100% 0, 100% 100%, 0 100%, 20% 0);
+            z-index: 1;
+        }
+        
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 720px;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+        
+        .main-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 660px;
+            display: flex;
+            z-index: 2;
+            padding: 60px 80px;
+        }
+        
+        .left-column {
+            width: 420px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .photo-container {
+            width: 360px;
+            height: 480px;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 8px solid #fff;
+            background: #fff;
+        }
+        
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .avatar-icon {
+            font-size: 160px;
+            color: #3b82f6;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+        
+        .photo-text {
+            font-size: 18px;
+            color: #64748b;
+            font-weight: 600;
+        }
+        
+        .photo-badge {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .right-column {
+            flex: 1;
+            padding-left: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .name-container {
+            margin-bottom: 32px;
+        }
+        
+        .name {
+            font-size: 72px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+        
+        .name-highlight {
+            color: #3b82f6;
+        }
+        
+        .title-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .title-badge {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .experience-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #f0fdf4;
+            color: #059669;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 700;
+            border: 1px solid #86efac;
+            width: fit-content;
+        }
+        
+        .experience-badge i {
+            margin-right: 10px;
+        }
+        
+        .tagline {
+            font-size: 20px;
+            color: #475569;
+            margin-bottom: 48px;
+            line-height: 1.6;
+            max-width: 650px;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .key-highlights {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .highlight-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            flex: 1;
+            border-left: 6px solid #3b82f6;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .highlight-title {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .highlight-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .highlight-value i {
+            color: #3b82f6;
+            font-size: 20px;
+        }
+        
+        .bottom-bar {
+            position: absolute;
+            top: 660px;
+            left: 0;
+            width: 1280px;
+            height: 60px;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 80px;
+            z-index: 3;
+        }
+        
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            color: white;
+        }
+        
+        .company-logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #3b82f6;
+            letter-spacing: 1px;
+        }
+        
+        .company-name {
+            font-size: 16px;
+            color: #94a3b8;
+            border-left: 1px solid #475569;
+            padding-left: 24px;
+        }
+        
+        .contact-info {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+        
+        .contact-item i {
+            color: #3b82f6;
+        }
+        
+        .decoration-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .decoration-circle-1 {
+            width: 250px;
+            height: 250px;
+            background: #3b82f6;
+            top: -50px;
+            right: 150px;
+        }
+        
+        .decoration-circle-2 {
+            width: 200px;
+            height: 200px;
+            background: #3b82f6;
+            top: 450px;
+            left: -50px;
+        }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+<!-- Background -->
+<div class="bg-pattern"></div>
+<div class="bg-grid"></div>
+<!-- Decorative circles -->
+<div class="decoration-circle decoration-circle-1"></div>
+<div class="decoration-circle decoration-circle-2"></div>
+<!-- Main content -->
+<div class="main-content">
+<!-- Left column -->
+<div class="left-column">
+<div class="photo-container">
+<div class="photo-placeholder">
+<i class="fas fa-user-tie avatar-icon"></i>
+<div class="photo-text">TRẦN VĂN HIẾU</div>
+<div class="photo-badge">15+ years</div>
+</div>
+</div>
+</div>
+<!-- Right column -->
+<div class="right-column">
+<div class="name-container">
+<div class="name">
+<span class="name-highlight">Trần</span> Văn <span class="name-highlight">Hiếu</span>
+</div>
+<div class="title-group">
+<span class="title-badge">Automation Consultant</span>
+<span class="title-badge">SITRAIN Manager</span>
+</div>
+<div class="experience-badge">
+<i class="fas fa-award"></i>
+                        15+ năm kinh nghiệm
+                    </div>
+</div>
+<div class="tagline">
+                    Chuyên gia tư vấn tự động hóa công nghiệp và quản lý đào tạo chuyên nghiệp. 
+                    Kết nối triển khai thực tế, đào tạo chuyển giao và phát triển cộng đồng kỹ sư tự động hóa tại Việt Nam.
+                </div>
+<div class="key-highlights">
+<div class="highlight-card">
+<div class="highlight-title">Kinh nghiệm</div>
+<div class="highlight-value">
+<i class="fas fa-cogs"></i> 15+ năm
+                        </div>
+</div>
+<div class="highlight-card">
+<div class="highlight-title">Dự án</div>
+<div class="highlight-value">
+<i class="fas fa-project-diagram"></i> 50+
+                        </div>
+</div>
+<div class="highlight-card">
+<div class="highlight-title">Khách hàng</div>
+<div class="highlight-value">
+<i class="fas fa-users"></i> 100+
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom bar -->
+<div class="bottom-bar">
+<div class="company-info">
+<div class="company-logo">SIEMENS</div>
+<div class="company-name">Siemens Vietnam</div>
+</div>
+<div class="contact-info">
+<div class="contact-item">
+<i class="fas fa-envelope"></i>
+<span>tran.van.hieu@siemens.com</span>
+</div>
+<div class="contact-item">
+<i class="fas fa-phone"></i>
+<span>+84 xxx xxx xxx</span>
+</div>
+<div class="contact-item">
+<i class="fas fa-map-marker-alt"></i>
+<span>Hà Nội, Việt Nam</span>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

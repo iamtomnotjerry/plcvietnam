@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { SearchInput } from '@/features/search/components/SearchInput';
 import { MobileSearchOverlay } from '@/components/ui/MobileSearchOverlay';
@@ -37,10 +38,16 @@ export function SiteHeader({ mobileNavOpen = false, onMobileNavToggle }: SiteHea
           href="/"
           className="flex shrink-0 items-center gap-2 font-serif text-lg font-semibold tracking-tight text-foreground hover:text-primary transition-colors"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
-            AB
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden bg-primary">
+            <Image
+              src="/logo.jpg"
+              alt="PLC Việt Nam"
+              width={32}
+              height={32}
+              className="object-cover w-full h-full"
+            />
           </span>
-          <span className="hidden sm:inline">Automation Blog</span>
+          <span className="hidden sm:inline">PLC Việt Nam</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1" aria-label="Điều hướng chính">

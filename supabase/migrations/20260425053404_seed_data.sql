@@ -30,10 +30,10 @@ INSERT INTO public.tags (id, slug, name) VALUES
 -- Insert Author Info
 INSERT INTO public.author_info (id, name, bio, email, social_links) VALUES
   ('a1111111-1111-1111-1111-111111111111', 
-   'PLC Vietnam', 
-   'Chuyên gia tự động hóa công nghiệp với hơn 10 năm kinh nghiệm trong lĩnh vực PLC, SCADA và Siemens Automation.',
-   'contact@plcvietnam.com',
-   '{"facebook": "https://facebook.com/plcvietnam", "linkedin": "https://linkedin.com/company/plcvietnam"}'::jsonb
+   'Trần Văn Hiếu', 
+   'Chuyên gia tư vấn tự động hóa công nghiệp và Quản lý Trung tâm Đào tạo SITRAIN tại Siemens Việt Nam. Hơn 15 năm kinh nghiệm triển khai 50+ dự án tự động hóa. Tác giả bộ sách TIA Portal. Admin cộng đồng PLC Việt Nam 5.000+ thành viên.',
+   'tran.van.hieu@siemens.com',
+   '{"linkedin": "https://linkedin.com/in/tran-van-hieu-siemens", "github": "https://github.com/plcvietnam"}'::jsonb
   );
 
 -- Note: Posts will be created via API after authentication is set up

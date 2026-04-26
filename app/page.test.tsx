@@ -26,19 +26,13 @@ vi.mock('@/features/homepage/components', () => ({
     </div>
   ),
   RecentPostsSection: ({ posts }: { posts: any[] }) => (
-    <div data-testid="recent-posts-section">
-      {posts.length} posts
-    </div>
+    <div data-testid="recent-posts-section">{posts.length} posts</div>
   ),
   FieldsSection: ({ fields }: { fields: any[] }) => (
-    <div data-testid="fields-section">
-      {fields.length} fields
-    </div>
+    <div data-testid="fields-section">{fields.length} fields</div>
   ),
   FeaturedBooksSection: ({ books }: { books: any[] }) => (
-    <div data-testid="featured-books-section">
-      {books.length} books
-    </div>
+    <div data-testid="featured-books-section">{books.length} books</div>
   ),
 }));
 
@@ -47,7 +41,7 @@ import { contentRepository } from '@/lib/data/factory';
 describe('HomePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default mock implementations
     vi.mocked(contentRepository.getRecentPosts).mockResolvedValue([
       {
@@ -90,7 +84,7 @@ describe('HomePage', () => {
         },
       },
     ]);
-    
+
     vi.mocked(contentRepository.getFields).mockResolvedValue([
       {
         id: 'field-1',
@@ -102,7 +96,7 @@ describe('HomePage', () => {
         updatedAt: new Date(),
       },
     ]);
-    
+
     vi.mocked(contentRepository.getFeaturedBooks).mockResolvedValue([
       {
         id: 'book-1',
@@ -114,7 +108,7 @@ describe('HomePage', () => {
         createdAt: new Date(),
       },
     ]);
-    
+
     vi.mocked(contentRepository.getCategoriesByFieldId).mockResolvedValue([
       {
         id: 'cat-1',
@@ -133,16 +127,16 @@ describe('HomePage', () => {
   it('renders the homepage with hero section', async () => {
     const page = await HomePage();
     render(page);
-    
+
     expect(screen.getByTestId('hero-section')).toBeInTheDocument();
-    expect(screen.getByText('Automation Blog')).toBeInTheDocument();
-    expect(screen.getByText('Chia sẻ kiến thức tự động hóa công nghiệp')).toBeInTheDocument();
+    expect(screen.getByText('PLC Việt Nam')).toBeInTheDocument();
+    expect(screen.getByText('Cộng đồng kỹ sư tự động hóa Việt Nam')).toBeInTheDocument();
   });
 
   it('renders all homepage sections', async () => {
     const page = await HomePage();
     render(page);
-    
+
     expect(screen.getByTestId('hero-section')).toBeInTheDocument();
     expect(screen.getByTestId('recent-posts-section')).toBeInTheDocument();
     expect(screen.getByTestId('fields-section')).toBeInTheDocument();
@@ -152,7 +146,7 @@ describe('HomePage', () => {
   it('fetches and displays recent posts', async () => {
     const page = await HomePage();
     render(page);
-    
+
     expect(contentRepository.getRecentPosts).toHaveBeenCalledWith(6);
     expect(screen.getByText('1 posts')).toBeInTheDocument();
   });
@@ -160,7 +154,7 @@ describe('HomePage', () => {
   it('fetches and displays fields with first category', async () => {
     const page = await HomePage();
     render(page);
-    
+
     expect(contentRepository.getFields).toHaveBeenCalled();
     expect(contentRepository.getCategoriesByFieldId).toHaveBeenCalledWith('field-1');
     expect(screen.getByText('1 fields')).toBeInTheDocument();
@@ -169,7 +163,7 @@ describe('HomePage', () => {
   it('fetches and displays featured books', async () => {
     const page = await HomePage();
     render(page);
-    
+
     expect(contentRepository.getFeaturedBooks).toHaveBeenCalledWith(3);
     expect(screen.getByText('1 books')).toBeInTheDocument();
   });

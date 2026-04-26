@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vai trò SITRAIN Manager - Trần Văn Hiếu</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Open+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: #f8fafc;
+        }
+        
+        .slide-container {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 720px;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+        
+        .main-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 660px;
+            z-index: 2;
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .page-subtitle {
+            font-size: 20px;
+            color: #64748b;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .hub-container {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .hub-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 240px;
+            height: 240px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+            z-index: 10;
+            border: 8px solid white;
+        }
+        
+        .hub-icon {
+            font-size: 56px;
+            color: white;
+            margin-bottom: 12px;
+        }
+        
+        .hub-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .hub-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 4px;
+        }
+        
+        .spokes-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+            height: 480px;
+        }
+        
+        .top-row, .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .spoke-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            width: 440px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .spoke-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .spoke-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .spoke-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.3;
+        }
+        
+        .spoke-content {
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.6;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .spoke-highlight {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 6px;
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 0 16px 16px 0;
+        }
+        
+        .bottom-bar {
+            position: absolute;
+            top: 660px;
+            left: 0;
+            width: 1280px;
+            height: 60px;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+            z-index: 3;
+        }
+        
+        .bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+        }
+        
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+        
+        .contact-item i {
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+<div class="bg-pattern"></div>
+<div class="main-content">
+<!-- Header -->
+<div class="header">
+<div class="header-left">
+<div class="page-title">Quản lý Trung tâm Đào tạo SITRAIN</div>
+<div class="page-subtitle">Xây dựng chiến lược đào tạo và nâng cao năng lực kỹ thuật</div>
+</div>
+</div>
+<!-- Hub and Spoke Layout -->
+<div class="hub-container">
+<!-- Center Hub -->
+<div class="hub-center">
+<i class="fas fa-graduation-cap hub-icon"></i>
+<div class="hub-title">SITRAIN<br/>Manager</div>
+<div class="hub-subtitle">Đào tạo chuyên sâu</div>
+</div>
+<!-- Spokes Container -->
+<div class="spokes-container">
+<div class="top-row">
+<div class="spoke-card" style="margin-left: 40px;">
+<div class="spoke-header">
+<div class="spoke-icon"><i class="fas fa-chess-king"></i></div>
+<div class="spoke-title">Chiến lược đào tạo</div>
+</div>
+<div class="spoke-content">
+                            Xây dựng định hướng đào tạo bài bản, lộ trình năng lực và chương trình học kỹ thuật chuẩn xác cho nhiều đối tượng.
+                        </div>
+<div class="spoke-highlight"></div>
+</div>
+<div class="spoke-card" style="margin-right: 40px;">
+<div class="spoke-header">
+<div class="spoke-icon"><i class="fas fa-user-cog"></i></div>
+<div class="spoke-title">Cá nhân hóa chương trình</div>
+</div>
+<div class="spoke-content">
+                            Nội dung đào tạo được cá nhân hóa phù hợp với ngành nghề và nhu cầu thực tế của học viên.
+                        </div>
+<div class="spoke-highlight"></div>
+</div>
+</div>
+<div class="bottom-row">
+<div class="spoke-card" style="margin-left: 40px;">
+<div class="spoke-header">
+<div class="spoke-icon"><i class="fas fa-globe"></i></div>
+<div class="spoke-title">Chuẩn toàn cầu Siemens</div>
+</div>
+<div class="spoke-content">
+                            Các khóa học đáp ứng tiêu chuẩn toàn cầu về nội dung, phương pháp và đánh giá chất lượng.
+                        </div>
+<div class="spoke-highlight"></div>
+</div>
+<div class="spoke-card" style="margin-right: 40px;">
+<div class="spoke-header">
+<div class="spoke-icon"><i class="fas fa-users"></i></div>
+<div class="spoke-title">Phát triển năng lực kỹ sư</div>
+</div>
+<div class="spoke-content">
+                            Trung tâm trở thành nơi kết nối tri thức, chia sẻ kinh nghiệm và nâng cao năng lực kỹ thuật.
+                        </div>
+<div class="spoke-highlight"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom bar -->
+<div class="bottom-bar">
+<div class="bottom-left">
+<span style="font-size: 18px; font-weight: 700; letter-spacing: 0.5px;">Trần Văn Hiếu</span>
+<span style="color: #475569; font-weight: 300;">|</span>
+<span style="font-size: 15px; color: #94a3b8; font-weight: 500;">Automation Consultant &amp; SITRAIN Manager</span>
+</div>
+<div class="bottom-right">
+<div class="contact-item">
+<i class="fas fa-envelope"></i>
+<span>tran.van.hieu@siemens.com</span>
+</div>
+<div class="contact-item">
+<i class="fas fa-phone"></i>
+<span>+84 xxx xxx xxx</span>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -74,9 +74,9 @@ export default async function HomePage() {
 
         {/* Hero Section */}
         <HeroSection
-          title="Automation Blog"
-          tagline="Chia sẻ kiến thức tự động hóa công nghiệp"
-          description="Khám phá kiến thức chuyên sâu về PLC, SCADA, Siemens Automation và các công nghệ tự động hóa công nghiệp hiện đại. Chia sẻ kinh nghiệm thực tế từ các dự án triển khai."
+          title="PLC Việt Nam"
+          tagline="Cộng đồng kỹ sư tự động hóa Việt Nam"
+          description="Khám phá kiến thức chuyên sâu về PLC, SCADA, Siemens TIA Portal và các công nghệ tự động hóa công nghiệp hiện đại. Chia sẻ kinh nghiệm thực tế từ các dự án triển khai tại Việt Nam."
         />
 
         {/* Recent Posts Section */}

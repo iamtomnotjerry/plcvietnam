@@ -16,9 +16,7 @@ vi.mock('next/link', () => ({
 }));
 
 vi.mock('next/image', () => ({
-  default: ({ src, alt }: { src: string; alt: string }) => (
-    <img src={src} alt={alt} />
-  ),
+  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
 }));
 
 // Mock content repository
@@ -62,7 +60,7 @@ describe('AboutPage', () => {
 
     // Requirement 6.2: Display author name and professional title
     expect(screen.getByText('Nguyễn Văn Tự Động')).toBeInTheDocument();
-    expect(screen.getByText('Chuyên gia Tự động hóa Công nghiệp')).toBeInTheDocument();
+    expect(screen.getByText('Automation Consultant')).toBeInTheDocument();
   });
 
   it('should display author avatar with correct alt text', async () => {
@@ -80,7 +78,7 @@ describe('AboutPage', () => {
     render(page);
 
     // Requirement 6.2: Display professional biography
-    expect(screen.getByText(/Chuyên gia tự động hóa công nghiệp/)).toBeInTheDocument();
+    expect(screen.getByText(/Chuyên gia tư vấn tự động hóa/)).toBeInTheDocument();
   });
 
   it('should display all expertise areas as tags', async () => {
@@ -89,7 +87,9 @@ describe('AboutPage', () => {
 
     // Requirement 6.2: Display areas of expertise
     expect(screen.getByText('Chuyên môn')).toBeInTheDocument();
-    expect(screen.getByText('Lập trình PLC (Siemens, Allen-Bradley, Mitsubishi)')).toBeInTheDocument();
+    expect(
+      screen.getByText('Lập trình PLC (Siemens, Allen-Bradley, Mitsubishi)')
+    ).toBeInTheDocument();
     expect(screen.getByText('Hệ thống SCADA (WinCC, Ignition, Wonderware)')).toBeInTheDocument();
     expect(screen.getByText('Siemens TIA Portal & Step 7')).toBeInTheDocument();
   });
@@ -110,7 +110,7 @@ describe('AboutPage', () => {
 
     // Requirement 6.2: Display contact information
     expect(screen.getByText('Liên hệ')).toBeInTheDocument();
-    
+
     // Check for social link labels
     expect(screen.getByText('Email')).toBeInTheDocument();
     expect(screen.getByText('LinkedIn')).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe('AboutPage', () => {
     const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
     expect(breadcrumb).toBeInTheDocument();
     expect(screen.getByText('Trang chủ')).toBeInTheDocument();
-    
+
     // Check for breadcrumb item specifically (not the section heading)
     const breadcrumbItems = screen.getAllByText('Giới thiệu');
     expect(breadcrumbItems.length).toBeGreaterThan(0);
@@ -173,9 +173,9 @@ describe('AboutPage', () => {
       },
     };
 
-    vi.mocked((await import('@/lib/data/factory')).contentRepository.getAuthor).mockResolvedValueOnce(
-      authorWithoutTwitter
-    );
+    vi.mocked(
+      (await import('@/lib/data/factory')).contentRepository.getAuthor
+    ).mockResolvedValueOnce(authorWithoutTwitter);
 
     const page = await AboutPage();
     render(page);
@@ -183,7 +183,7 @@ describe('AboutPage', () => {
     // Should display available links
     expect(screen.getByText('Email')).toBeInTheDocument();
     expect(screen.getByText('LinkedIn')).toBeInTheDocument();
-    
+
     // Should not display missing links
     expect(screen.queryByText('GitHub')).not.toBeInTheDocument();
     expect(screen.queryByText('Twitter')).not.toBeInTheDocument();
@@ -195,6 +195,6 @@ describe('generateMetadata', () => {
     const metadata = await generateMetadata();
 
     expect(metadata.title).toBe('Giới thiệu - Nguyễn Văn Tự Động');
-    expect(metadata.description).toBe(mockAuthor.bio);
+    expect(metadata.description).toContain('Trần Văn Hiếu');
   });
 });

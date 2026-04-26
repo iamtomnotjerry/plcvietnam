@@ -102,7 +102,7 @@ export default async function PostPage({ params }: PostPageProps) {
   // Ensure author exists for schema generation - use fallback instead of 404
   const author = post.author ?? {
     id: '',
-    name: 'PLC Vietnam',
+    name: 'Trần Văn Hiếu',
     email: '',
     bio: '',
     expertise: [],

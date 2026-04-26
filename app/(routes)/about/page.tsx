@@ -1,7 +1,6 @@
 /**
  * About Page Route
  * Display author information and credentials
- * Validates Requirements: 6.1, 6.2, 6.3, 6.4
  */
 
 import { contentRepository } from '@/lib/data/factory';
@@ -15,33 +14,19 @@ import {
   renderJsonLd,
 } from '@/lib/utils/structuredData';
 
-/**
- * Generate metadata for about page
- */
 export async function generateMetadata(): Promise<Metadata> {
   const author = await contentRepository.getAuthor();
-
   return {
     title: `Giới thiệu - ${author.name}`,
-    description: author.bio,
+    description:
+      'Trần Văn Hiếu - Automation Consultant & SITRAIN Manager tại Siemens Việt Nam. 15+ năm kinh nghiệm tự động hóa công nghiệp, tác giả bộ sách TIA Portal, Admin cộng đồng PLC Việt Nam.',
   };
 }
 
-/**
- * About Page Component
- *
- * Displays:
- * - Hero section with avatar, name, and title
- * - Biography section
- * - Expertise section with tag list
- * - Certifications section with list
- * - Contact section with social links
- */
 export default async function AboutPage() {
   const author = await contentRepository.getAuthor();
 
-  // Generate structured data
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://automation-blog.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://plcvietnam.com';
   const personSchema = generatePersonSchema(author, baseUrl);
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Trang chủ', url: baseUrl },
@@ -58,7 +43,7 @@ export default async function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
       />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Breadcrumb */}
         <nav className="mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -68,13 +53,7 @@ export default async function AboutPage() {
               </Link>
             </li>
             <li>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -109,7 +88,6 @@ export default async function AboutPage() {
 
         {/* Hero Section */}
         <div className="mb-12 text-center">
-          {/* Avatar */}
           {author.avatarUrl && (
             <div className="mb-6 flex justify-center">
               <div className="relative w-[200px] h-[200px] rounded-full overflow-hidden border-4 border-primary/20">
@@ -124,66 +102,631 @@ export default async function AboutPage() {
               </div>
             </div>
           )}
-
-          {/* Name and Title */}
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-2">{author.name}</h1>
-          <p className="text-xl text-muted-foreground">Chuyên gia Tự động hóa Công nghiệp</p>
+          <div className="flex flex-wrap justify-center gap-2 mt-3">
+            <span className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-semibold">
+              Automation Consultant
+            </span>
+            <span className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-semibold">
+              SITRAIN Manager
+            </span>
+            <span className="px-4 py-1.5 bg-green-100 text-green-700 border border-green-300 rounded-md text-sm font-semibold dark:bg-green-900/30 dark:text-green-400 dark:border-green-700">
+              15+ năm kinh nghiệm
+            </span>
+          </div>
+          <p className="mt-4 text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
+            Chuyên gia tư vấn tự động hóa công nghiệp và quản lý đào tạo chuyên nghiệp tại Siemens
+            Việt Nam. Kết nối triển khai thực tế, đào tạo chuyển giao và phát triển cộng đồng kỹ sư
+            tự động hóa tại Việt Nam.
+          </p>
         </div>
 
-        {/* Bio Section */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Giới thiệu</h2>
-          <div className="prose prose-slate dark:prose-invert max-w-none">
-            <p className="text-lg text-foreground/90 leading-relaxed">{author.bio}</p>
-          </div>
-        </section>
-
-        {/* Expertise Section */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Chuyên môn</h2>
-          <div className="flex flex-wrap gap-3">
-            {author.expertise.map((skill, index) => (
-              <span
-                key={index}
-                className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium"
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-12">
+          {[
+            {
+              value: '15+',
+              label: 'Năm kinh nghiệm',
+              icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+            },
+            {
+              value: '50+',
+              label: 'Dự án triển khai',
+              icon: 'M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2',
+            },
+            {
+              value: '500+',
+              label: 'Học viên đào tạo',
+              icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+            },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-card border border-border rounded-xl p-6 text-center"
+            >
+              <svg
+                className="w-8 h-8 text-primary mx-auto mb-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                {skill}
-              </span>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d={stat.icon}
+                />
+              </svg>
+              <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Chuyên môn */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Hồ sơ chuyên môn</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              {
+                icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+                title: '15+ năm kinh nghiệm',
+                desc: 'Kinh nghiệm triển khai giải pháp tự động hóa công nghiệp cho nhiều dự án lớn tại Việt Nam',
+              },
+              {
+                icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18',
+                title: 'Nền tảng Siemens',
+                desc: 'Thành thạo TIA Portal, SIMATIC PLC, WinCC, PCS 7 và các hệ thống truyền thông công nghiệp',
+              },
+              {
+                icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z',
+                title: 'Tư duy hệ thống',
+                desc: 'Chuẩn kỹ thuật cao, phối hợp đa bên hiệu quả trong triển khai dự án tự động hóa',
+              },
+              {
+                icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+                title: 'Năng lực đào tạo',
+                desc: 'Truyền đạt chuyên môn, phát triển đội ngũ kỹ thuật và chuyển giao công nghệ hiệu quả',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="flex gap-4 p-5 bg-card border border-border rounded-xl border-l-4 border-l-primary"
+              >
+                <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-6 h-6 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d={item.icon}
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* Certifications Section */}
+        {/* Kinh nghiệm triển khai */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Chứng chỉ</h2>
-          <ul className="space-y-3">
-            {author.certifications.map((cert, index) => (
-              <li key={index} className="flex items-start gap-3 text-foreground/90">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Kinh nghiệm triển khai</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Quy trình */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                 <svg
-                  className="w-6 h-6 text-primary flex-shrink-0 mt-0.5"
+                  className="w-5 h-5 text-primary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                   />
                 </svg>
-                <span className="text-lg">{cert}</span>
-              </li>
-            ))}
-          </ul>
+                Quy trình triển khai dự án
+              </h3>
+              <ol className="space-y-3">
+                {[
+                  {
+                    title: 'Khảo sát hiện trạng',
+                    desc: 'Đánh giá tình hình thực tế, thu thập yêu cầu từ khách hàng',
+                  },
+                  {
+                    title: 'Phân tích kỹ thuật',
+                    desc: 'Phân tích yêu cầu kỹ thuật, đánh giá khả thi giải pháp',
+                  },
+                  {
+                    title: 'Thiết kế giải pháp',
+                    desc: 'Thiết kế hệ thống, lập kế hoạch triển khai',
+                  },
+                  {
+                    title: 'Lập trình & tích hợp',
+                    desc: 'Lập trình PLC, SCADA, tích hợp hệ thống',
+                  },
+                  { title: 'Kiểm thử', desc: 'Kiểm tra, hiệu chỉnh, tối ưu hóa hệ thống' },
+                  {
+                    title: 'Nghiệm thu & bàn giao',
+                    desc: 'Đánh giá chất lượng, bàn giao cho khách hàng',
+                  },
+                ].map((step, i) => (
+                  <li key={i} className="flex gap-3 items-start">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                      {i + 1}
+                    </span>
+                    <div className="flex-1 bg-muted/50 rounded-lg px-3 py-2 border-l-4 border-primary">
+                      <div className="text-sm font-semibold text-foreground">{step.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{step.desc}</div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            {/* Ngành ứng dụng */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+                Ngành ứng dụng
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  {
+                    icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z',
+                    name: 'Thực phẩm',
+                    desc: 'Dây chuyền sản xuất',
+                  },
+                  {
+                    icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    name: 'Xi măng',
+                    desc: 'Nhà máy xi măng',
+                  },
+                  {
+                    icon: 'M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0',
+                    name: 'Cảng biển',
+                    desc: 'Hệ thống cảng',
+                  },
+                  {
+                    icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z',
+                    name: 'Sản xuất',
+                    desc: 'Dây chuyền tự động',
+                  },
+                  {
+                    icon: 'M13 10V3L4 14h7v7l9-11h-7z',
+                    name: 'Thủy điện',
+                    desc: 'Nhà máy thủy điện',
+                  },
+                  {
+                    icon: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z',
+                    name: 'Năng lượng',
+                    desc: 'Hệ thống điện',
+                  },
+                ].map((ind) => (
+                  <div
+                    key={ind.name}
+                    className="flex flex-col items-center p-3 bg-muted/50 rounded-xl border border-border text-center"
+                  >
+                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
+                      <svg
+                        className="w-5 h-5 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d={ind.icon}
+                        />
+                      </svg>
+                    </div>
+                    <div className="text-sm font-semibold text-foreground">{ind.name}</div>
+                    <div className="text-xs text-muted-foreground">{ind.desc}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-4 mt-4 pt-4 border-t border-border">
+                <div className="flex-1 text-center">
+                  <div className="text-2xl font-bold text-foreground">50+</div>
+                  <div className="text-xs text-muted-foreground">Dự án</div>
+                </div>
+                <div className="flex-1 text-center">
+                  <div className="text-2xl font-bold text-foreground">100%</div>
+                  <div className="text-xs text-muted-foreground">Thành công</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        {/* Contact Section */}
+        {/* SITRAIN Manager */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">
+            Quản lý Trung tâm Đào tạo SITRAIN
+          </h2>
+          <div className="bg-card border border-border rounded-xl p-6">
+            <p className="text-muted-foreground mb-6 leading-relaxed">
+              Xây dựng chiến lược đào tạo và nâng cao năng lực kỹ thuật cho kỹ sư tự động hóa tại
+              Việt Nam theo chuẩn toàn cầu Siemens.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                {
+                  icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
+                  title: 'Chiến lược đào tạo',
+                  desc: 'Xây dựng định hướng đào tạo bài bản, lộ trình năng lực và chương trình học kỹ thuật chuẩn xác cho nhiều đối tượng.',
+                },
+                {
+                  icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+                  title: 'Cá nhân hóa chương trình',
+                  desc: 'Nội dung đào tạo được cá nhân hóa phù hợp với ngành nghề và nhu cầu thực tế của học viên.',
+                },
+                {
+                  icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                  title: 'Chuẩn toàn cầu Siemens',
+                  desc: 'Các khóa học đáp ứng tiêu chuẩn toàn cầu về nội dung, phương pháp và đánh giá chất lượng.',
+                },
+                {
+                  icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+                  title: 'Phát triển năng lực kỹ sư',
+                  desc: 'Trung tâm trở thành nơi kết nối tri thức, chia sẻ kinh nghiệm và nâng cao năng lực kỹ thuật.',
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="flex gap-3 p-4 bg-muted/40 rounded-xl border border-border"
+                >
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <svg
+                      className="w-5 h-5 text-primary"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d={item.icon}
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground text-sm mb-1">{item.title}</div>
+                    <div className="text-xs text-muted-foreground leading-relaxed">{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Tác giả sách */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Tác giả bộ sách</h2>
+          <p className="text-muted-foreground mb-6">
+            "Thiết kế hệ thống tự động hóa với TIA Portal" — Hệ thống hóa kiến thức PLC/HMI/SCADA
+            cho kỹ sư tự động hóa
+          </p>
+          <div className="bg-card border border-border rounded-xl p-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+              {[
+                { title: 'SIMATIC S7-300', sub: 'PLC Programming' },
+                { title: 'SIMATIC S7-1200', sub: 'Advanced PLC' },
+                { title: 'SIMATIC S7-1500', sub: 'High Performance' },
+                { title: 'HMI/SCADA', sub: 'WinCC & Interface' },
+                { title: 'Industrial Network', sub: 'Communication' },
+              ].map((book) => (
+                <div key={book.title} className="flex flex-col items-center">
+                  <div className="w-full aspect-[3/4] bg-gradient-to-br from-primary to-blue-700 rounded-lg flex flex-col items-center justify-center p-3 shadow-md mb-2">
+                    <svg
+                      className="w-8 h-8 text-white mb-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"
+                      />
+                    </svg>
+                    <div className="text-white text-xs font-bold text-center leading-tight">
+                      {book.title}
+                    </div>
+                    <div className="text-white/70 text-xs text-center mt-1">{book.sub}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { title: 'Hệ thống hóa kiến thức', desc: 'Nội dung chuyên sâu về PLC, HMI, SCADA' },
+                {
+                  title: 'Lý thuyết + Thực tiễn',
+                  desc: 'Kết hợp nền tảng lý thuyết với kinh nghiệm thực tế',
+                },
+                { title: 'Ứng dụng rộng rãi', desc: 'Sử dụng trong đào tạo và triển khai dự án' },
+              ].map((v) => (
+                <div
+                  key={v.title}
+                  className="flex gap-3 items-start p-4 bg-muted/40 rounded-xl border border-border"
+                >
+                  <div className="flex-shrink-0 w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <svg
+                      className="w-5 h-5 text-primary"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground text-sm">{v.title}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{v.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Đóng góp cộng đồng */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Đóng góp cho cộng đồng PLC Việt Nam
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            Admin diễn đàn, chia sẻ kiến thức và kết nối kỹ sư tự động hóa
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Vai trò cộng đồng */}
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-semibold text-foreground text-sm">Vai trò cộng đồng</div>
+                  <div className="text-xs text-muted-foreground">Admin diễn đàn PLC Việt Nam</div>
+                </div>
+              </div>
+              <ul className="space-y-3 mb-4">
+                {[
+                  {
+                    title: 'Admin diễn đàn',
+                    desc: 'Quản trị và định hướng nội dung cho cộng đồng PLC Việt Nam',
+                  },
+                  {
+                    title: 'Kết nối kỹ sư',
+                    desc: 'Kết nối kỹ sư tự động hóa trong cộng đồng chuyên môn',
+                  },
+                  {
+                    title: 'Hỗ trợ chuyên môn',
+                    desc: 'Tư vấn kỹ thuật và giải đáp thắc mắc cho thành viên',
+                  },
+                ].map((item) => (
+                  <li
+                    key={item.title}
+                    className="flex gap-2 p-2.5 bg-muted/40 rounded-lg border-l-2 border-primary"
+                  >
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">{item.title}</div>
+                      <div className="text-xs text-muted-foreground">{item.desc}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex gap-3 pt-3 border-t border-border">
+                <div className="flex-1 text-center">
+                  <div className="text-xl font-bold text-foreground">5K+</div>
+                  <div className="text-xs text-muted-foreground">Thành viên</div>
+                </div>
+                <div className="flex-1 text-center">
+                  <div className="text-xl font-bold text-foreground">100+</div>
+                  <div className="text-xs text-muted-foreground">Bài viết</div>
+                </div>
+              </div>
+            </div>
+            {/* Nội dung chia sẻ */}
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-semibold text-foreground text-sm">Nội dung chia sẻ</div>
+                  <div className="text-xs text-muted-foreground">
+                    Kiến thức chuyên sâu về tự động hóa
+                  </div>
+                </div>
+              </div>
+              <ul className="space-y-3 mb-4">
+                {[
+                  { title: 'PLC & SCADA', desc: 'Kiến thức về lập trình PLC và hệ thống SCADA' },
+                  { title: 'Mạng công nghiệp', desc: 'DCS và mạng truyền thông công nghiệp' },
+                  { title: 'Giải pháp kỹ thuật', desc: 'Hướng dẫn triển khai và xử lý sự cố' },
+                ].map((item) => (
+                  <li
+                    key={item.title}
+                    className="flex gap-2 p-2.5 bg-muted/40 rounded-lg border-l-2 border-primary"
+                  >
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">{item.title}</div>
+                      <div className="text-xs text-muted-foreground">{item.desc}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex gap-3 pt-3 border-t border-border">
+                <div className="flex-1 text-center">
+                  <div className="text-xl font-bold text-foreground">200+</div>
+                  <div className="text-xs text-muted-foreground">Bài hướng dẫn</div>
+                </div>
+                <div className="flex-1 text-center">
+                  <div className="text-xl font-bold text-foreground">50+</div>
+                  <div className="text-xs text-muted-foreground">Video tutorial</div>
+                </div>
+              </div>
+            </div>
+            {/* Tác động */}
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-semibold text-foreground text-sm">Tác động tạo ra</div>
+                  <div className="text-xs text-muted-foreground">Phát triển năng lực kỹ sư</div>
+                </div>
+              </div>
+              <ul className="space-y-3 mb-4">
+                {[
+                  { title: 'Hỗ trợ kỹ sư trẻ', desc: 'Đào tạo và hướng dẫn kỹ sư mới vào nghề' },
+                  { title: 'Văn hóa học tập', desc: 'Thúc đẩy tinh thần học tập liên tục' },
+                  { title: 'Kết nối doanh nghiệp', desc: 'Liên kết đào tạo với nhu cầu thực tế' },
+                ].map((item) => (
+                  <li
+                    key={item.title}
+                    className="flex gap-2 p-2.5 bg-muted/40 rounded-lg border-l-2 border-primary"
+                  >
+                    <div>
+                      <div className="text-xs font-semibold text-foreground">{item.title}</div>
+                      <div className="text-xs text-muted-foreground">{item.desc}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex gap-3 pt-3 border-t border-border">
+                <div className="flex-1 text-center">
+                  <div className="text-xl font-bold text-foreground">500+</div>
+                  <div className="text-xs text-muted-foreground">Người học</div>
+                </div>
+                <div className="flex-1 text-center">
+                  <div className="text-xl font-bold text-foreground">90%</div>
+                  <div className="text-xs text-muted-foreground">Hài lòng</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Chuyên môn tags */}
+        {author.expertise && author.expertise.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Chuyên môn</h2>
+            <div className="flex flex-wrap gap-3">
+              {author.expertise.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Chứng chỉ */}
+        {author.certifications && author.certifications.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Chứng chỉ</h2>
+            <ul className="space-y-3">
+              {author.certifications.map((cert, index) => (
+                <li key={index} className="flex items-start gap-3 text-foreground/90">
+                  <svg
+                    className="w-6 h-6 text-primary flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                    />
+                  </svg>
+                  <span className="text-lg">{cert}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Liên hệ */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-foreground mb-4">Liên hệ</h2>
           <div className="flex flex-wrap gap-4">
-            {/* Email */}
             {author.socialLinks.email && (
               <a
                 href={`mailto:${author.socialLinks.email}`}
@@ -196,7 +739,6 @@ export default async function AboutPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     strokeLinecap="round"
@@ -208,8 +750,6 @@ export default async function AboutPage() {
                 <span className="text-foreground font-medium">Email</span>
               </a>
             )}
-
-            {/* LinkedIn */}
             {author.socialLinks.linkedin && (
               <a
                 href={author.socialLinks.linkedin}
@@ -217,19 +757,12 @@ export default async function AboutPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-3 bg-card border border-border rounded-lg hover:bg-accent hover:border-primary/50 transition-colors cursor-pointer"
               >
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
                 <span className="text-foreground font-medium">LinkedIn</span>
               </a>
             )}
-
-            {/* GitHub */}
             {author.socialLinks.github && (
               <a
                 href={author.socialLinks.github}
@@ -237,19 +770,12 @@ export default async function AboutPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-3 bg-card border border-border rounded-lg hover:bg-accent hover:border-primary/50 transition-colors cursor-pointer"
               >
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
                 <span className="text-foreground font-medium">GitHub</span>
               </a>
             )}
-
-            {/* Twitter */}
             {author.socialLinks.twitter && (
               <a
                 href={author.socialLinks.twitter}
@@ -257,12 +783,7 @@ export default async function AboutPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-3 bg-card border border-border rounded-lg hover:bg-accent hover:border-primary/50 transition-colors cursor-pointer"
               >
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
                 <span className="text-foreground font-medium">Twitter</span>

@@ -21,8 +21,9 @@ const serif = Lora({
 });
 
 export const metadata: Metadata = {
-  title: 'Automation Blog - PLC, SCADA, Siemens',
-  description: 'Blog chuyên về tự động hóa công nghiệp, PLC, SCADA, và Siemens Automation',
+  title: 'PLC Việt Nam - PLC, SCADA, Siemens',
+  description:
+    'Cộng đồng kỹ sư tự động hóa Việt Nam - Chia sẻ kiến thức PLC, SCADA, Siemens TIA Portal và các giải pháp tự động hóa công nghiệp',
   alternates: {
     types: {
       'application/rss+xml': '/rss.xml',

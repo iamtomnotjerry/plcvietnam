@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hồ sơ chuyên môn - Trần Văn Hiếu</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Open+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: #f8fafc;
+        }
+        
+        .slide-container {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 720px;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+        
+        .main-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 660px;
+            z-index: 2;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            font-size: 20px;
+            color: #64748b;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .company-logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #3b82f6;
+            letter-spacing: 1px;
+        }
+        
+        .company-name {
+            font-size: 16px;
+            color: #64748b;
+            border-left: 2px solid #e2e8f0;
+            padding-left: 16px;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .expertise-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            height: 340px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+        
+        .card-description {
+            font-size: 15px;
+            color: #64748b;
+            line-height: 1.6;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .card-highlight {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: #3b82f6;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+        
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+        }
+        
+        .stat-info {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 15px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .bottom-bar {
+            position: absolute;
+            top: 660px;
+            left: 0;
+            width: 1280px;
+            height: 60px;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 80px;
+            z-index: 3;
+        }
+        
+        .bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+        }
+        
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+        
+        .contact-item i {
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+<div class="bg-pattern"></div>
+<div class="main-content">
+<!-- Header -->
+<div class="header">
+<div class="header-left">
+<div class="page-title">Hồ sơ chuyên môn</div>
+<div class="page-subtitle">Chuyên gia tư vấn tự động hóa công nghiệp tại Siemens Việt Nam</div>
+</div>
+<div class="header-right">
+<div class="company-logo">SIEMENS</div>
+<div class="company-name">Siemens Vietnam</div>
+</div>
+</div>
+<!-- Cards Grid -->
+<div class="cards-container">
+<div class="expertise-card">
+<div class="card-icon"><i class="fas fa-clock"></i></div>
+<div class="card-title">15+ năm kinh nghiệm</div>
+<div class="card-description">Kinh nghiệm triển khai giải pháp tự động hóa công nghiệp cho nhiều dự án lớn tại Việt Nam</div>
+<div class="card-highlight"></div>
+</div>
+<div class="expertise-card">
+<div class="card-icon"><i class="fas fa-microchip"></i></div>
+<div class="card-title">Nền tảng Siemens</div>
+<div class="card-description">Thành thạo TIA Portal, SIMATIC PLC, WinCC, PCS 7 và các hệ thống truyền thông công nghiệp</div>
+<div class="card-highlight"></div>
+</div>
+<div class="expertise-card">
+<div class="card-icon"><i class="fas fa-project-diagram"></i></div>
+<div class="card-title">Tư duy hệ thống</div>
+<div class="card-description">Chuẩn kỹ thuật cao, phối hợp đa bên hiệu quả trong triển khai dự án tự động hóa</div>
+<div class="card-highlight"></div>
+</div>
+<div class="expertise-card">
+<div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+<div class="card-title">Năng lực đào tạo</div>
+<div class="card-description">Truyền đạt chuyên môn, phát triển đội ngũ kỹ thuật và chuyển giao công nghệ hiệu quả</div>
+<div class="card-highlight"></div>
+</div>
+</div>
+<!-- Stats Section -->
+<div class="stats-container">
+<div class="stat-item">
+<div class="stat-icon"><i class="fas fa-project-diagram"></i></div>
+<div class="stat-info">
+<div class="stat-value">50+</div>
+<div class="stat-label">Dự án triển khai</div>
+</div>
+</div>
+<div class="stat-item">
+<div class="stat-icon"><i class="fas fa-users"></i></div>
+<div class="stat-info">
+<div class="stat-value">100+</div>
+<div class="stat-label">Khách hàng</div>
+</div>
+</div>
+<div class="stat-item">
+<div class="stat-icon"><i class="fas fa-graduation-cap"></i></div>
+<div class="stat-info">
+<div class="stat-value">500+</div>
+<div class="stat-label">Học viên đào tạo</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom bar -->
+<div class="bottom-bar">
+<div class="bottom-left">
+<span style="font-size: 18px; font-weight: 700; letter-spacing: 0.5px;">Trần Văn Hiếu</span>
+<span style="color: #475569; font-weight: 300;">|</span>
+<span style="font-size: 15px; color: #94a3b8; font-weight: 500;">Automation Consultant</span>
+</div>
+<div class="bottom-right">
+<div class="contact-item">
+<i class="fas fa-envelope"></i>
+<span>tran.van.hieu@siemens.com</span>
+</div>
+<div class="contact-item">
+<i class="fas fa-phone"></i>
+<span>+84 xxx xxx xxx</span>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

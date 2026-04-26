@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kinh nghiệm triển khai - Trần Văn Hiếu</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Open+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: #f8fafc;
+        }
+        
+        .slide-container {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 720px;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+        }
+        
+        .main-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1280px;
+            height: 660px;
+            z-index: 2;
+            padding: 40px 60px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .page-subtitle {
+            font-size: 18px;
+            color: #64748b;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .content-grid {
+            display: flex;
+            gap: 32px;
+            flex: 1;
+        }
+        
+        .left-column {
+            width: 55%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .timeline-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            flex: 1;
+        }
+        
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .timeline-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .timeline-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+        
+        .step-content {
+            flex: 1;
+            padding: 8px 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .step-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+        
+        .step-desc {
+            font-size: 12px;
+            line-height: 1.3;
+            color: #64748b;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .right-column {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .industries-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .industries-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .industries-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .industries-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            flex: 1;
+        }
+        
+        .industry-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .industry-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .industry-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 2px;
+        }
+        
+        .industry-desc {
+            font-size: 10px;
+            color: #64748b;
+            text-align: center;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .bottom-bar {
+            position: absolute;
+            top: 660px;
+            left: 0;
+            width: 1280px;
+            height: 60px;
+            background: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+            z-index: 3;
+        }
+        
+        .bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+        }
+        
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+        
+        .contact-item i {
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+<div class="bg-pattern"></div>
+<div class="main-content">
+<!-- Header -->
+<div class="header">
+<div class="header-left">
+<div class="page-title">Kinh nghiệm triển khai</div>
+<div class="page-subtitle">Quy trình dự án toàn diện và ngành ứng dụng tại Siemens Việt Nam</div>
+</div>
+</div>
+<!-- Content Grid -->
+<div class="content-grid">
+<!-- Left Column: Timeline -->
+<div class="left-column">
+<div class="timeline-container">
+<div class="timeline-header">
+<i class="fas fa-stream" style="color: #3b82f6; font-size: 20px;"></i>
+<div class="timeline-title">Quy trình triển khai dự án</div>
+</div>
+<div class="timeline-steps">
+<div class="step-item">
+<div class="step-number">1</div>
+<div class="step-content">
+<div class="step-title">Khảo sát hiện trạng</div>
+<div class="step-desc">Đánh giá tình hình thực tế, thu thập yêu cầu từ khách hàng</div>
+</div>
+</div>
+<div class="step-item">
+<div class="step-number">2</div>
+<div class="step-content">
+<div class="step-title">Phân tích kỹ thuật</div>
+<div class="step-desc">Phân tích yêu cầu kỹ thuật, đánh giá khả thi giải pháp</div>
+</div>
+</div>
+<div class="step-item">
+<div class="step-number">3</div>
+<div class="step-content">
+<div class="step-title">Thiết kế giải pháp</div>
+<div class="step-desc">Thiết kế hệ thống, lập kế hoạch triển khai</div>
+</div>
+</div>
+<div class="step-item">
+<div class="step-number">4</div>
+<div class="step-content">
+<div class="step-title">Lập trình &amp; tích hợp</div>
+<div class="step-desc">Lập trình PLC, SCADA, tích hợp hệ thống</div>
+</div>
+</div>
+<div class="step-item">
+<div class="step-number">5</div>
+<div class="step-content">
+<div class="step-title">Kiểm thử</div>
+<div class="step-desc">Kiểm tra, hiệu chỉnh, tối ưu hóa hệ thống</div>
+</div>
+</div>
+<div class="step-item">
+<div class="step-number">6</div>
+<div class="step-content">
+<div class="step-title">Nghiệm thu &amp; bàn giao</div>
+<div class="step-desc">Đánh giá chất lượng, bàn giao cho khách hàng</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Industries -->
+<div class="right-column">
+<div class="industries-container">
+<div class="industries-header">
+<i class="fas fa-industry" style="color: #3b82f6; font-size: 20px;"></i>
+<div class="industries-title">Ngành ứng dụng</div>
+</div>
+<div class="industries-grid">
+<div class="industry-item">
+<div class="industry-icon"><i class="fas fa-utensils"></i></div>
+<div class="industry-name">Thực phẩm</div>
+<div class="industry-desc">Dây chuyền sản xuất</div>
+</div>
+<div class="industry-item">
+<div class="industry-icon"><i class="fas fa-hard-hat"></i></div>
+<div class="industry-name">Xi măng</div>
+<div class="industry-desc">Nhà máy xi măng</div>
+</div>
+<div class="industry-item">
+<div class="industry-icon"><i class="fas fa-ship"></i></div>
+<div class="industry-name">Cảng biển</div>
+<div class="industry-desc">Hệ thống cảng</div>
+</div>
+<div class="industry-item">
+<div class="industry-icon"><i class="fas fa-cogs"></i></div>
+<div class="industry-name">Sản xuất</div>
+<div class="industry-desc">Dây chuyền tự động</div>
+</div>
+<div class="industry-item">
+<div class="industry-icon"><i class="fas fa-water"></i></div>
+<div class="industry-name">Thủy điện</div>
+<div class="industry-desc">Nhà máy thủy điện</div>
+</div>
+<div class="industry-item">
+<div class="industry-icon"><i class="fas fa-bolt"></i></div>
+<div class="industry-name">Năng lượng</div>
+<div class="industry-desc">Hệ thống điện</div>
+</div>
+</div>
+<div class="stats-bar">
+<div class="stat-item">
+<div class="stat-value">50+</div>
+<div class="stat-label">Dự án</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">100%</div>
+<div class="stat-label">Thành công</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom bar -->
+<div class="bottom-bar">
+<div class="bottom-left">
+<span style="font-size: 18px; font-weight: 700; letter-spacing: 0.5px;">Trần Văn Hiếu</span>
+<span style="color: #475569; font-weight: 300;">|</span>
+<span style="font-size: 15px; color: #94a3b8; font-weight: 500;">Automation Consultant</span>
+</div>
+<div class="bottom-right">
+<div class="contact-item">
+<i class="fas fa-envelope"></i>
+<span>tran.van.hieu@siemens.com</span>
+</div>
+<div class="contact-item">
+<i class="fas fa-phone"></i>
+<span>+84 xxx xxx xxx</span>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
