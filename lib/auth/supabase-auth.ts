@@ -43,11 +43,16 @@ export interface AuthUser {
 export async function registerUser(input: RegisterInput): Promise<AuthUser> {
   const supabase = getAnonClient();
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const emailRedirectTo = `${siteUrl}/auth/confirmed`;
+
   const { data, error } = await supabase.auth.signUp({
     email: input.email,
     password: input.password,
     options: {
       data: { full_name: input.name },
+      emailRedirectTo,
     },
   });
 
