@@ -23,7 +23,7 @@ export interface PostListProps {
 
 /**
  * PostList Component
- * 
+ *
  * Displays a grid of post cards with optional pagination
  * - Grid layout: 3 columns on desktop, 2 on tablet, 1 on mobile
  * - Pagination: 20 posts per page (configurable)
@@ -41,14 +41,14 @@ export function PostList({
    */
   const renderPagination = () => {
     if (!pagination || pagination.totalPages <= 1) return null;
-    
+
     const { page, totalPages, onPageChange } = pagination;
-    
+
     // Generate page numbers to display
     const getPageNumbers = () => {
       const pages: (number | string)[] = [];
       const maxVisible = 7; // Show max 7 page buttons
-      
+
       if (totalPages <= maxVisible) {
         // Show all pages if total is small
         for (let i = 1; i <= totalPages; i++) {
@@ -57,27 +57,27 @@ export function PostList({
       } else {
         // Show first, last, current, and nearby pages with ellipsis
         pages.push(1);
-        
+
         if (page > 3) {
           pages.push('...');
         }
-        
+
         for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
           pages.push(i);
         }
-        
+
         if (page < totalPages - 2) {
           pages.push('...');
         }
-        
+
         pages.push(totalPages);
       }
-      
+
       return pages;
     };
-    
+
     const pageNumbers = getPageNumbers();
-    
+
     return (
       <div className="flex items-center justify-center gap-2 mt-8">
         {/* Previous button */}
@@ -110,22 +110,19 @@ export function PostList({
             />
           </svg>
         </button>
-        
+
         {/* Page numbers */}
         {pageNumbers.map((pageNum, index) => {
           if (pageNum === '...') {
             return (
-              <span
-                key={`ellipsis-${index}`}
-                className="px-3 py-2 text-muted-foreground"
-              >
+              <span key={`ellipsis-${index}`} className="px-3 py-2 text-muted-foreground">
                 ...
               </span>
             );
           }
-          
+
           const isActive = pageNum === page;
-          
+
           return (
             <button
               key={pageNum}
@@ -147,7 +144,7 @@ export function PostList({
             </button>
           );
         })}
-        
+
         {/* Next button */}
         <button
           onClick={() => onPageChange(page + 1)}
@@ -170,59 +167,55 @@ export function PostList({
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
     );
   };
-  
+
   /**
    * Render empty state
    */
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4">
-        <svg
-          className="w-16 h-16 text-muted-foreground mb-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-        <h3 className="text-lg font-semibold text-foreground mb-2">
-          Chưa có bài viết nào
-        </h3>
-        <p className="text-sm text-muted-foreground text-center max-w-md">
-          Hiện tại chưa có bài viết nào trong danh mục này. Vui lòng quay lại sau.
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6">
+          <svg
+            className="w-10 h-10 text-muted-foreground"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-xl font-semibold text-foreground mb-2">Chưa có bài viết nào</h3>
+        <p className="text-muted-foreground max-w-sm">
+          Hiện tại chưa có bài viết nào. Hãy quay lại sau nhé!
         </p>
       </div>
     );
   }
-  
+
   return (
     <div className="w-full">
       {/* Post grid */}
-      <div className={`
+      <div
+        className={`
         grid gap-6
         ${
           variant === 'compact'
             ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
         }
-      `}>
+      `}
+      >
         {posts.map((post) => (
           <PostCard
             key={post.id}
@@ -233,7 +226,7 @@ export function PostList({
           />
         ))}
       </div>
-      
+
       {/* Pagination */}
       {renderPagination()}
     </div>

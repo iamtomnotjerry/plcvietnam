@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { signOut, useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 export function AuthButton() {
   const { data: session, status } = useSession();
+  const [signingOut, setSigningOut] = useState(false);
 
   if (status === 'loading') {
-    return (
-      <span className="h-9 w-20 rounded-md bg-muted animate-pulse inline-block" aria-hidden />
-    );
+    return <span className="h-9 w-20 rounded-md bg-muted animate-pulse inline-block" aria-hidden />;
   }
 
   if (session?.user) {
@@ -21,10 +21,14 @@ export function AuthButton() {
         </span>
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: '/' })}
-          className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+          disabled={signingOut}
+          onClick={async () => {
+            setSigningOut(true);
+            await signOut({ callbackUrl: '/' });
+          }}
+          className="cursor-pointer rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Đăng xuất
+          {signingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
         </button>
       </div>
     );
@@ -33,7 +37,7 @@ export function AuthButton() {
   return (
     <Link
       href={'/auth/sign-in' as Route}
-      className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      className="cursor-pointer rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
     >
       Đăng nhập
     </Link>

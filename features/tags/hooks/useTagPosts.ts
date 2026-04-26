@@ -1,15 +1,7 @@
-/**
- * Tag Posts Hook
- * Fetch posts by tag with pagination
- * Validates Requirements: 12.1, 12.2
- */
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { contentRepository } from '@/lib/data/factory';
 import type { Post, Tag } from '@/lib/types/domain';
-import type { PaginatedResult } from '@/lib/data/repository';
 
 export interface UseTagPostsOptions {
   tagSlug: string;
@@ -20,31 +12,11 @@ export interface UseTagPostsOptions {
 export interface UseTagPostsReturn {
   tag: Tag | null;
   posts: Post[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  } | null;
+  pagination: { page: number; limit: number; total: number; totalPages: number } | null;
   isLoading: boolean;
   error: Error | null;
 }
 
-/**
- * Hook to fetch posts by tag with pagination
- * 
- * @param options - Tag slug and pagination options
- * @returns Tag data, posts, pagination info, loading state, and error
- * 
- * @example
- * ```typescript
- * const { tag, posts, pagination, isLoading } = useTagPosts({
- *   tagSlug: 'co-ban',
- *   page: 1,
- *   limit: 20
- * });
- * ```
- */
 export function useTagPosts({
   tagSlug,
   page = 1,
@@ -52,56 +24,36 @@ export function useTagPosts({
 }: UseTagPostsOptions): UseTagPostsReturn {
   const [tag, setTag] = useState<Tag | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [pagination, setPagination] = useState<{
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  } | null>(null);
+  const [pagination, setPagination] = useState<UseTagPostsReturn['pagination']>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  
+
   useEffect(() => {
-    let isMounted = true;
-    
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        // Fetch tag and posts in parallel
-        const [tagData, postsData] = await Promise.all([
-          contentRepository.getTagBySlug(tagSlug),
-          contentRepository.getPostsByTag(tagSlug, { page, limit }),
-        ]);
-        
-        if (!isMounted) return;
-        
-        setTag(tagData);
-        setPosts(postsData.data);
-        setPagination(postsData.pagination);
-      } catch (err) {
-        if (!isMounted) return;
-        setError(err instanceof Error ? err : new Error('Failed to fetch tag posts'));
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-    
-    fetchData();
-    
+    let mounted = true;
+    setIsLoading(true);
+    setError(null);
+
+    Promise.all([
+      fetch(`/api/tags/${tagSlug}`).then((r) => r.json()),
+      fetch(`/api/tags/${tagSlug}/posts?page=${page}&limit=${limit}`).then((r) => r.json()),
+    ])
+      .then(([tagData, postsData]) => {
+        if (!mounted) return;
+        setTag(tagData.error ? null : tagData);
+        setPosts(postsData.data ?? []);
+        setPagination(postsData.pagination ?? null);
+      })
+      .catch((err) => {
+        if (mounted) setError(err instanceof Error ? err : new Error('Failed to fetch'));
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
+
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, [tagSlug, page, limit]);
-  
-  return {
-    tag,
-    posts,
-    pagination,
-    isLoading,
-    error,
-  };
+
+  return { tag, posts, pagination, isLoading, error };
 }

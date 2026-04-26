@@ -1,52 +1,21 @@
-/**
- * useSearch Hook
- * Integrates searchContent utility with debounce and state management
- * Validates Requirements: 9.1, 9.2, 9.4, 9.5
- */
-
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import type { Post, Book } from '@/lib/types/domain';
 import type { SearchResults } from '@/lib/data/repository';
-import { searchContent } from '@/features/search/utils/searchEngine';
-import { contentRepository } from '@/lib/data/factory';
 
-/**
- * Hook return type
- */
 export interface UseSearchReturn {
-  /** Current search query */
   query: string;
-  /** Update the search query */
   setQuery: (query: string) => void;
-  /** Search results grouped by type */
   results: SearchResults;
-  /** Whether a search is in progress */
   isLoading: boolean;
-  /** Whether the results dropdown should be visible */
   isOpen: boolean;
-  /** Close the results dropdown */
   close: () => void;
-  /** Currently highlighted result index (-1 = none) */
   selectedIndex: number;
-  /** Update the selected index */
   setSelectedIndex: (index: number) => void;
-  /** Flat list of all results for keyboard navigation */
   flatResults: Array<{ type: 'post' | 'book'; item: Post | Book }>;
 }
 
-/**
- * Custom hook for search functionality
- *
- * Features:
- * - Debounces query by debounceMs (default 300ms)
- * - Shows results after 2+ characters
- * - Fetches all posts and books once, then filters client-side
- * - Tracks selected index for keyboard navigation
- *
- * @param debounceMs - Debounce delay in milliseconds (default 300)
- */
 export function useSearch(debounceMs: number = 300): UseSearchReturn {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -55,42 +24,18 @@ export function useSearch(debounceMs: number = 300): UseSearchReturn {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // Cache all posts and books to avoid repeated fetches
-  const postsRef = useRef<Post[]>([]);
-  const booksRef = useRef<Book[]>([]);
-  const dataLoadedRef = useRef(false);
-
-  // Load all posts and books once
+  // Debounce
   useEffect(() => {
-    if (dataLoadedRef.current) return;
-
-    async function loadData() {
-      try {
-        const [postsResult, booksResult] = await Promise.all([
-          contentRepository.getPosts({ limit: 1000 }),
-          contentRepository.getBooks({ limit: 1000 }),
-        ]);
-        postsRef.current = postsResult.data;
-        booksRef.current = booksResult.data;
-        dataLoadedRef.current = true;
-      } catch {
-        // Silently fail — search will return empty results
-      }
-    }
-
-    loadData();
-  }, []);
-
-  // Debounce the query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, debounceMs);
-
+    const timer = setTimeout(() => setDebouncedQuery(query), debounceMs);
     return () => clearTimeout(timer);
   }, [query, debounceMs]);
 
-  // Run search when debounced query changes
+  // Reset selectedIndex immediately when query changes
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [query]);
+
+  // Search via API
   useEffect(() => {
     if (debouncedQuery.length < 2) {
       setResults({ posts: [], books: [], totalResults: 0 });
@@ -100,24 +45,34 @@ export function useSearch(debounceMs: number = 300): UseSearchReturn {
       return;
     }
 
+    let cancelled = false;
     setIsLoading(true);
-    const searchResults = searchContent(debouncedQuery, postsRef.current, booksRef.current);
-    setResults(searchResults);
-    setIsOpen(true);
-    setIsLoading(false);
-    setSelectedIndex(-1);
+
+    fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) {
+          setResults(data);
+          setIsOpen(true);
+          setSelectedIndex(-1);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setResults({ posts: [], books: [], totalResults: 0 });
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedQuery]);
 
-  // Build flat list for keyboard navigation (posts first, then books)
   const flatResults: Array<{ type: 'post' | 'book'; item: Post | Book }> = [
-    ...results.posts.map(post => ({ type: 'post' as const, item: post })),
-    ...results.books.map(book => ({ type: 'book' as const, item: book })),
+    ...results.posts.map((post) => ({ type: 'post' as const, item: post })),
+    ...results.books.map((book) => ({ type: 'book' as const, item: book })),
   ];
-
-  const close = () => {
-    setIsOpen(false);
-    setSelectedIndex(-1);
-  };
 
   return {
     query,
@@ -125,7 +80,10 @@ export function useSearch(debounceMs: number = 300): UseSearchReturn {
     results,
     isLoading,
     isOpen,
-    close,
+    close: () => {
+      setIsOpen(false);
+      setSelectedIndex(-1);
+    },
     selectedIndex,
     setSelectedIndex,
     flatResults,

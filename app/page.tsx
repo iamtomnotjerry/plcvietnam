@@ -82,6 +82,33 @@ export default async function HomePage() {
         {/* Recent Posts Section */}
         <RecentPostsSection posts={recentPosts} />
 
+        {/* Empty state when no content yet */}
+        {recentPosts.length === 0 && fields.length === 0 && (
+          <section className="py-24 bg-background">
+            <div className="container mx-auto px-4 max-w-2xl text-center">
+              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
+                <svg
+                  className="w-10 h-10 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-foreground mb-3">Chưa có nội dung</h2>
+              <p className="text-muted-foreground">
+                Blog đang được xây dựng. Hãy quay lại sau để xem các bài viết mới nhất!
+              </p>
+            </div>
+          </section>
+        )}
+
         {/* Fields Section */}
         <FieldsSection fields={fieldsWithFirstCategory} />
 

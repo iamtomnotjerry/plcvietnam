@@ -65,22 +65,13 @@ export function PostCard({
   showCategory = true,
   showThumbnail = true,
 }: PostCardProps) {
-  // Validate post has required data
-  if (!post.category) {
-    console.error('PostCard: post missing category', post.id);
-    return null;
-  }
+  // Validate post has required data - graceful fallback instead of null
+  const fieldSlug = post.category?.field?.slug;
+  const categorySlug = post.category?.slug;
 
-  const fieldSlug = post.category.field?.slug;
-  const categorySlug = post.category.slug;
-
-  // Validate category structure
-  if (!fieldSlug || !categorySlug) {
-    console.error('PostCard: invalid category structure', post.id, post.category);
-    return null;
-  }
-
-  const postUrl = postHref(fieldSlug, categorySlug, post.slug);
+  // Build URL - fallback to posts page if category missing
+  const postUrl =
+    fieldSlug && categorySlug ? postHref(fieldSlug, categorySlug, post.slug) : `/posts`;
   const config = VARIANT_CONFIG[variant];
 
   return (

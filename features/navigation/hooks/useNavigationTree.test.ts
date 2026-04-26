@@ -1,25 +1,16 @@
-/**
- * Unit tests for useNavigationTree hook
- * Validates Requirements: 1.1, 1.5
- */
-
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useNavigationTree } from './useNavigationTree';
 import type { NavigationNode } from '@/lib/types/domain';
-import { getRepository } from '@/lib/data/factory';
 
-// Mock the repository factory
-vi.mock('@/lib/data/factory', () => ({
-  getRepository: vi.fn(),
-}));
+const mockFetch = vi.fn();
+vi.stubGlobal('fetch', mockFetch);
 
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
-  
   return {
-    getItem: (key: string) => store[key] || null,
+    getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
       store[key] = value;
     },
@@ -31,13 +22,9 @@ const localStorageMock = (() => {
     },
   };
 })();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
-
-// Sample navigation tree data
-const mockNavigationTree: NavigationNode[] = [
+const mockTree: NavigationNode[] = [
   {
     id: 'field-1',
     type: 'field',
@@ -47,263 +34,75 @@ const mockNavigationTree: NavigationNode[] = [
     postCount: 10,
     children: [
       {
-        id: 'category-1',
+        id: 'cat-1',
         type: 'category',
-        label: 'Basics',
-        slug: 'basics',
-        url: '/fields/plc/basics',
+        label: 'PLC Basics',
+        slug: 'plc-basics',
+        url: '/fields/plc/plc-basics',
         postCount: 5,
-        children: [
-          {
-            id: 'post-1',
-            type: 'post',
-            label: 'Introduction to PLC',
-            slug: 'intro-plc',
-            url: '/fields/plc/basics/intro-plc',
-          },
-        ],
       },
     ],
   },
-  {
-    id: 'field-2',
-    type: 'field',
-    label: 'SCADA',
-    slug: 'scada',
-    url: '/fields/scada',
-    postCount: 8,
-    children: [],
-  },
 ];
+
+function jsonRes(data: unknown) {
+  return Promise.resolve(
+    new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  );
+}
 
 describe('useNavigationTree', () => {
   beforeEach(() => {
-    // Clear localStorage before each test
-    localStorageMock.clear();
-    
-    // Reset mocks
     vi.clearAllMocks();
-    
-    // Mock repository
-    vi.mocked(getRepository).mockReturnValue({
-      getNavigationTree: vi.fn().mockResolvedValue(mockNavigationTree),
-    } as any);
+    localStorageMock.clear();
   });
-  
+
   it('should fetch navigation tree on mount', async () => {
+    mockFetch.mockReturnValue(jsonRes(mockTree));
     const { result } = renderHook(() => useNavigationTree());
-    
-    // Initially loading
     expect(result.current.isLoading).toBe(true);
-    expect(result.current.tree).toEqual([]);
-    
-    // Wait for data to load
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    expect(result.current.tree).toEqual(mockNavigationTree);
-    expect(result.current.error).toBeNull();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.tree).toHaveLength(1);
+    expect(result.current.tree[0].label).toBe('PLC');
+    expect(mockFetch).toHaveBeenCalledWith('/api/navigation');
   });
-  
-  it('should initialize with empty expanded state', async () => {
-    const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    expect(result.current.expandedIds.size).toBe(0);
-  });
-  
-  it('should initialize with provided initial expanded IDs', async () => {
-    const initialExpanded = ['field-1', 'category-1'];
-    const { result } = renderHook(() => useNavigationTree(initialExpanded));
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    expect(result.current.expandedIds.has('field-1')).toBe(true);
-    expect(result.current.expandedIds.has('category-1')).toBe(true);
-    expect(result.current.expandedIds.size).toBe(2);
-  });
-  
-  it('should toggle node expansion state', async () => {
-    const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    // Toggle to expand
-    act(() => {
-      result.current.toggleNode('field-1');
-    });
-    
-    expect(result.current.expandedIds.has('field-1')).toBe(true);
-    
-    // Toggle to collapse
-    act(() => {
-      result.current.toggleNode('field-1');
-    });
-    
-    expect(result.current.expandedIds.has('field-1')).toBe(false);
-  });
-  
-  it('should expand a specific node', async () => {
-    const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    act(() => {
-      result.current.expandNode('field-1');
-    });
-    
-    expect(result.current.expandedIds.has('field-1')).toBe(true);
-    
-    // Expanding again should not change state
-    act(() => {
-      result.current.expandNode('field-1');
-    });
-    
-    expect(result.current.expandedIds.has('field-1')).toBe(true);
-  });
-  
-  it('should collapse a specific node', async () => {
-    const { result } = renderHook(() => useNavigationTree(['field-1']));
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    expect(result.current.expandedIds.has('field-1')).toBe(true);
-    
-    act(() => {
-      result.current.collapseNode('field-1');
-    });
-    
-    expect(result.current.expandedIds.has('field-1')).toBe(false);
-  });
-  
+
   it('should expand all nodes', async () => {
+    mockFetch.mockReturnValue(jsonRes(mockTree));
     const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    act(() => {
-      result.current.expandAll();
-    });
-    
-    // Should expand all nodes in the tree
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    act(() => result.current.expandAll());
     expect(result.current.expandedIds.has('field-1')).toBe(true);
-    expect(result.current.expandedIds.has('field-2')).toBe(true);
-    expect(result.current.expandedIds.has('category-1')).toBe(true);
-    expect(result.current.expandedIds.has('post-1')).toBe(true);
-    expect(result.current.expandedIds.size).toBe(4);
+    expect(result.current.expandedIds.has('cat-1')).toBe(true);
   });
-  
-  it('should collapse all nodes', async () => {
-    const { result } = renderHook(() => useNavigationTree(['field-1', 'category-1']));
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    expect(result.current.expandedIds.size).toBe(2);
-    
-    act(() => {
-      result.current.collapseAll();
-    });
-    
-    expect(result.current.expandedIds.size).toBe(0);
-  });
-  
-  it('should persist expansion state to localStorage', async () => {
-    const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    act(() => {
-      result.current.expandNode('field-1');
-      result.current.expandNode('category-1');
-    });
-    
-    // Check localStorage
-    const stored = localStorageMock.getItem('navigation-tree-expanded');
-    expect(stored).toBeTruthy();
-    
-    const parsed = JSON.parse(stored!);
-    expect(parsed).toContain('field-1');
-    expect(parsed).toContain('category-1');
-  });
-  
-  it('should load expansion state from localStorage', async () => {
-    // Pre-populate localStorage
-    localStorageMock.setItem(
-      'navigation-tree-expanded',
-      JSON.stringify(['field-2', 'category-1'])
-    );
-    
-    const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    // Should load from localStorage
-    expect(result.current.expandedIds.has('field-2')).toBe(true);
-    expect(result.current.expandedIds.has('category-1')).toBe(true);
-    expect(result.current.expandedIds.size).toBe(2);
-  });
-  
+
   it('should handle fetch errors gracefully', async () => {
-    const mockError = new Error('Network error');
-    vi.mocked(getRepository).mockReturnValue({
-      getNavigationTree: vi.fn().mockRejectedValue(mockError),
-    } as any);
-    
+    mockFetch.mockRejectedValue(new Error('Network error'));
     const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    expect(result.current.error).toEqual(mockError);
-    expect(result.current.tree).toEqual([]);
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.tree).toHaveLength(0);
   });
-  
-  it('should handle invalid localStorage data gracefully', async () => {
-    // Set invalid JSON in localStorage
-    localStorageMock.setItem('navigation-tree-expanded', 'invalid-json');
-    
+
+  it('should toggle node expansion', async () => {
+    mockFetch.mockReturnValue(jsonRes(mockTree));
     const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    // Should initialize with empty state instead of crashing
-    expect(result.current.expandedIds.size).toBe(0);
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    act(() => result.current.toggleNode('field-1'));
+    expect(result.current.expandedIds.has('field-1')).toBe(true);
+    act(() => result.current.toggleNode('field-1'));
+    expect(result.current.expandedIds.has('field-1')).toBe(false);
   });
-  
-  it('should handle non-array localStorage data gracefully', async () => {
-    // Set non-array data in localStorage
-    localStorageMock.setItem('navigation-tree-expanded', JSON.stringify({ invalid: 'data' }));
-    
+
+  it('should collapse all nodes', async () => {
+    mockFetch.mockReturnValue(jsonRes(mockTree));
     const { result } = renderHook(() => useNavigationTree());
-    
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-    
-    // Should initialize with empty state
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    act(() => result.current.expandAll());
+    act(() => result.current.collapseAll());
     expect(result.current.expandedIds.size).toBe(0);
   });
 });

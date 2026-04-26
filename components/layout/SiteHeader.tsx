@@ -43,10 +43,7 @@ export function SiteHeader({ mobileNavOpen = false, onMobileNavToggle }: SiteHea
           <span className="hidden sm:inline">Automation Blog</span>
         </Link>
 
-        <nav
-          className="hidden lg:flex items-center gap-1"
-          aria-label="Điều hướng chính"
-        >
+        <nav className="hidden lg:flex items-center gap-1" aria-label="Điều hướng chính">
           {nav.map(({ href, label }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
             return (
@@ -89,8 +86,10 @@ export function SiteHeader({ mobileNavOpen = false, onMobileNavToggle }: SiteHea
             <Link
               key={href}
               href={href}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap ${
-                active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
+                active
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
               }`}
             >
               {label}
