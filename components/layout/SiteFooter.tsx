@@ -27,10 +27,10 @@ export function SiteFooter() {
           {/* About Section */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-                AB
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-primary">
+                <img src="/logo.jpg" alt="PLC Việt Nam" className="w-full h-full object-cover" />
               </span>
-              <span className="font-serif text-xl font-semibold">Automation Blog</span>
+              <span className="font-serif text-xl font-semibold">PLC Việt Nam</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
               Chia sẻ kiến thức chuyên sâu về PLC, SCADA, Siemens Automation và các công nghệ tự
@@ -175,7 +175,7 @@ export function SiteFooter() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground text-center sm:text-left">
-            © {new Date().getFullYear()} Automation Blog. Tất cả quyền được bảo lưu.
+            © {new Date().getFullYear()} PLC Việt Nam. Tất cả quyền được bảo lưu.
           </p>
           <div className="flex gap-4 text-sm">
             <Link
