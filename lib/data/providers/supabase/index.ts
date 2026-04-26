@@ -232,7 +232,7 @@ export class SupabaseProvider implements ContentRepository {
 
     const { data, error, count } = await this.db
       .from('posts')
-      .select('*, categories(*), post_tags(tag_id, tags(*))', { count: 'exact' })
+      .select('*, categories(*, fields(*)), post_tags(tag_id, tags(*))', { count: 'exact' })
       .eq('status', 'published')
       .order(colMap[sortBy] ?? 'published_at', { ascending: sortOrder === 'asc' })
       .range((page - 1) * limit, page * limit - 1);
@@ -241,7 +241,9 @@ export class SupabaseProvider implements ContentRepository {
 
     const posts = (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      const category = row.categories ? mapCategory(row.categories as any) : undefined;
+      const catRow = row.categories as any;
+      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
+      const category = catRow ? mapCategory(catRow, field) : undefined;
       return mapPost(row, tags, category);
     });
 
@@ -279,7 +281,7 @@ export class SupabaseProvider implements ContentRepository {
     const { page = 1, limit = 20 } = options;
     const { data, error, count } = await this.db
       .from('posts')
-      .select('*, post_tags(tag_id, tags(*))', { count: 'exact' })
+      .select('*, categories(*, fields(*)), post_tags(tag_id, tags(*))', { count: 'exact' })
       .eq('category_id', categoryId)
       .eq('status', 'published')
       .order('published_at', { ascending: false })
@@ -288,7 +290,10 @@ export class SupabaseProvider implements ContentRepository {
     if (error) throw error;
     const posts = (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      return mapPost(row, tags);
+      const catRow = (row as any).categories;
+      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
+      const category = catRow ? mapCategory(catRow, field) : undefined;
+      return mapPost(row, tags, category);
     });
     return {
       data: posts,
@@ -306,7 +311,9 @@ export class SupabaseProvider implements ContentRepository {
 
     const { data, error, count } = await this.db
       .from('post_tags')
-      .select('posts!inner(*, post_tags(tag_id, tags(*)))', { count: 'exact' })
+      .select('posts!inner(*, categories(*, fields(*)), post_tags(tag_id, tags(*)))', {
+        count: 'exact',
+      })
       .eq('tag_id', tag.id)
       .range((page - 1) * limit, page * limit - 1);
 
@@ -314,7 +321,10 @@ export class SupabaseProvider implements ContentRepository {
     const posts = (data ?? []).map((row: any) => {
       const postRow = row.posts;
       const tags = (postRow.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      return mapPost(postRow, tags);
+      const catRow = postRow.categories;
+      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
+      const category = catRow ? mapCategory(catRow, field) : undefined;
+      return mapPost(postRow, tags, category);
     });
     return {
       data: posts,
@@ -332,7 +342,7 @@ export class SupabaseProvider implements ContentRepository {
 
     const { data } = await this.db
       .from('posts')
-      .select('*, post_tags(tag_id, tags(*))')
+      .select('*, categories(*, fields(*)), post_tags(tag_id, tags(*))')
       .eq('status', 'published')
       .eq('category_id', postData.category_id ?? '')
       .neq('id', postId)
@@ -341,21 +351,27 @@ export class SupabaseProvider implements ContentRepository {
 
     return (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      return mapPost(row, tags);
+      const catRow = (row as any).categories;
+      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
+      const category = catRow ? mapCategory(catRow, field) : undefined;
+      return mapPost(row, tags, category);
     });
   }
 
   async getRecentPosts(limit: number): Promise<Post[]> {
     const { data } = await this.db
       .from('posts')
-      .select('*, post_tags(tag_id, tags(*))')
+      .select('*, categories(*, fields(*)), post_tags(tag_id, tags(*))')
       .eq('status', 'published')
       .order('published_at', { ascending: false })
       .limit(limit);
 
     return (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      return mapPost(row, tags);
+      const catRow = (row as any).categories;
+      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
+      const category = catRow ? mapCategory(catRow, field) : undefined;
+      return mapPost(row, tags, category);
     });
   }
 
@@ -370,7 +386,7 @@ export class SupabaseProvider implements ContentRepository {
 
     let query = this.admin
       .from('posts')
-      .select('*, post_tags(tag_id, tags(*))', { count: 'exact' })
+      .select('*, categories(*, fields(*)), post_tags(tag_id, tags(*))', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1);
 
@@ -381,7 +397,10 @@ export class SupabaseProvider implements ContentRepository {
 
     const posts = (data ?? []).map((row) => {
       const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      return mapPost(row, tags);
+      const catRow = (row as any).categories;
+      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
+      const category = catRow ? mapCategory(catRow, field) : undefined;
+      return mapPost(row, tags, category);
     });
     return {
       data: posts,
@@ -392,12 +411,15 @@ export class SupabaseProvider implements ContentRepository {
   async getPostById(id: string): Promise<Post | null> {
     const { data } = await this.admin
       .from('posts')
-      .select('*, post_tags(tag_id, tags(*))')
+      .select('*, categories(*, fields(*)), post_tags(tag_id, tags(*))')
       .eq('id', id)
       .single();
     if (!data) return null;
     const tags = (data.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-    return mapPost(data, tags);
+    const catRow = (data as any).categories;
+    const field = catRow?.fields ? mapField(catRow.fields) : undefined;
+    const category = catRow ? mapCategory(catRow, field) : undefined;
+    return mapPost(data, tags, category);
   }
 
   async createPost(input: CreatePostInput): Promise<Post> {
