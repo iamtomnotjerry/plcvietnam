@@ -50,7 +50,7 @@ export function SignInForm() {
     <form onSubmit={onSubmit} className="space-y-4">
       {registered && (
         <p className="rounded-md bg-primary/10 px-3 py-2 text-sm text-primary">
-          Đăng ký thành công. Vui lòng đăng nhập.
+          Đăng ký thành công! Vui lòng kiểm tra email và click link xác nhận trước khi đăng nhập.
         </p>
       )}
       {resetOk && (
