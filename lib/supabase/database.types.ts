@@ -6,31 +6,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: '14.5';
   };
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       author_info: {
@@ -72,54 +47,66 @@ export type Database = {
       books: {
         Row: {
           amazon_url: string | null;
-          author: string | null;
-          cover_url: string | null;
+          author_name: string | null;
+          cover_image_url: string | null;
           created_at: string | null;
           description: string | null;
           download_count: number | null;
           download_url: string | null;
+          featured: boolean | null;
           field_id: string | null;
           id: string;
           isbn: string | null;
+          pages: number | null;
           published_year: number | null;
           publisher: string | null;
+          series: string | null;
           slug: string;
           title: string;
           updated_at: string | null;
+          volume: number | null;
         };
         Insert: {
           amazon_url?: string | null;
-          author?: string | null;
-          cover_url?: string | null;
+          author_name?: string | null;
+          cover_image_url?: string | null;
           created_at?: string | null;
           description?: string | null;
           download_count?: number | null;
           download_url?: string | null;
+          featured?: boolean | null;
           field_id?: string | null;
           id?: string;
           isbn?: string | null;
+          pages?: number | null;
           published_year?: number | null;
           publisher?: string | null;
+          series?: string | null;
           slug: string;
           title: string;
           updated_at?: string | null;
+          volume?: number | null;
         };
         Update: {
           amazon_url?: string | null;
-          author?: string | null;
-          cover_url?: string | null;
+          author_name?: string | null;
+          cover_image_url?: string | null;
           created_at?: string | null;
           description?: string | null;
           download_count?: number | null;
           download_url?: string | null;
+          featured?: boolean | null;
           field_id?: string | null;
           id?: string;
           isbn?: string | null;
+          pages?: number | null;
           published_year?: number | null;
           publisher?: string | null;
+          series?: string | null;
           slug?: string;
           title?: string;
           updated_at?: string | null;
+          volume?: number | null;
         };
         Relationships: [
           {
@@ -624,9 +611,6 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       post_status: ['draft', 'published', 'archived'],

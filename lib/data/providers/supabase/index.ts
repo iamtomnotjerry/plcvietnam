@@ -197,17 +197,17 @@ function mapBook(row: BookRow): Book {
     slug: row.slug,
     title: row.title,
     description: row.description ?? '',
-    coverImageUrl: row.cover_url ?? '',
-    authorName: row.author ?? '',
-    series: undefined, // Not in schema - add to migration if needed
-    volume: undefined, // Not in schema
+    coverImageUrl: row.cover_image_url ?? '',
+    authorName: row.author_name ?? '',
+    series: row.series ?? undefined,
+    volume: row.volume ?? undefined,
     publisher: row.publisher ?? undefined,
     publishedYear: row.published_year ?? undefined,
-    pages: undefined, // Not in schema
+    pages: row.pages ?? undefined,
     isbn: row.isbn ?? undefined,
     downloadUrl: row.download_url ?? undefined,
     externalUrl: row.amazon_url ?? undefined,
-    featured: false, // Not in schema - add to migration
+    featured: row.featured ?? false,
     createdAt: new Date(row.created_at ?? Date.now()),
   };
 }

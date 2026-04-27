@@ -84,7 +84,7 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
   if (validated.title !== undefined) updateData.title = validated.title;
   if (validated.description !== undefined)
     updateData.description = sanitizeHtml(validated.description ?? '');
-  if (validated.cover_url !== undefined) updateData.cover_url = validated.cover_url ?? null;
+  if (validated.cover_url !== undefined) updateData.cover_image_url = validated.cover_url ?? null;
   if (validated.download_url !== undefined)
     updateData.download_url = validated.download_url ?? null;
   updateData.updated_at = new Date().toISOString();
