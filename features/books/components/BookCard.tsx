@@ -93,7 +93,7 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
         <div className="p-5">
           {book.series && <div className="mb-3">{renderSeriesBadge()}</div>}
 
-          <h3 className="text-lg font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200">
+          <h3 className="text-lg font-semibold text-card-foreground line-clamp-2 min-h-[3.5rem] mb-2 group-hover:text-primary transition-colors duration-200">
             {book.title}
           </h3>
 

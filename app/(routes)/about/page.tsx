@@ -513,7 +513,7 @@ export default async function AboutPage() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Vai trò cộng đồng */}
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="bg-card border border-border rounded-xl p-5 flex flex-col">
               <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                   <svg
@@ -535,7 +535,7 @@ export default async function AboutPage() {
                   <div className="text-xs text-muted-foreground">Admin diễn đàn PLC Việt Nam</div>
                 </div>
               </div>
-              <ul className="space-y-3 mb-4">
+              <ul className="space-y-3 mb-4 flex-1">
                 {[
                   {
                     title: 'Admin diễn đàn',
@@ -573,7 +573,7 @@ export default async function AboutPage() {
               </div>
             </div>
             {/* Nội dung chia sẻ */}
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="bg-card border border-border rounded-xl p-5 flex flex-col">
               <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                   <svg
@@ -597,7 +597,7 @@ export default async function AboutPage() {
                   </div>
                 </div>
               </div>
-              <ul className="space-y-3 mb-4">
+              <ul className="space-y-3 mb-4 flex-1">
                 {[
                   { title: 'PLC & SCADA', desc: 'Kiến thức về lập trình PLC và hệ thống SCADA' },
                   { title: 'Mạng công nghiệp', desc: 'DCS và mạng truyền thông công nghiệp' },
@@ -626,7 +626,7 @@ export default async function AboutPage() {
               </div>
             </div>
             {/* Tác động */}
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="bg-card border border-border rounded-xl p-5 flex flex-col">
               <div className="flex items-center gap-3 mb-4 pb-3 border-b border-border">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                   <svg
@@ -648,7 +648,7 @@ export default async function AboutPage() {
                   <div className="text-xs text-muted-foreground">Phát triển năng lực kỹ sư</div>
                 </div>
               </div>
-              <ul className="space-y-3 mb-4">
+              <ul className="space-y-3 mb-4 flex-1">
                 {[
                   { title: 'Hỗ trợ kỹ sư trẻ', desc: 'Đào tạo và hướng dẫn kỹ sư mới vào nghề' },
                   { title: 'Văn hóa học tập', desc: 'Thúc đẩy tinh thần học tập liên tục' },

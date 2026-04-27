@@ -1,5 +1,5 @@
 /**
- * In-memory reset tokens (mock). Dev-only token echo in API response.
+ * In-memory reset tokens . Dev-only token echo in API response.
  */
 
 import { randomBytes } from 'crypto';

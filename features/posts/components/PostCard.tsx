@@ -31,18 +31,21 @@ const VARIANT_CONFIG = {
     imageHeight: 'h-[300px]',
     padding: 'p-6',
     titleSize: 'text-2xl',
+    titleMinH: 'min-h-[4rem]', // text-2xl line-height ~2rem × 2
     excerptLines: 'line-clamp-3',
   },
   compact: {
     imageHeight: 'h-[160px]',
     padding: 'p-4',
     titleSize: 'text-base',
+    titleMinH: 'min-h-[3rem]', // text-base line-height ~1.5rem × 2
     excerptLines: 'line-clamp-2',
   },
   default: {
     imageHeight: 'h-[200px]',
     padding: 'p-5',
     titleSize: 'text-lg',
+    titleMinH: 'min-h-[3.5rem]', // text-lg line-height ~1.75rem × 2
     excerptLines: 'line-clamp-3',
   },
 } as const;
@@ -105,9 +108,9 @@ export function PostCard({
           </div>
         )}
 
-        {/* Title - truncated to 2 lines */}
+        {/* Title — always occupies exactly 2 lines for consistent card height */}
         <h3
-          className={`${config.titleSize} font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200`}
+          className={`${config.titleSize} ${config.titleMinH} font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200`}
         >
           {post.title}
         </h3>

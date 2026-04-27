@@ -58,7 +58,20 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
       .then((r) => r.json())
       .then((data) => {
         if (!cancelled) {
-          setResults(data);
+          // Revive date strings → Date objects (JSON serialization strips Date type)
+          const revived: SearchResults = {
+            ...data,
+            posts: (data.posts ?? []).map((p: Post) => ({
+              ...p,
+              publishedAt: new Date(p.publishedAt),
+              updatedAt: new Date(p.updatedAt),
+            })),
+            books: (data.books ?? []).map((b: Book) => ({
+              ...b,
+              createdAt: new Date(b.createdAt),
+            })),
+          };
+          setResults(revived);
           setPostPage(1);
           setBookPage(1);
         }

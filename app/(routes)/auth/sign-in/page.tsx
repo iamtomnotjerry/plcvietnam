@@ -12,7 +12,7 @@ const googleConfigured =
 
 export const metadata: Metadata = {
   title: 'Đăng nhập | PLC Việt Nam',
-  description: 'Đăng nhập để bình luận và quản lý nội dung (demo).',
+  description: 'Đăng nhập để bình luận và quản lý nội dung .',
 };
 
 export default function SignInPage() {

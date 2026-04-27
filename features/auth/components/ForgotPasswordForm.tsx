@@ -78,7 +78,7 @@ export function ForgotPasswordForm() {
           autoComplete="email"
           required
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
         />
       </div>
@@ -87,7 +87,7 @@ export function ForgotPasswordForm() {
         disabled={loading}
         className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
       >
-        {loading ? 'Đang gửi…' : 'Gửi liên kết đặt lại (demo)'}
+        {loading ? 'Đang gửi…' : 'Gửi liên kết đặt lại '}
       </button>
       <p className="text-center text-sm text-muted-foreground">
         <Link href={'/auth/sign-in' as Route} className="text-primary hover:underline">

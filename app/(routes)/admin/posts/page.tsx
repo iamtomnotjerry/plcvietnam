@@ -25,7 +25,7 @@ export default async function AdminPostsPage({ searchParams }: AdminPostsPagePro
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Bài viết</h1>
-          <p className="text-sm text-muted-foreground">Quản lý bản nháp và bài đã xuất bản (mock).</p>
+          <p className="text-sm text-muted-foreground">Quản lý bản nháp và bài đã xuất bản .</p>
         </div>
         <Link
           href={'/admin/posts/new' as Route}
@@ -64,7 +64,7 @@ export default async function AdminPostsPage({ searchParams }: AdminPostsPagePro
                 </td>
               </tr>
             ) : (
-              result.data.map(post => (
+              result.data.map((post) => (
                 <tr key={post.id} className="border-b border-border/80 last:border-0">
                   <td className="px-4 py-3 font-medium">{post.title}</td>
                   <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{post.slug}</td>
@@ -72,8 +72,8 @@ export default async function AdminPostsPage({ searchParams }: AdminPostsPagePro
                     <span
                       className={
                         (post.status ?? 'published') === 'draft'
-                          ? 'rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-800 dark:text-amber-200'
-                          : 'rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-800 dark:text-emerald-200'
+                          ? 'rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+                          : 'rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
                       }
                     >
                       {(post.status ?? 'published') === 'draft' ? 'Nháp' : 'Xuất bản'}
@@ -99,7 +99,7 @@ export default async function AdminPostsPage({ searchParams }: AdminPostsPagePro
 
       {result.pagination.totalPages > 1 && (
         <div className="mt-6 flex justify-center gap-2 text-sm">
-          {Array.from({ length: result.pagination.totalPages }, (_, i) => i + 1).map(p => (
+          {Array.from({ length: result.pagination.totalPages }, (_, i) => i + 1).map((p) => (
             <Link
               key={p}
               href={`/admin/posts?status=${status}&page=${p}` as Route}
@@ -118,15 +118,7 @@ export default async function AdminPostsPage({ searchParams }: AdminPostsPagePro
   );
 }
 
-function FilterLink({
-  href,
-  label,
-  active,
-}: {
-  href: string;
-  label: string;
-  active: boolean;
-}) {
+function FilterLink({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
     <Link
       href={href as Route}

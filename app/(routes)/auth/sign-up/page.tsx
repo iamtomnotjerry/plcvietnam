@@ -4,7 +4,7 @@ import { SignUpForm } from '@/features/auth/components/SignUpForm';
 
 export const metadata: Metadata = {
   title: 'Đăng ký | PLC Việt Nam',
-  description: 'Tạo tài khoản demo (mock).',
+  description: 'Tạo tài khoản demo .',
 };
 
 export default function SignUpPage() {
