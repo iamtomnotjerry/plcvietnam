@@ -4,6 +4,7 @@
  * Validates Requirements: 11.1, 11.6, 11.7
  */
 
+import { Suspense } from 'react';
 import { contentRepository } from '@/lib/data/factory';
 import {
   HeroSection,
@@ -11,19 +12,11 @@ import {
   FieldsSection,
   FeaturedBooksSection,
 } from '@/features/homepage/components';
-import type { Field } from '@/lib/types/domain';
 import { generateWebSiteSchema, renderJsonLd } from '@/lib/utils/structuredData';
 import { ErrorRetryButton } from '@/components/ui/ErrorRetryButton';
 import { EmailConfirmRedirect } from '@/components/auth/EmailConfirmRedirect';
 
-export const dynamic = 'force-dynamic';
-
-/**
- * Extended Field type with first category slug for navigation
- */
-interface FieldWithFirstCategory extends Field {
-  firstCategorySlug?: string;
-}
+export const revalidate = 900;
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://automationblog.vn';
 
@@ -43,25 +36,11 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://automationblog.vn';
 export default async function HomePage() {
   try {
     // Fetch data in parallel for optimal performance
-    const [recentPosts, fields, featuredBooks] = await Promise.all([
+    const [recentPosts, fieldsWithFirstCategory, featuredBooks] = await Promise.all([
       contentRepository.getRecentPosts(6),
-      contentRepository.getFields(),
+      contentRepository.getFieldsWithFirstCategory(), // ✅ Optimized: 1 query instead of N+1
       contentRepository.getFeaturedBooks(3),
     ]);
-
-    // Fetch first category for each field to enable navigation (Requirement 11.7)
-    const fieldsWithFirstCategory: FieldWithFirstCategory[] = await Promise.all(
-      fields.map(async (field) => {
-        const categories = await contentRepository.getCategoriesByFieldId(field.id);
-        // Categories are sorted by order, so first one is the first category
-        const firstCategory = categories[0];
-
-        return {
-          ...field,
-          firstCategorySlug: firstCategory?.slug,
-        };
-      })
-    );
 
     return (
       <main className="min-h-screen">
@@ -74,7 +53,9 @@ export default async function HomePage() {
         />
 
         {/* Detect email confirmation redirect from Supabase */}
-        <EmailConfirmRedirect />
+        <Suspense fallback={null}>
+          <EmailConfirmRedirect />
+        </Suspense>
 
         {/* Hero Section */}
         <HeroSection
@@ -87,7 +68,7 @@ export default async function HomePage() {
         <RecentPostsSection posts={recentPosts} />
 
         {/* Empty state when no content yet */}
-        {recentPosts.length === 0 && fields.length === 0 && (
+        {recentPosts.length === 0 && fieldsWithFirstCategory.length === 0 && (
           <section className="py-24 bg-background">
             <div className="container mx-auto px-4 max-w-2xl text-center">
               <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">

@@ -10,22 +10,16 @@ import { contentRepository } from '@/lib/data/factory';
 import { TagPageClient } from '@/features/tags/components/TagPageClient';
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 900;
 
 interface TagPageProps {
-  params: {
-    tagSlug: string;
-  };
-  searchParams: {
-    page?: string;
-  };
+  params: Promise<{ tagSlug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-/**
- * Generate metadata for tag page
- */
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
-  const tag = await contentRepository.getTagBySlug(params.tagSlug);
+  const { tagSlug } = await params;
+  const tag = await contentRepository.getTagBySlug(tagSlug);
 
   if (!tag) {
     return {
@@ -39,40 +33,23 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
   };
 }
 
-/**
- * Generate static params for all tags (SSG)
- */
 export async function generateStaticParams() {
   const tags = await contentRepository.getTags();
-
-  return tags.map((tag) => ({
-    tagSlug: tag.slug,
-  }));
+  return tags.map((tag) => ({ tagSlug: tag.slug }));
 }
 
-/**
- * Tag Page Component
- *
- * Displays:
- * - Tag name as page heading
- * - Post count subheading
- * - Paginated list of posts (20 per page)
- * - Breadcrumb navigation
- */
 export default async function TagPage({ params, searchParams }: TagPageProps) {
-  const page = parseInt(searchParams.page || '1', 10);
+  const { tagSlug } = await params;
+  const { page: pageParam } = await searchParams;
+  const page = parseInt(pageParam ?? '1', 10);
   const limit = 20;
 
-  // Fetch tag and posts
   const [tag, postsResult] = await Promise.all([
-    contentRepository.getTagBySlug(params.tagSlug),
-    contentRepository.getPostsByTag(params.tagSlug, { page, limit }),
+    contentRepository.getTagBySlug(tagSlug),
+    contentRepository.getPostsByTag(tagSlug, { page, limit }),
   ]);
 
-  // Handle 404
-  if (!tag) {
-    notFound();
-  }
+  if (!tag) notFound();
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -145,7 +122,7 @@ export default async function TagPage({ params, searchParams }: TagPageProps) {
 
       {/* Post List */}
       <TagPageClient
-        tagSlug={params.tagSlug}
+        tagSlug={tagSlug}
         posts={postsResult.data}
         pagination={{
           page: postsResult.pagination.page,

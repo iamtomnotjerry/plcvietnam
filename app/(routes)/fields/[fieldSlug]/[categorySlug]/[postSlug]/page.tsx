@@ -13,7 +13,7 @@ import {
   renderJsonLd,
 } from '@/lib/utils/structuredData';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 900;
 
 interface PostPageProps {
   params: Promise<{

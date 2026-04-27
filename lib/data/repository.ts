@@ -127,6 +127,7 @@ export interface ContentRepository {
   // Fields
   getFields(): Promise<Field[]>;
   getFieldBySlug(slug: string): Promise<Field | null>;
+  getFieldsWithFirstCategory(): Promise<Array<Field & { firstCategorySlug?: string }>>;
 
   // Categories
   getCategoriesByFieldId(fieldId: string): Promise<Category[]>;

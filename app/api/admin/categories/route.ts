@@ -5,16 +5,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
-import { createClient } from '@supabase/supabase-js';
+import { getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
-
-function getAdminClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
-  );
-}
 
 function unauthorized() {
   return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
@@ -28,7 +20,7 @@ async function requireAdmin() {
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const fieldId = new URL(request.url).searchParams.get('fieldId');
-  const db = getAdminClient();
+  const db = getServiceClient();
 
   let query = db.from('categories').select('*, fields(id, name, slug)').order('name');
   if (fieldId) query = query.eq('field_id', fieldId);
@@ -56,7 +48,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Thiếu slug, name hoặc fieldId' }, { status: 400 });
   }
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { data, error } = await db
     .from('categories')
     .insert({ slug, name, description: body.description ?? null, field_id: fieldId })
@@ -88,7 +80,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   if (body.name) update.name = body.name;
   if (body.description !== undefined) update.description = body.description ?? null;
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { data, error } = await db
     .from('categories')
     .update(update)
@@ -106,7 +98,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { error } = await db.from('categories').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

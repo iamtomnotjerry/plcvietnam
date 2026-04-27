@@ -6,7 +6,6 @@
  * Uses service-role client for admin writes (bypasses RLS safely on server).
  */
 
-import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/database.types';
 import type {
   ContentRepository,
@@ -31,21 +30,47 @@ import type {
   NavigationNode,
 } from '@/lib/types/domain';
 
-// ── Clients ───────────────────────────────────────────────────────────────────
+// ── Type-Safe Database Relations ─────────────────────────────────────────────
+type DbTag = Database['public']['Tables']['tags']['Row'];
+type DbCategory = Database['public']['Tables']['categories']['Row'];
+type DbField = Database['public']['Tables']['fields']['Row'];
+type DbProfile = Database['public']['Tables']['profiles']['Row'];
+
+type PostTagRelation = {
+  tag_id: string;
+  tags: DbTag;
+};
+
+type PostWithTags = Database['public']['Tables']['posts']['Row'] & {
+  post_tags: PostTagRelation[];
+};
+
+type PostWithRelations = PostWithTags & {
+  categories: DbCategory & {
+    fields: DbField;
+  };
+};
+
+type PostWithAuthor = PostWithTags & {
+  profiles: DbProfile | null;
+};
+
+type PostTagJoinRow = {
+  posts: PostWithRelations;
+};
+
+// ── Clients — use singletons to reuse connection pools ────────────────────────
+import {
+  getAnonClient as _getAnonClient,
+  getServiceClient as _getServiceClient,
+} from '@/lib/supabase/client-singleton';
 
 function getAnonClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  if (!url || !key) throw new Error('Missing Supabase environment variables');
-  return createClient<Database>(url, key, { auth: { persistSession: false } });
+  return _getAnonClient();
 }
 
 function getServiceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  // Service role key bypasses RLS - only use server-side
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  if (!url || !key) throw new Error('Missing Supabase environment variables');
-  return createClient<Database>(url, key, { auth: { persistSession: false } });
+  return _getServiceClient();
 }
 
 // ── Mappers ───────────────────────────────────────────────────────────────────
@@ -164,23 +189,25 @@ function mapProfile(row: Database['public']['Tables']['profiles']['Row']): Autho
   };
 }
 
-function mapBook(row: any): Book {
+type BookRow = Database['public']['Tables']['books']['Row'];
+
+function mapBook(row: BookRow): Book {
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     description: row.description ?? '',
-    coverImageUrl: row.cover_image_url ?? row.cover_url ?? '',
-    authorName: row.author_name ?? row.author ?? '',
-    series: row.series ?? undefined,
-    volume: row.volume ?? undefined,
+    coverImageUrl: row.cover_url ?? '',
+    authorName: row.author ?? '',
+    series: undefined, // Not in schema - add to migration if needed
+    volume: undefined, // Not in schema
     publisher: row.publisher ?? undefined,
     publishedYear: row.published_year ?? undefined,
-    pages: row.pages ?? undefined,
+    pages: undefined, // Not in schema
     isbn: row.isbn ?? undefined,
     downloadUrl: row.download_url ?? undefined,
     externalUrl: row.amazon_url ?? undefined,
-    featured: row.featured ?? false,
+    featured: false, // Not in schema - add to migration
     createdAt: new Date(row.created_at ?? Date.now()),
   };
 }
@@ -213,6 +240,41 @@ export class SupabaseProvider implements ContentRepository {
   async getFieldBySlug(slug: string): Promise<Field | null> {
     const { data } = await this.db.from('fields').select('*').eq('slug', slug).single();
     return data ? mapField(data) : null;
+  }
+
+  /**
+   * Get all fields with their first category slug (optimized - single query)
+   * Fixes N+1 query issue in homepage
+   */
+  async getFieldsWithFirstCategory(): Promise<Array<Field & { firstCategorySlug?: string }>> {
+    const { data, error } = await this.db
+      .from('fields')
+      .select('*, categories(slug, name)')
+      .order('name')
+      .order('name', { foreignTable: 'categories' });
+
+    if (error) throw error;
+
+    // Group categories by field and get first category slug
+    const fieldsMap = new Map<string, Field & { firstCategorySlug?: string }>();
+
+    (data ?? []).forEach((row: any) => {
+      const fieldId = row.id;
+      if (!fieldsMap.has(fieldId)) {
+        const field = mapField(row);
+        const cats: Array<{ slug: string }> = Array.isArray(row.categories)
+          ? row.categories
+          : row.categories
+            ? [row.categories]
+            : [];
+        fieldsMap.set(fieldId, {
+          ...field,
+          firstCategorySlug: cats[0]?.slug,
+        });
+      }
+    });
+
+    return Array.from(fieldsMap.values());
   }
 
   // ── Categories ────────────────────────────────────────────────────────────
@@ -258,12 +320,23 @@ export class SupabaseProvider implements ContentRepository {
 
     if (error) throw error;
 
+    type PostWithRelations = Database['public']['Tables']['posts']['Row'] & {
+      categories: Database['public']['Tables']['categories']['Row'] & {
+        fields: Database['public']['Tables']['fields']['Row'];
+      };
+      post_tags: Array<{
+        tag_id: string;
+        tags: Database['public']['Tables']['tags']['Row'];
+      }>;
+    };
+
     const posts = (data ?? []).map((row) => {
-      const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      const catRow = row.categories as any;
+      const postRow = row as unknown as PostWithRelations;
+      const tags = (postRow.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+      const catRow = postRow.categories;
       const field = catRow?.fields ? mapField(catRow.fields) : undefined;
       const category = catRow ? mapCategory(catRow, field) : undefined;
-      return mapPost(row, tags, category);
+      return mapPost(postRow, tags, category);
     });
 
     return {
@@ -289,9 +362,9 @@ export class SupabaseProvider implements ContentRepository {
       .single();
 
     if (!data) return null;
-    const tags = (data.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-    const profileRow = (data as any).profiles;
-    const author = profileRow ? mapProfile(profileRow) : undefined;
+    const typedData = data as unknown as PostWithAuthor;
+    const tags = (typedData.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+    const author = typedData.profiles ? mapProfile(typedData.profiles) : undefined;
     return { ...mapPost(data, tags, category), author };
   }
 
@@ -310,10 +383,10 @@ export class SupabaseProvider implements ContentRepository {
 
     if (error) throw error;
     const posts = (data ?? []).map((row) => {
-      const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      const catRow = (row as any).categories;
-      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
-      const category = catRow ? mapCategory(catRow, field) : undefined;
+      const typedRow = row as unknown as PostWithRelations;
+      const tags = (typedRow.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+      const field = typedRow.categories?.fields ? mapField(typedRow.categories.fields) : undefined;
+      const category = typedRow.categories ? mapCategory(typedRow.categories, field) : undefined;
       return mapPost(row, tags, category);
     });
     return {
@@ -339,12 +412,12 @@ export class SupabaseProvider implements ContentRepository {
       .range((page - 1) * limit, page * limit - 1);
 
     if (error) throw error;
-    const posts = (data ?? []).map((row: any) => {
-      const postRow = row.posts;
-      const tags = (postRow.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      const catRow = postRow.categories;
-      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
-      const category = catRow ? mapCategory(catRow, field) : undefined;
+    const posts = (data ?? []).map((row) => {
+      const typedRow = row as unknown as PostTagJoinRow;
+      const postRow = typedRow.posts;
+      const tags = (postRow.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+      const field = postRow.categories?.fields ? mapField(postRow.categories.fields) : undefined;
+      const category = postRow.categories ? mapCategory(postRow.categories, field) : undefined;
       return mapPost(postRow, tags, category);
     });
     return {
@@ -371,10 +444,10 @@ export class SupabaseProvider implements ContentRepository {
       .limit(limit);
 
     return (data ?? []).map((row) => {
-      const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      const catRow = (row as any).categories;
-      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
-      const category = catRow ? mapCategory(catRow, field) : undefined;
+      const typedRow = row as unknown as PostWithRelations;
+      const tags = (typedRow.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+      const field = typedRow.categories?.fields ? mapField(typedRow.categories.fields) : undefined;
+      const category = typedRow.categories ? mapCategory(typedRow.categories, field) : undefined;
       return mapPost(row, tags, category);
     });
   }
@@ -388,16 +461,16 @@ export class SupabaseProvider implements ContentRepository {
       .limit(limit);
 
     return (data ?? []).map((row) => {
-      const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      const catRow = (row as any).categories;
-      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
-      const category = catRow ? mapCategory(catRow, field) : undefined;
+      const typedRow = row as unknown as PostWithRelations;
+      const tags = (typedRow.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+      const field = typedRow.categories?.fields ? mapField(typedRow.categories.fields) : undefined;
+      const category = typedRow.categories ? mapCategory(typedRow.categories, field) : undefined;
       return mapPost(row, tags, category);
     });
   }
 
   async incrementViewCount(postId: string): Promise<void> {
-    await this.db.rpc('increment_post_view' as any, { post_id: postId });
+    await this.db.rpc('increment_post_view', { post_id: postId });
   }
 
   // ── Admin Posts ───────────────────────────────────────────────────────────
@@ -417,10 +490,10 @@ export class SupabaseProvider implements ContentRepository {
     if (error) throw error;
 
     const posts = (data ?? []).map((row) => {
-      const tags = (row.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-      const catRow = (row as any).categories;
-      const field = catRow?.fields ? mapField(catRow.fields) : undefined;
-      const category = catRow ? mapCategory(catRow, field) : undefined;
+      const typedRow = row as unknown as PostWithRelations;
+      const tags = (typedRow.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+      const field = typedRow.categories?.fields ? mapField(typedRow.categories.fields) : undefined;
+      const category = typedRow.categories ? mapCategory(typedRow.categories, field) : undefined;
       return mapPost(row, tags, category);
     });
     return {
@@ -436,10 +509,10 @@ export class SupabaseProvider implements ContentRepository {
       .eq('id', id)
       .single();
     if (!data) return null;
-    const tags = (data.post_tags ?? []).map((pt: any) => mapTag(pt.tags)).filter(Boolean);
-    const catRow = (data as any).categories;
-    const field = catRow?.fields ? mapField(catRow.fields) : undefined;
-    const category = catRow ? mapCategory(catRow, field) : undefined;
+    const typedData = data as unknown as PostWithRelations;
+    const tags = (typedData.post_tags ?? []).map((pt) => mapTag(pt.tags)).filter(Boolean);
+    const field = typedData.categories?.fields ? mapField(typedData.categories.fields) : undefined;
+    const category = typedData.categories ? mapCategory(typedData.categories, field) : undefined;
     return mapPost(data, tags, category);
   }
 
@@ -505,11 +578,13 @@ export class SupabaseProvider implements ContentRepository {
     if (error) return null;
 
     if (input.tagIds !== undefined) {
-      await this.admin.from('post_tags').delete().eq('post_id', id);
+      const { error: delErr } = await this.admin.from('post_tags').delete().eq('post_id', id);
+      if (delErr) throw delErr;
       if (input.tagIds.length > 0) {
-        await this.admin
+        const { error: insErr } = await this.admin
           .from('post_tags')
           .insert(input.tagIds.map((tag_id) => ({ post_id: id, tag_id })));
+        if (insErr) throw insErr;
       }
     }
 
@@ -541,7 +616,6 @@ export class SupabaseProvider implements ContentRepository {
     const { data, error, count } = await (
       this.db.from('books').select('*', { count: 'exact' }) as any
     )
-      .order('volume', { ascending: true, nullsFirst: false })
       .order('title', { ascending: true })
       .range((page - 1) * limit, page * limit - 1);
 
@@ -553,10 +627,15 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getFeaturedBooks(limit: number): Promise<Book[]> {
-    const { data } = await (this.db.from('books').select('*') as any)
-      .eq('featured', true)
-      .order('volume', { ascending: true })
+    const { data, error } = await (this.db.from('books').select('*') as any)
+      .order('created_at', { ascending: false })
       .limit(limit);
+
+    if (error) {
+      console.error('Failed to get featured books:', error);
+      return [];
+    }
+
     return (data ?? []).map(mapBook);
   }
 
@@ -677,14 +756,14 @@ export class SupabaseProvider implements ContentRepository {
       type: 'field' as const,
       label: field.name,
       slug: field.slug,
-      url: `/${field.slug}`,
+      url: `/fields/${field.slug}`,
       postCount: field.post_count ?? 0,
       children: ((field as any).categories ?? []).map((cat: any) => ({
         id: cat.id,
         type: 'category' as const,
         label: cat.name,
         slug: cat.slug,
-        url: `/${field.slug}/${cat.slug}`,
+        url: `/fields/${field.slug}/${cat.slug}`,
         postCount: cat.post_count ?? 0,
       })),
     }));

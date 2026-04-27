@@ -101,6 +101,14 @@ export class APIProvider implements ContentRepository {
     }
   }
 
+  async getFieldsWithFirstCategory(): Promise<Array<Field & { firstCategorySlug?: string }>> {
+    const apiFields = await this.fetchAPI<ApiField[]>('/api/fields?include=firstCategory');
+    return apiFields.map((f) => ({
+      ...transformField(f),
+      firstCategorySlug: (f as any).firstCategorySlug,
+    }));
+  }
+
   // Categories
   async getCategoriesByFieldId(fieldId: string): Promise<Category[]> {
     const apiCategories = await this.fetchAPI<ApiCategory[]>(`/api/categories?field_id=${fieldId}`);

@@ -22,12 +22,12 @@ export interface PostDetailProps {
    * Post to display
    */
   post: Post;
-  
+
   /**
    * Related posts to show at bottom
    */
   relatedPosts: Post[];
-  
+
   /**
    * Optional class name for styling
    */
@@ -36,7 +36,7 @@ export interface PostDetailProps {
 
 /**
  * PostDetail Component
- * 
+ *
  * Main post detail container displaying:
  * - Breadcrumb navigation (Field → Category → Post)
  * - Post title, author, date, reading time, view count
@@ -45,11 +45,11 @@ export interface PostDetailProps {
  * - Tags
  * - Social sharing buttons
  * - Related posts
- * 
+ *
  * Layout:
  * - Two-column layout on desktop (content + TOC sidebar)
  * - Single column on mobile
- * 
+ *
  * Requirements:
  * - 3.1: Display full post content with metadata
  * - 3.4: Display table of contents for posts with 3+ headings
@@ -65,12 +65,23 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
    * Requirement 13.4: Increment view count on post page load
    */
   useEffect(() => {
-    // Increment view count in localStorage (for mock provider)
-    const key = `post-views-${post.id}`;
-    const current = parseInt(localStorage.getItem(key) || '0', 10);
-    localStorage.setItem(key, (current + 1).toString());
+    // Only increment once per session by keeping track in sessionStorage
+    const sessionKey = `viewed-${post.id}`;
+    if (!sessionStorage.getItem(sessionKey)) {
+      sessionStorage.setItem(sessionKey, 'true');
+
+      // Update actual database view count
+      fetch(`/api/posts/${post.id}/view`, { method: 'POST' }).catch((err) =>
+        console.error('Failed to increment view', err)
+      );
+
+      // Also keep local storage tracker for mock environments
+      const key = `post-views-${post.id}`;
+      const current = parseInt(localStorage.getItem(key) || '0', 10);
+      localStorage.setItem(key, (current + 1).toString());
+    }
   }, [post.id]);
-  
+
   /**
    * Format date to Vietnamese locale
    */
@@ -81,7 +92,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
       day: 'numeric',
     }).format(new Date(date));
   };
-  
+
   /**
    * Get full URL for social sharing
    */
@@ -91,39 +102,44 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
     }
     return '';
   };
-  
+
   return (
     <article className={`${className}`}>
       {/* Breadcrumb */}
       <nav className="mb-6" aria-label="Breadcrumb">
         <ol className="flex items-center gap-2 text-sm text-muted-foreground">
           <li>
-            <Link
-              href="/"
-              className="hover:text-primary transition-colors duration-200"
-            >
+            <Link href="/" className="hover:text-primary transition-colors duration-200">
               Trang chủ
             </Link>
           </li>
           <li>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </li>
           <li>
             <Link
-              href={
-                post.category?.field?.slug
-                  ? fieldHref(post.category.field.slug)
-                  : '/'
-              }
+              href={post.category?.field?.slug ? fieldHref(post.category.field.slug) : '/'}
               className="hover:text-primary transition-colors duration-200"
             >
               {post.category?.field?.name}
             </Link>
           </li>
           <li>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </li>
@@ -140,23 +156,25 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
             </Link>
           </li>
           <li>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </li>
-          <li className="text-foreground font-medium truncate">
-            {post.title}
-          </li>
+          <li className="text-foreground font-medium truncate">{post.title}</li>
         </ol>
       </nav>
-      
+
       {/* Post header */}
       <header className="mb-8">
         {/* Title */}
-        <h1 className="text-4xl font-bold text-card-foreground mb-4">
-          {post.title}
-        </h1>
-        
+        <h1 className="text-4xl font-bold text-card-foreground mb-4">{post.title}</h1>
+
         {/* Metadata */}
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
           {/* Author */}
@@ -173,55 +191,89 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
                   />
                 </div>
               )}
-              <span className="font-medium text-foreground">
-                {post.author.name}
-              </span>
+              <span className="font-medium text-foreground">{post.author.name}</span>
             </div>
           )}
-          
+
           {/* Publication date */}
           <div className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
             <span>{formatDate(post.publishedAt)}</span>
           </div>
-          
+
           {/* Reading time */}
           <div className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>{post.readingTimeMinutes} phút đọc</span>
           </div>
-          
+
           {/* View count */}
           <div className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
             </svg>
             <span>{post.viewCount.toLocaleString('vi-VN')} lượt xem</span>
           </div>
         </div>
-        
+
         {/* Social share */}
         <SocialShare url={getPostUrl()} title={post.title} />
       </header>
-      
+
       {/* Two-column layout: Content + TOC */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
         {/* Main content */}
         <div className="min-w-0">
           {/* Post content */}
           <PostContent content={post.content} />
-          
+
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <div className="mt-8 pt-8 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                Thẻ:
-              </h3>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3">Thẻ:</h3>
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
                   <Link
@@ -245,7 +297,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
             </div>
           )}
         </div>
-        
+
         {/* Table of contents sidebar (desktop only) */}
         <aside className="hidden lg:block">
           <TableOfContents content={post.content} />

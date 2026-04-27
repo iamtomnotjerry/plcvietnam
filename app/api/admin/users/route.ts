@@ -7,18 +7,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
-import { createClient } from '@supabase/supabase-js';
+import { getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
 
 type UserRole = Database['public']['Enums']['user_role'];
-
-function getAdminClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
-  );
-}
 
 function unauthorized() {
   return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
@@ -38,7 +30,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') ?? '50', 10)));
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { data, error, count } = await db
     .from('profiles')
     .select('id, email, full_name, role, avatar_url, created_at', { count: 'exact' })
@@ -77,7 +69,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Không thể thay đổi role của chính mình' }, { status: 400 });
   }
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { data, error } = await db
     .from('profiles')
     .update({ role: body.role as UserRole })

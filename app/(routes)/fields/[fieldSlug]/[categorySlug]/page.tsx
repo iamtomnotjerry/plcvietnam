@@ -10,7 +10,7 @@ import { PostList } from '@/features/posts/components/PostList';
 import Link from 'next/link';
 import { fieldHref } from '@/lib/utils/routes';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 900;
 
 interface CategoryPageProps {
   params: Promise<{

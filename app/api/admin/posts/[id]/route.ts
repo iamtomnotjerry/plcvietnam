@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { contentRepository } from '@/lib/data/factory';
+import { UpdatePostSchema } from '@/lib/validation/schemas';
+import { sanitizeHtml } from '@/lib/security/sanitize';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { ZodError } from 'zod';
 import type { UpdatePostInput } from '@/lib/data/repository';
-import type { SEOMetadata } from '@/lib/types/domain';
 
 function unauthorized() {
   return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
@@ -26,30 +29,54 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   if (!(await requireEditor())) return unauthorized();
+
+  // Rate limiting
+  const identifier = getClientIdentifier(request);
+  const rateLimit = await checkRateLimit(identifier, 'api');
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: 'Quá nhiều yêu cầu' }, { status: 429 });
+  }
+
   const { id } = await context.params;
 
-  let body: Record<string, unknown>;
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
   }
 
+  // Full Zod validation
+  let validated;
+  try {
+    validated = UpdatePostSchema.parse(body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const firstError = error.issues[0];
+      return NextResponse.json(
+        { error: firstError.message, field: firstError.path.join('.'), details: error.issues },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+  }
+
+  // Build sanitized input
   const input: UpdatePostInput = {};
-  if (typeof body.slug === 'string') input.slug = body.slug;
-  if (typeof body.title === 'string') input.title = body.title;
-  if (typeof body.excerpt === 'string') input.excerpt = body.excerpt;
-  if (typeof body.content === 'string') input.content = body.content;
-  if (typeof body.categoryId === 'string') input.categoryId = body.categoryId;
-  if (Array.isArray(body.tagIds)) {
-    input.tagIds = body.tagIds.filter((x): x is string => typeof x === 'string');
-  }
-  if (body.thumbnailUrl === null || typeof body.thumbnailUrl === 'string') {
-    input.thumbnailUrl = body.thumbnailUrl as string | null;
-  }
-  if (body.status === 'draft' || body.status === 'published') input.status = body.status;
-  if (body.seo && typeof body.seo === 'object') {
-    input.seo = body.seo as Partial<SEOMetadata>;
+  if (validated.slug !== undefined) input.slug = validated.slug;
+  if (validated.title !== undefined) input.title = validated.title;
+  if (validated.excerpt !== undefined) input.excerpt = sanitizeHtml(validated.excerpt);
+  if (validated.content !== undefined) input.content = sanitizeHtml(validated.content);
+  if (validated.category_id !== undefined) input.categoryId = validated.category_id;
+  if (validated.tag_ids !== undefined) input.tagIds = validated.tag_ids;
+  if (validated.thumbnail_url !== undefined) input.thumbnailUrl = validated.thumbnail_url ?? null;
+  if (validated.status !== undefined) input.status = validated.status as 'draft' | 'published';
+  if (validated.meta_title !== undefined || validated.meta_description !== undefined) {
+    input.seo = {
+      title: validated.meta_title,
+      description: validated.meta_description,
+      keywords: [],
+    };
   }
 
   try {
@@ -65,7 +92,14 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
         return NextResponse.json({ error: 'Danh mục không hợp lệ' }, { status: 400 });
       }
     }
-    console.error(e);
+    // Handle Postgres errors
+    if (e && typeof e === 'object' && 'code' in e) {
+      const pg = e as { code: string };
+      if (pg.code === '23505') {
+        return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
+      }
+    }
+    console.error('[admin/posts/[id] PATCH]', e);
     return NextResponse.json({ error: 'Cập nhật thất bại' }, { status: 500 });
   }
 }

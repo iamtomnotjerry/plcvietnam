@@ -1,24 +1,13 @@
 /**
  * Supabase Realtime subscriptions
  * Used for live comment updates on post pages.
+ * Uses singleton client to prevent memory leaks.
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { getAnonClient } from './client-singleton';
 import type { Database } from './database.types';
 
 type Comment = Database['public']['Tables']['comments']['Row'];
-
-let _client: ReturnType<typeof createClient<Database>> | null = null;
-
-function getRealtimeClient() {
-  if (!_client) {
-    _client = createClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-  }
-  return _client;
-}
 
 /**
  * Subscribe to approved comments for a post.
@@ -28,7 +17,7 @@ export function subscribeToComments(
   postId: string,
   onInsert: (comment: Comment) => void
 ): () => void {
-  const supabase = getRealtimeClient();
+  const supabase = getAnonClient(); // ✅ Use singleton client
 
   const channel = supabase
     .channel(`comments:${postId}`)

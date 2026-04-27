@@ -268,6 +268,18 @@ export class MockProvider implements ContentRepository {
     return this.fields.find((f) => f.slug === slug) || null;
   }
 
+  async getFieldsWithFirstCategory(): Promise<Array<Field & { firstCategorySlug?: string }>> {
+    return this.fields.map((field) => {
+      const categories = this.categories
+        .filter((c) => c.fieldId === field.id)
+        .sort((a, b) => a.order - b.order);
+      return {
+        ...field,
+        firstCategorySlug: categories[0]?.slug,
+      };
+    });
+  }
+
   // Categories
   async getCategoriesByFieldId(fieldId: string): Promise<Category[]> {
     return this.categories.filter((c) => c.fieldId === fieldId).sort((a, b) => a.order - b.order);
@@ -394,17 +406,15 @@ export class MockProvider implements ContentRepository {
   }
 
   async incrementViewCount(postId: string): Promise<void> {
-    // Store in localStorage for mock provider
+    // Update in-memory post count (works both server and client side)
+    const post = this.posts.find((p) => p.id === postId);
+    if (post) {
+      post.viewCount = (post.viewCount ?? 0) + 1;
+    }
+    // Persist to localStorage when running client-side
     if (typeof window !== 'undefined') {
       const key = `post-views-${postId}`;
-      const current = parseInt(localStorage.getItem(key) || '0', 10);
-      localStorage.setItem(key, (current + 1).toString());
-
-      // Update in-memory post
-      const post = this.posts.find((p) => p.id === postId);
-      if (post) {
-        post.viewCount = current + 1;
-      }
+      localStorage.setItem(key, String(post?.viewCount ?? 1));
     }
   }
 
@@ -447,7 +457,7 @@ export class MockProvider implements ContentRepository {
 
   async createComment(input: CreateCommentInput): Promise<Comment> {
     const comment: Comment = {
-      id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `comment-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       postId: input.postId,
       userId: input.userId,
       userName: input.userName,

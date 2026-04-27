@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { contentRepository } from '@/lib/data/factory';
 import { PostsPageClient } from '@/features/posts/components/PostsPageClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 900;
 
 interface PostsPageProps {
   searchParams: Promise<{ page?: string }>;

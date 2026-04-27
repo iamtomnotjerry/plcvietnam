@@ -3,18 +3,20 @@
  * GET    /api/admin/books/[id] - get one book
  * PATCH  /api/admin/books/[id] - update book
  * DELETE /api/admin/books/[id] - delete book
+ *
+ * ✅ Security: Zod validation, XSS protection, admin auth, rate limiting
+ * ✅ Performance: Singleton Supabase client
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
-import { createClient } from '@supabase/supabase-js';
-
-function getAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createClient(url, key, { auth: { persistSession: false } });
-}
+import { getServiceClient } from '@/lib/supabase/client-singleton';
+import { CreateBookSchema } from '@/lib/validation/schemas';
+import { sanitizeHtml } from '@/lib/security/sanitize';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { ZodError } from 'zod';
+import type { Database } from '@/lib/supabase/database.types';
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -22,12 +24,12 @@ interface Params {
 
 export async function GET(_req: NextRequest, { params }: Params): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
-  if (!session || (session.user as any)?.role !== 'admin') {
+  if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { id } = await params;
-  const supabase = getAdminClient();
+  const supabase = getServiceClient();
   const { data, error } = await supabase.from('books').select('*').eq('id', id).single();
   if (error || !data) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(data);
@@ -35,31 +37,59 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
 
 export async function PATCH(request: NextRequest, { params }: Params): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
-  if (!session || (session.user as any)?.role !== 'admin') {
+  if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limiting
+  const identifier = getClientIdentifier(request);
+  const rateLimit = await checkRateLimit(identifier, 'api');
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.' },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': rateLimit.limit?.toString() || '',
+          'X-RateLimit-Remaining': rateLimit.remaining?.toString() || '',
+          'X-RateLimit-Reset': rateLimit.reset?.toString() || '',
+        },
+      }
+    );
   }
 
   const { id } = await params;
   const body = await request.json();
-  const supabase = getAdminClient();
 
-  const updateData: Record<string, unknown> = {};
-  if (body.slug !== undefined) updateData.slug = body.slug;
-  if (body.title !== undefined) updateData.title = body.title;
-  if (body.description !== undefined) updateData.description = body.description;
-  if (body.coverImageUrl !== undefined) updateData.cover_image_url = body.coverImageUrl;
-  if (body.authorName !== undefined) updateData.author_name = body.authorName;
-  if (body.series !== undefined) updateData.series = body.series;
-  if (body.volume !== undefined) updateData.volume = body.volume;
-  if (body.publisher !== undefined) updateData.publisher = body.publisher;
-  if (body.publishedYear !== undefined) updateData.published_year = body.publishedYear;
-  if (body.pages !== undefined) updateData.pages = body.pages;
-  if (body.isbn !== undefined) updateData.isbn = body.isbn;
-  if (body.downloadUrl !== undefined) updateData.download_url = body.downloadUrl;
-  if (body.externalUrl !== undefined) updateData.amazon_url = body.externalUrl;
-  if (body.featured !== undefined) updateData.featured = body.featured;
+  // Validate input
+  let validated;
+  try {
+    validated = CreateBookSchema.partial().parse(body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const firstError = error.issues[0];
+      return NextResponse.json(
+        { error: firstError.message, field: firstError.path.join('.') },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+  }
+
+  // Build update payload — only map fields that exist in the books table schema
+  type BookUpdate = Database['public']['Tables']['books']['Update'];
+  const updateData: BookUpdate = {};
+  if (validated.slug !== undefined) updateData.slug = validated.slug;
+  if (validated.title !== undefined) updateData.title = validated.title;
+  if (validated.description !== undefined)
+    updateData.description = sanitizeHtml(validated.description ?? '');
+  if (validated.cover_url !== undefined) updateData.cover_url = validated.cover_url ?? null;
+  if (validated.download_url !== undefined)
+    updateData.download_url = validated.download_url ?? null;
   updateData.updated_at = new Date().toISOString();
 
+  const supabase = getServiceClient();
   const { data, error } = await supabase
     .from('books')
     .update(updateData)
@@ -67,18 +97,25 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    // Handle Postgres errors
+    if (error.code === '23505') {
+      return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
+    }
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
   return NextResponse.json(data);
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
-  if (!session || (session.user as any)?.role !== 'admin') {
+  if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { id } = await params;
-  const supabase = getAdminClient();
+  const supabase = getServiceClient();
   const { error } = await supabase.from('books').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ success: true });

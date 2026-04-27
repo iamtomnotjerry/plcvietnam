@@ -3,16 +3,19 @@
  * - Protects /admin routes: requires authenticated session with admin/author role
  * - Protects /api/admin routes: same requirement
  * - Redirects unauthenticated users to sign-in
+ * - Type-safe with NextAuth
  */
 
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequestWithAuth } from 'next-auth/middleware';
+
+type UserRole = 'admin' | 'author' | 'reader';
 
 export default withAuth(
-  function middleware(req: NextRequest) {
-    const token = (req as any).nextauth?.token;
-    const role = token?.role as string | undefined;
+  function middleware(req: NextRequestWithAuth) {
+    const token = req.nextauth.token;
+    const role = token?.role as UserRole | undefined;
     const pathname = req.nextUrl.pathname;
 
     // Admin routes require admin or author role

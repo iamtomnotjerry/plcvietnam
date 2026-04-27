@@ -1,28 +1,13 @@
 /**
  * Supabase Auth Service
  * Wraps Supabase Auth operations with proper error handling and type safety.
- * Replaces mock auth store for production use.
+ * Uses singleton clients for performance.
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { getAnonClient, getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
 
 type UserRole = Database['public']['Enums']['user_role'];
-
-function getAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  // Use service role key for admin operations (server-side only)
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createClient<Database>(url, key, {
-    auth: { persistSession: false },
-  });
-}
-
-function getAnonClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createClient<Database>(url, key);
-}
 
 // ── Registration ──────────────────────────────────────────────────────────────
 
@@ -65,8 +50,8 @@ export async function registerUser(input: RegisterInput): Promise<AuthUser> {
 
   if (!data.user) throw new Error('Registration failed');
 
-  // Create profile record
-  const admin = getAdminClient();
+  // Create profile record using service client
+  const admin = getServiceClient();
   await admin.from('profiles').upsert({
     id: data.user.id,
     email: input.email,
@@ -138,7 +123,7 @@ export async function updatePassword(
 // ── Profile ───────────────────────────────────────────────────────────────────
 
 export async function getUserProfile(userId: string): Promise<AuthUser | null> {
-  const supabase = getAdminClient();
+  const supabase = getServiceClient();
 
   const { data, error } = await supabase
     .from('profiles')
@@ -163,7 +148,7 @@ export async function ensureProfile(
   name?: string,
   avatarUrl?: string
 ): Promise<AuthUser> {
-  const admin = getAdminClient();
+  const admin = getServiceClient();
 
   const { data, error } = await admin
     .from('profiles')

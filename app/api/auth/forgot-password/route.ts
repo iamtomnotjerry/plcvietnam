@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestPasswordReset } from '@/lib/auth/supabase-auth';
-import { checkRateLimit, getClientIdentifier, rateLimiters } from '@/lib/rate-limit';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { ForgotPasswordSchema } from '@/lib/validation/schemas';
+import { ZodError } from 'zod';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const identifier = getClientIdentifier(request);
-  const rateLimit = await checkRateLimit(identifier, rateLimiters.auth);
+  const rateLimit = await checkRateLimit(identifier, 'auth');
 
   if (!rateLimit.success) {
     return NextResponse.json(
@@ -22,16 +22,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  let body: { email?: string };
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
   }
 
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
-  if (!email || !EMAIL_RE.test(email)) {
-    return NextResponse.json({ error: 'Email không hợp lệ' }, { status: 400 });
+  let validated;
+  try {
+    validated = ForgotPasswordSchema.parse(body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json({ error: error.issues[0].message }, { status: 400 });
+    }
+    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
@@ -39,9 +44,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     // Always return ok to prevent account enumeration
-    await requestPasswordReset(email, redirectTo);
+    await requestPasswordReset(validated.email, redirectTo);
   } catch {
-    // Silently ignore - don't reveal if email exists
+    // Silently ignore — don't reveal if email exists
   }
 
   return NextResponse.json({ ok: true });

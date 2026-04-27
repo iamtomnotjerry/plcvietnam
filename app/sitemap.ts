@@ -7,7 +7,7 @@
 import { MetadataRoute } from 'next';
 import { contentRepository } from '@/lib/data/factory';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 86400;
 import { generatePostUrl } from '@/lib/utils/urlGeneration';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://automation-blog.com';
@@ -16,8 +16,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: `${BASE_URL}/posts`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${BASE_URL}/books`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    {
+      url: `${BASE_URL}/books`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/about`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
   ];
 
   const booksResult = await contentRepository.getBooks({ page: 1, limit: 200 });

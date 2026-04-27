@@ -1,7 +1,6 @@
 /**
  * Search Page Route
  * Full search results page with grouped results and pagination
- * Validates Requirements: 9.1
  */
 
 import Link from 'next/link';
@@ -10,16 +9,12 @@ import type { Metadata } from 'next';
 import { SearchPageClient } from '@/features/search/components/SearchPageClient';
 
 interface SearchPageProps {
-  searchParams: {
-    q?: string;
-  };
+  searchParams: Promise<{ q?: string }>;
 }
 
-/**
- * Generate metadata for search page
- */
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
-  const query = searchParams.q || '';
+  const { q } = await searchParams;
+  const query = q ?? '';
   return {
     title: query ? `Kết quả tìm kiếm "${query}" - PLC Việt Nam` : 'Tìm kiếm - PLC Việt Nam',
     description: query
@@ -28,19 +23,9 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   };
 }
 
-/**
- * Search Page Component
- *
- * Displays:
- * - Breadcrumb navigation
- * - Page heading
- * - Search form (via SearchPageClient)
- * - Grouped results: Posts and Books (via SearchPageClient)
- * - Pagination for each group
- * - Empty state when no query or no results
- */
-export default function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q || '';
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const { q } = await searchParams;
+  const query = q ?? '';
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -122,7 +107,6 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      {/* Search client component — handles form, results, pagination */}
       <Suspense
         fallback={
           <div className="flex items-center justify-center py-16">

@@ -13,7 +13,6 @@ import { postHref } from '@/lib/utils/routes';
 import { formatDate } from '@/lib/utils/date';
 import { truncate } from '@/lib/utils/text';
 import { Badge } from '@/components/ui/Badge';
-import { VALIDATION } from '@/lib/constants';
 
 export interface PostCardProps {
   post: Post;

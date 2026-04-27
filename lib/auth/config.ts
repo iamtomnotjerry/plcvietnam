@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: 'jwt' },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // For Google OAuth: ensure profile exists in Supabase
       if (account?.provider === 'google' && user.id && user.email) {
         try {

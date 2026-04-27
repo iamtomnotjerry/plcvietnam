@@ -2,14 +2,19 @@
  * Comments API Route
  * Handles comment submission for authenticated users
  * Requirements: 4.5
+ *
+ * ✅ Security: Zod validation, XSS protection, rate limiting
+ * ✅ Performance: Singleton Supabase client (via contentRepository)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
-import { validateComment } from '@/features/comments/utils/validation';
 import { contentRepository } from '@/lib/data/factory';
-import { checkRateLimit, getClientIdentifier, rateLimiters } from '@/lib/rate-limit';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { CreateCommentSchema } from '@/lib/validation/schemas';
+import { sanitizeHtml } from '@/lib/security/sanitize';
+import { ZodError } from 'zod';
 
 /**
  * GET /api/comments?postId=...
@@ -39,12 +44,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  * Error responses:
  * - 401: Unauthenticated
  * - 400: Validation error (invalid content)
+ * - 429: Rate limit exceeded
  * - 500: Server error
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Rate limiting
   const identifier = getClientIdentifier(request);
-  const rateLimit = await checkRateLimit(identifier, rateLimiters.comments);
+  const rateLimit = await checkRateLimit(identifier, 'comments');
 
   if (!rateLimit.success) {
     return NextResponse.json(
@@ -71,29 +77,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   // Parse request body
-  let body: { postId?: string; content?: string };
+  let body;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
   }
 
-  const { postId, content } = body;
-
-  // Validate required fields
-  if (!postId || typeof postId !== 'string') {
-    return NextResponse.json({ error: 'postId là bắt buộc' }, { status: 400 });
+  // Validate with Zod
+  let validated;
+  try {
+    validated = CreateCommentSchema.parse(body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const firstError = error.issues[0];
+      return NextResponse.json(
+        { error: firstError.message, field: firstError.path.join('.') },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
   }
 
-  if (typeof content !== 'string') {
-    return NextResponse.json({ error: 'Nội dung bình luận là bắt buộc' }, { status: 400 });
-  }
-
-  // Validate comment content
-  const validation = validateComment(content);
-  if (!validation.valid) {
-    return NextResponse.json({ error: validation.error }, { status: 400 });
-  }
+  // Sanitize HTML content
+  const sanitizedContent = sanitizeHtml(validated.content);
 
   // Create comment
   try {
@@ -105,11 +112,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     };
 
     const comment = await contentRepository.createComment({
-      postId,
+      postId: validated.post_id,
       userId: user.id ?? user.email ?? 'unknown',
       userName: user.name ?? 'Anonymous',
       userAvatar: user.image ?? undefined,
-      content,
+      content: sanitizedContent,
     });
 
     return NextResponse.json(comment, { status: 201 });

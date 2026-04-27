@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/auth/supabase-auth';
-import { checkRateLimit, getClientIdentifier, rateLimiters } from '@/lib/rate-limit';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { SignUpSchema } from '@/lib/validation/schemas';
+import { ZodError } from 'zod';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Rate limiting
   const identifier = getClientIdentifier(request);
-  const rateLimit = await checkRateLimit(identifier, rateLimiters.auth);
+  const rateLimit = await checkRateLimit(identifier, 'auth');
 
   if (!rateLimit.success) {
     return NextResponse.json(
@@ -22,26 +23,36 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  let body: { email?: string; password?: string; name?: string };
+  // Parse and validate request body
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
   }
 
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const password = typeof body.password === 'string' ? body.password : '';
-  const name = typeof body.name === 'string' ? body.name.trim() : '';
-
-  if (!email || !EMAIL_RE.test(email)) {
-    return NextResponse.json({ error: 'Email không hợp lệ' }, { status: 400 });
-  }
-  if (password.length < 8) {
-    return NextResponse.json({ error: 'Mật khẩu tối thiểu 8 ký tự' }, { status: 400 });
-  }
-
+  // Validate with Zod
+  let validated;
   try {
-    const user = await registerUser({ email, password, name: name || email.split('@')[0] });
+    validated = SignUpSchema.parse(body);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const firstError = error.issues[0];
+      return NextResponse.json(
+        { error: firstError.message, field: firstError.path.join('.') },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+  }
+
+  // Register user
+  try {
+    const user = await registerUser({
+      email: validated.email,
+      password: validated.password,
+      name: validated.full_name,
+    });
     return NextResponse.json(
       { id: user.id, email: user.email, name: user.name, role: user.role },
       { status: 201 }
