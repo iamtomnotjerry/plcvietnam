@@ -90,12 +90,14 @@ export interface Author {
 export interface Comment {
   id: string;
   postId: string;
+  parentId?: string | null;
   userId: string;
   userName: string;
   userAvatar?: string;
   content: string;
   createdAt: Date;
   updatedAt: Date;
+  replies?: Comment[];
 }
 
 export interface SEOMetadata {

@@ -18,19 +18,24 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader mobileNavOpen={drawerOpen} onMobileNavToggle={toggleDrawer} />
-      <div className="flex flex-1 min-h-0">
-        <aside className="hidden xl:flex w-72 shrink-0 flex-col border-r border-border bg-muted/20 overflow-y-auto">
-          <div className="sticky top-0 p-4 border-b border-border/80 bg-background/95 backdrop-blur-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Cây chủ đề
-            </p>
+      <div className="flex flex-1">
+        {/* Sticky sidebar — stays fixed while page content scrolls */}
+        <aside className="hidden xl:block w-72 shrink-0 border-r border-border bg-muted/20">
+          <div className="sticky top-16 h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-border/80 bg-background/95 backdrop-blur-sm shrink-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Cây chủ đề
+              </p>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <NavigationTree />
+            </div>
           </div>
-          <NavigationTree />
         </aside>
-        <main className="flex-1 min-w-0 overflow-y-auto flex flex-col">
-          <div className="flex-1">{children}</div>
+        <div className="flex-1 min-w-0 flex flex-col">
+          <main className="flex-1">{children}</main>
           <SiteFooter />
-        </main>
+        </div>
       </div>
       <MobileNavDrawer isOpen={drawerOpen} onClose={closeDrawer} />
     </div>

@@ -63,6 +63,7 @@ export interface SearchResults {
  */
 export interface CreateCommentInput {
   postId: string;
+  parentId?: string | null;
   userId: string;
   userName: string;
   userAvatar?: string;

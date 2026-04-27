@@ -113,6 +113,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const comment = await contentRepository.createComment({
       postId: validated.post_id,
+      parentId: validated.parent_id ?? null,
       userId: user.id ?? user.email ?? 'unknown',
       userName: user.name ?? 'Anonymous',
       userAvatar: user.image ?? undefined,

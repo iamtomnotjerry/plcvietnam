@@ -13,17 +13,23 @@ import { subscribeToComments } from '@/lib/supabase/realtime';
 function reviveComments(data: unknown): Comment[] {
   if (!Array.isArray(data)) return [];
   return data.map((item) => {
-    const c = item as Record<string, string | undefined>;
-    return {
+    const c = item as Record<string, unknown>;
+    const comment: Comment = {
       id: String(c.id),
       postId: String(c.postId),
+      parentId: c.parentId != null ? String(c.parentId) : null,
       userId: String(c.userId),
       userName: String(c.userName),
-      userAvatar: c.userAvatar,
+      userAvatar: c.userAvatar != null ? String(c.userAvatar) : undefined,
       content: String(c.content),
       createdAt: new Date(String(c.createdAt)),
       updatedAt: new Date(String(c.updatedAt ?? c.createdAt)),
     };
+    // Recursively revive replies
+    if (Array.isArray(c.replies)) {
+      comment.replies = reviveComments(c.replies);
+    }
+    return comment;
   });
 }
 
@@ -37,10 +43,45 @@ export interface UseCommentsReturn {
   isLoading: boolean;
   /** Error from fetching comments, if any */
   error: Error | null;
-  /** Submit a new comment */
-  submitComment: (content: string) => Promise<void>;
+  /** Submit a new comment or reply */
+  submitComment: (content: string, parentId?: string | null) => Promise<void>;
   /** Whether a comment submission is in progress */
   isSubmitting: boolean;
+}
+
+// ── Tree helpers ──────────────────────────────────────────────────────────────
+
+function addReplyOptimistic(comments: Comment[], parentId: string, reply: Comment): Comment[] {
+  return comments.map((c) => {
+    if (c.id === parentId) {
+      return { ...c, replies: [...(c.replies ?? []), reply] };
+    }
+    if (c.replies && c.replies.length > 0) {
+      return { ...c, replies: addReplyOptimistic(c.replies, parentId, reply) };
+    }
+    return c;
+  });
+}
+
+function replaceComment(comments: Comment[], targetId: string, replacement: Comment): Comment[] {
+  return comments.map((c) => {
+    if (c.id === targetId) return replacement;
+    if (c.replies && c.replies.length > 0) {
+      return { ...c, replies: replaceComment(c.replies, targetId, replacement) };
+    }
+    return c;
+  });
+}
+
+function removeComment(comments: Comment[], targetId: string): Comment[] {
+  return comments
+    .filter((c) => c.id !== targetId)
+    .map((c) => {
+      if (c.replies && c.replies.length > 0) {
+        return { ...c, replies: removeComment(c.replies, targetId) };
+      }
+      return c;
+    });
 }
 
 /**
@@ -130,28 +171,36 @@ export function useComments(postId: string): UseCommentsReturn {
    * 4. On error, roll back the optimistic comment and re-throw
    */
   const submitComment = useCallback(
-    async (content: string) => {
+    async (content: string, parentId?: string | null) => {
       // Build a temporary optimistic comment
       const optimisticId = `optimistic-${Date.now()}`;
       const optimisticComment: Comment = {
         id: optimisticId,
         postId,
+        parentId: parentId ?? null,
         userId: 'optimistic',
         userName: '',
         content,
         createdAt: new Date(),
         updatedAt: new Date(),
+        replies: [],
       };
 
       // Optimistically add to list
-      setComments((prev) => [...prev, optimisticComment]);
+      setComments((prev) => {
+        if (parentId) {
+          // Add as reply to parent
+          return addReplyOptimistic(prev, parentId, optimisticComment);
+        }
+        return [...prev, optimisticComment];
+      });
       setIsSubmitting(true);
 
       try {
         const response = await fetch('/api/comments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ postId, content }),
+          body: JSON.stringify({ post_id: postId, content, parent_id: parentId ?? undefined }),
         });
 
         if (!response.ok) {
@@ -163,10 +212,10 @@ export function useComments(postId: string): UseCommentsReturn {
         const realComment = reviveComments([raw])[0];
 
         // Replace optimistic comment with real one
-        setComments((prev) => prev.map((c) => (c.id === optimisticId ? realComment : c)));
+        setComments((prev) => replaceComment(prev, optimisticId, { ...realComment, replies: [] }));
       } catch (err) {
         // Roll back optimistic comment
-        setComments((prev) => prev.filter((c) => c.id !== optimisticId));
+        setComments((prev) => removeComment(prev, optimisticId));
         throw err instanceof Error ? err : new Error('Không thể gửi bình luận');
       } finally {
         setIsSubmitting(false);

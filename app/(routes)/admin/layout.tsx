@@ -12,6 +12,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               CMS (demo)
             </p>
             <nav className="flex flex-col gap-1 text-sm">
+              <p className="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+                Nội dung
+              </p>
               <Link
                 href={'/admin/posts' as Route}
                 className="rounded-md px-3 py-2 font-medium text-foreground hover:bg-muted"
@@ -25,16 +28,42 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 Viết bài mới
               </Link>
               <Link
-                href={'/admin/about/edit' as Route}
-                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                Chỉnh sửa Giới thiệu
-              </Link>
-              <Link
                 href={'/admin/books' as Route}
                 className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 Quản lý Sách
+              </Link>
+
+              <p className="px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+                Phân loại
+              </p>
+              <Link
+                href={'/admin/fields' as Route}
+                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Lĩnh vực
+              </Link>
+              <Link
+                href={'/admin/categories' as Route}
+                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Danh mục
+              </Link>
+              <Link
+                href={'/admin/tags' as Route}
+                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Thẻ (Tags)
+              </Link>
+
+              <p className="px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+                Khác
+              </p>
+              <Link
+                href={'/admin/about/edit' as Route}
+                className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                Chỉnh sửa Giới thiệu
               </Link>
               <Link
                 href={'/' as Route}

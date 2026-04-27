@@ -136,11 +136,11 @@ export const GetBooksSchema = PaginationSchema.extend({
 
 export const CreateCommentSchema = z.object({
   post_id: UUIDSchema,
+  parent_id: UUIDSchema.optional().nullable(),
   content: z
     .string()
     .min(1, 'Nội dung không được để trống')
     .max(2000, 'Nội dung không được vượt quá 2000 ký tự'),
-  parent_id: UUIDSchema.optional(),
 });
 
 export const UpdateCommentSchema = z.object({

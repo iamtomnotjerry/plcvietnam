@@ -148,6 +148,7 @@ function mapComment(row: Database['public']['Tables']['comments']['Row']): Comme
   return {
     id: row.id,
     postId: row.post_id ?? '',
+    parentId: row.parent_id ?? null,
     userId: row.user_id ?? '',
     userName: row.author_name,
     userAvatar: row.author_avatar ?? undefined,
@@ -653,20 +654,45 @@ export class SupabaseProvider implements ContentRepository {
       .eq('post_id', postId)
       .eq('is_approved', true)
       .order('created_at', { ascending: true });
-    return (data ?? []).map(mapComment);
+
+    const flat = (data ?? []).map(mapComment);
+
+    // Build nested tree: top-level comments with replies array
+    const map = new Map<string, Comment>();
+    const roots: Comment[] = [];
+
+    flat.forEach((c) => {
+      map.set(c.id, { ...c, replies: [] });
+    });
+
+    map.forEach((c) => {
+      if (c.parentId) {
+        const parent = map.get(c.parentId);
+        if (parent) {
+          parent.replies = parent.replies ?? [];
+          parent.replies.push(c);
+          return;
+        }
+      }
+      roots.push(c);
+    });
+
+    return roots;
   }
 
   async createComment(input: CreateCommentInput): Promise<Comment> {
-    const { data, error } = await this.db
+    // Use service client so RLS doesn't block the insert and auto-approve works
+    const { data, error } = await this.admin
       .from('comments')
       .insert({
         post_id: input.postId,
+        parent_id: input.parentId ?? null,
         user_id: input.userId || null,
         author_name: input.userName,
         author_email: '',
         author_avatar: input.userAvatar ?? null,
         content: input.content,
-        is_approved: false,
+        is_approved: true, // Auto-approve authenticated users
       })
       .select()
       .single();

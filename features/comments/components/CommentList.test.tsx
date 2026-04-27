@@ -16,29 +16,35 @@ vi.mock('next/image', () => ({
   ),
 }));
 
+const noopReply = vi.fn();
+
 function makeComment(overrides?: Partial<Comment>): Comment {
   return {
     id: 'c1',
     postId: 'post-1',
+    parentId: null,
     userId: 'user-1',
     userName: 'Nguyễn Văn A',
     content: 'Bình luận thử nghiệm',
     createdAt: new Date('2024-01-01T10:00:00Z'),
     updatedAt: new Date('2024-01-01T10:00:00Z'),
+    replies: [],
     ...overrides,
   };
 }
 
+const defaultProps = { onReply: noopReply, isAuthenticated: false };
+
 describe('CommentList', () => {
   describe('Empty state', () => {
     it('shows empty state message when no comments', () => {
-      render(<CommentList comments={[]} />);
+      render(<CommentList comments={[]} {...defaultProps} />);
 
       expect(screen.getByText(/Chưa có bình luận nào/)).toBeInTheDocument();
     });
 
     it('does not render a list when empty', () => {
-      render(<CommentList comments={[]} />);
+      render(<CommentList comments={[]} {...defaultProps} />);
 
       expect(screen.queryByRole('list')).not.toBeInTheDocument();
     });
@@ -50,23 +56,21 @@ describe('CommentList', () => {
         makeComment({ id: 'c1', content: 'Bình luận thứ nhất' }),
         makeComment({ id: 'c2', content: 'Bình luận thứ hai' }),
       ];
-      render(<CommentList comments={comments} />);
+      render(<CommentList comments={comments} {...defaultProps} />);
 
       expect(screen.getByText('Bình luận thứ nhất')).toBeInTheDocument();
       expect(screen.getByText('Bình luận thứ hai')).toBeInTheDocument();
     });
 
     it('renders user names', () => {
-      const comments = [
-        makeComment({ id: 'c1', userName: 'Trần Thị B' }),
-      ];
-      render(<CommentList comments={comments} />);
+      const comments = [makeComment({ id: 'c1', userName: 'Trần Thị B' })];
+      render(<CommentList comments={comments} {...defaultProps} />);
 
       expect(screen.getByText('Trần Thị B')).toBeInTheDocument();
     });
 
     it('renders a list with accessible label', () => {
-      render(<CommentList comments={[makeComment()]} />);
+      render(<CommentList comments={[makeComment()]} {...defaultProps} />);
 
       expect(screen.getByRole('list', { name: /danh sách bình luận/i })).toBeInTheDocument();
     });
@@ -79,7 +83,7 @@ describe('CommentList', () => {
         makeComment({ id: 'c1', content: 'Cũ nhất', createdAt: new Date('2024-01-01') }),
         makeComment({ id: 'c2', content: 'Giữa', createdAt: new Date('2024-02-01') }),
       ];
-      render(<CommentList comments={comments} />);
+      render(<CommentList comments={comments} {...defaultProps} />);
 
       const items = screen.getAllByRole('listitem');
       expect(items[0]).toHaveTextContent('Cũ nhất');
@@ -92,10 +96,10 @@ describe('CommentList', () => {
         makeComment({ id: 'c2', content: 'Second', createdAt: new Date('2024-02-01') }),
         makeComment({ id: 'c1', content: 'First', createdAt: new Date('2024-01-01') }),
       ];
-      const originalOrder = comments.map(c => c.id);
-      render(<CommentList comments={comments} />);
+      const originalOrder = comments.map((c) => c.id);
+      render(<CommentList comments={comments} {...defaultProps} />);
 
-      expect(comments.map(c => c.id)).toEqual(originalOrder);
+      expect(comments.map((c) => c.id)).toEqual(originalOrder);
     });
   });
 
@@ -105,7 +109,7 @@ describe('CommentList', () => {
         userName: 'Lê Văn C',
         userAvatar: 'https://example.com/avatar.jpg',
       });
-      render(<CommentList comments={[comment]} />);
+      render(<CommentList comments={[comment]} {...defaultProps} />);
 
       const img = screen.getByAltText('Lê Văn C');
       expect(img).toBeInTheDocument();
@@ -114,7 +118,7 @@ describe('CommentList', () => {
 
     it('renders initial letter fallback when no avatar', () => {
       const comment = makeComment({ userName: 'Phạm Thị D', userAvatar: undefined });
-      render(<CommentList comments={[comment]} />);
+      render(<CommentList comments={[comment]} {...defaultProps} />);
 
       expect(screen.queryByRole('img')).not.toBeInTheDocument();
       // First letter of name as fallback
@@ -123,7 +127,7 @@ describe('CommentList', () => {
 
     it('uses uppercase first letter for avatar fallback', () => {
       const comment = makeComment({ userName: 'nguyễn văn e', userAvatar: undefined });
-      render(<CommentList comments={[comment]} />);
+      render(<CommentList comments={[comment]} {...defaultProps} />);
 
       expect(screen.getByText('N')).toBeInTheDocument();
     });

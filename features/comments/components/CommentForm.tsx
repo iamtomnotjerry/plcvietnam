@@ -1,9 +1,3 @@
-/**
- * CommentForm Component
- * Form for submitting comments with validation
- * Validates Requirements: 4.1, 4.5, 4.6, 4.7, 4.8
- */
-
 'use client';
 
 import { useState } from 'react';
@@ -11,9 +5,17 @@ import { validateComment } from '../utils/validation';
 
 interface CommentFormProps {
   onSubmit: (content: string) => Promise<void>;
+  placeholder?: string;
+  submitLabel?: string;
+  compact?: boolean;
 }
 
-export function CommentForm({ onSubmit }: CommentFormProps) {
+export function CommentForm({
+  onSubmit,
+  placeholder = 'Nhập bình luận...',
+  submitLabel = 'Gửi bình luận',
+  compact = false,
+}: CommentFormProps) {
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,25 +42,24 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
-    // Clear error on change
-    if (error) {
-      setError(undefined);
-    }
+    if (error) setError(undefined);
   };
 
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="flex flex-col gap-2">
-        <label htmlFor="comment-input" className="text-sm font-medium text-card-foreground">
-          Bình luận của bạn
-        </label>
+        {!compact && (
+          <label htmlFor="comment-input" className="text-sm font-medium text-card-foreground">
+            Bình luận của bạn
+          </label>
+        )}
         <textarea
-          id="comment-input"
+          id={compact ? undefined : 'comment-input'}
           value={content}
           onChange={handleChange}
           disabled={isSubmitting}
-          rows={4}
-          placeholder="Nhập bình luận..."
+          rows={compact ? 2 : 4}
+          placeholder={placeholder}
           aria-describedby={error ? 'comment-error' : undefined}
           aria-invalid={!!error}
           className={`
@@ -79,7 +80,7 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-end">
+      <div className="mt-2 flex items-center justify-end">
         <button
           type="submit"
           disabled={isSubmitting}
@@ -94,7 +95,7 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
             focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2
             cursor-pointer
           "
-          aria-label={isSubmitting ? 'Đang gửi bình luận...' : 'Gửi bình luận'}
+          aria-label={isSubmitting ? 'Đang gửi...' : submitLabel}
         >
           {isSubmitting && (
             <svg
@@ -119,7 +120,7 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
               />
             </svg>
           )}
-          {isSubmitting ? 'Đang gửi...' : 'Gửi bình luận'}
+          {isSubmitting ? 'Đang gửi...' : submitLabel}
         </button>
       </div>
     </form>
