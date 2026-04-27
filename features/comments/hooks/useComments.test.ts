@@ -207,7 +207,7 @@ describe('useComments', () => {
       expect(mockFetch).toHaveBeenLastCalledWith('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId: 'post-42', content: 'Hello' }),
+        body: JSON.stringify({ post_id: 'post-42', content: 'Hello' }),
       });
     });
 
