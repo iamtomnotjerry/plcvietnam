@@ -11,7 +11,7 @@ interface EditPostPageProps {
 
 export default async function AdminEditPostPage({ params }: EditPostPageProps) {
   const { id } = await params;
-  const [post, { categories, tags }] = await Promise.all([
+  const [post, { fields, categories, tags }] = await Promise.all([
     contentRepository.getPostById(id),
     loadPostEditorOptions(),
   ]);
@@ -24,6 +24,7 @@ export default async function AdminEditPostPage({ params }: EditPostPageProps) {
       <p className="mb-8 text-sm text-muted-foreground">{post.title}</p>
       <PostEditorForm
         mode="edit"
+        fields={fields}
         categories={categories}
         tags={tags}
         initial={{
@@ -33,7 +34,7 @@ export default async function AdminEditPostPage({ params }: EditPostPageProps) {
           excerpt: post.excerpt,
           content: post.content,
           categoryId: post.categoryId,
-          tagIds: post.tags.map(t => t.id),
+          tagIds: post.tags.map((t) => t.id),
           thumbnailUrl: post.thumbnailUrl ?? '',
           status: post.status ?? 'published',
           seo: post.seo,

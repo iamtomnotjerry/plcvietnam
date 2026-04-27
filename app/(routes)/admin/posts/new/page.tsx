@@ -4,7 +4,7 @@ import { PostEditorForm } from '@/features/cms/components/PostEditorForm';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminNewPostPage() {
-  const { categories, tags } = await loadPostEditorOptions();
+  const { fields, categories, tags } = await loadPostEditorOptions();
   const firstCategoryId = categories[0]?.id ?? '';
 
   return (
@@ -15,6 +15,7 @@ export default async function AdminNewPostPage() {
       </p>
       <PostEditorForm
         mode="create"
+        fields={fields}
         categories={categories}
         tags={tags}
         initial={{

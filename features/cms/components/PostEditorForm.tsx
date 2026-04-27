@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import type { PostPublicationStatus, SEOMetadata } from '@/lib/types/domain';
@@ -8,9 +8,15 @@ import type { PostPublicationStatus, SEOMetadata } from '@/lib/types/domain';
 export interface PostEditorCategoryOption {
   id: string;
   label: string;
+  fieldId: string;
 }
 
 export interface PostEditorTagOption {
+  id: string;
+  name: string;
+}
+
+export interface PostEditorFieldOption {
   id: string;
   name: string;
 }
@@ -31,11 +37,27 @@ export interface PostEditorInitial {
 export interface PostEditorFormProps {
   mode: 'create' | 'edit';
   initial: PostEditorInitial;
+  fields: PostEditorFieldOption[];
   categories: PostEditorCategoryOption[];
   tags: PostEditorTagOption[];
 }
 
-export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFormProps) {
+// Convert Vietnamese title → URL-safe slug
+function toSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+type SlugStatus = 'idle' | 'checking' | 'available' | 'taken';
+
+export function PostEditorForm({ mode, initial, fields, categories, tags }: PostEditorFormProps) {
   const router = useRouter();
   const [slug, setSlug] = useState(initial.slug);
   const [title, setTitle] = useState(initial.title);
@@ -51,8 +73,69 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Derive initial fieldId from the initial categoryId
+  const initialFieldId = categories.find((c) => c.id === initial.categoryId)?.fieldId ?? '';
+  const [fieldId, setFieldId] = useState(initialFieldId || (fields[0]?.id ?? ''));
+
+  // Categories filtered by selected field
+  const filteredCategories = categories.filter((c) => c.fieldId === fieldId);
+
+  // When field changes, reset categoryId to first category of new field
+  const handleFieldChange = (newFieldId: string) => {
+    setFieldId(newFieldId);
+    const first = categories.find((c) => c.fieldId === newFieldId);
+    setCategoryId(first?.id ?? '');
+  };
+
+  // Slug check state
+  const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle');
+  const [slugEdited, setSlugEdited] = useState(mode === 'edit'); // in edit mode slug is pre-set
+  const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-generate slug from title (create mode only, until user manually edits slug)
+  useEffect(() => {
+    if (mode === 'create' && !slugEdited && title) {
+      setSlug(toSlug(title));
+    }
+  }, [title, mode, slugEdited]);
+
+  // Debounced slug availability check
+  const checkSlug = useCallback(
+    (value: string) => {
+      if (!value) {
+        setSlugStatus('idle');
+        return;
+      }
+      setSlugStatus('checking');
+      if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+      checkTimerRef.current = setTimeout(async () => {
+        try {
+          const params = new URLSearchParams({ slug: value });
+          if (initial.id) params.set('excludeId', initial.id);
+          const res = await fetch(`/api/admin/posts/check-slug?${params}`);
+          const data = await res.json();
+          setSlugStatus(data.available ? 'available' : 'taken');
+        } catch {
+          setSlugStatus('idle');
+        }
+      }, 400);
+    },
+    [initial.id]
+  );
+
+  // Check slug whenever it changes
+  useEffect(() => {
+    if (slug) checkSlug(slug);
+    else setSlugStatus('idle');
+  }, [slug, checkSlug]);
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugEdited(true);
+    setSlug(e.target.value);
+  };
+
   const toggleTag = (id: string) => {
-    setTagIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
+    setTagIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -61,11 +144,15 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
       setError('Vui lòng chọn danh mục');
       return;
     }
+    if (slugStatus === 'taken') {
+      setError('Slug đã tồn tại. Vui lòng chọn slug khác.');
+      return;
+    }
     setLoading(true);
     setError(null);
     const keywords = seoKeywords
       .split(',')
-      .map(k => k.trim())
+      .map((k) => k.trim())
       .filter(Boolean);
     const seo: SEOMetadata = {
       title: seoTitle.trim() || title.trim(),
@@ -84,8 +171,7 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
       seo,
     };
     try {
-      const url =
-        mode === 'create' ? '/api/admin/posts' : `/api/admin/posts/${initial.id}`;
+      const url = mode === 'create' ? '/api/admin/posts' : `/api/admin/posts/${initial.id}`;
       const res = await fetch(url, {
         method: mode === 'create' ? 'POST' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -127,6 +213,59 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
     }
   };
 
+  // Slug status indicator
+  const slugIndicator = () => {
+    if (!slug) return null;
+    if (slugStatus === 'checking') {
+      return (
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+          Đang kiểm tra...
+        </span>
+      );
+    }
+    if (slugStatus === 'available') {
+      return (
+        <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Slug có thể dùng
+        </span>
+      );
+    }
+    if (slugStatus === 'taken') {
+      return (
+        <span className="flex items-center gap-1 text-xs text-destructive">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          Slug đã tồn tại
+        </span>
+      );
+    }
+    return null;
+  };
+
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-3xl space-y-6">
       {error && (
@@ -141,45 +280,82 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
           <input
             required
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
+
+        {/* Slug field with live check */}
         <div>
           <label className="mb-1 block text-sm font-medium">Slug</label>
           <input
             required
             value={slug}
-            onChange={e => setSlug(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 font-mono text-sm"
+            onChange={handleSlugChange}
+            className={`w-full rounded-lg border px-3 py-2 font-mono text-sm bg-background transition-colors ${
+              slugStatus === 'taken'
+                ? 'border-destructive focus:ring-destructive/50'
+                : slugStatus === 'available'
+                  ? 'border-emerald-500 focus:ring-emerald-500/50'
+                  : 'border-input'
+            }`}
           />
+          <div className="mt-1 h-4">{slugIndicator()}</div>
+          {mode === 'create' && !slugEdited && (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Tự động tạo từ tiêu đề. Chỉnh sửa để tuỳ chỉnh.
+            </p>
+          )}
         </div>
+
         <div>
           <label className="mb-1 block text-sm font-medium">Trạng thái</label>
           <select
             value={status}
-            onChange={e => setStatus(e.target.value as PostPublicationStatus)}
+            onChange={(e) => setStatus(e.target.value as PostPublicationStatus)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="published">Xuất bản</option>
             <option value="draft">Bản nháp</option>
           </select>
         </div>
+
+        <div className="sm:col-span-2">
+          <label className="mb-1 block text-sm font-medium">Lĩnh vực</label>
+          <select
+            required
+            value={fieldId}
+            onChange={(e) => handleFieldChange(e.target.value)}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">— Chọn lĩnh vực —</option>
+            {fields.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="sm:col-span-2">
           <label className="mb-1 block text-sm font-medium">Danh mục</label>
           <select
             required
             value={categoryId}
-            onChange={e => setCategoryId(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+            onChange={(e) => setCategoryId(e.target.value)}
+            disabled={!fieldId || filteredCategories.length === 0}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
           >
-            <option value="">— Chọn —</option>
-            {categories.map(c => (
+            <option value="">— Chọn danh mục —</option>
+            {filteredCategories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label}
               </option>
             ))}
           </select>
+          {fieldId && filteredCategories.length === 0 && (
+            <p className="mt-1 text-xs text-muted-foreground">Lĩnh vực này chưa có danh mục nào.</p>
+          )}
         </div>
         <div className="sm:col-span-2">
           <label className="mb-1 block text-sm font-medium">Tóm tắt</label>
@@ -187,7 +363,7 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
             required
             rows={3}
             value={excerpt}
-            onChange={e => setExcerpt(e.target.value)}
+            onChange={(e) => setExcerpt(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
@@ -197,7 +373,7 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
             required
             rows={14}
             value={content}
-            onChange={e => setContent(e.target.value)}
+            onChange={(e) => setContent(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 font-mono text-sm"
           />
         </div>
@@ -205,15 +381,15 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
           <label className="mb-1 block text-sm font-medium">Ảnh thumbnail (URL, tuỳ chọn)</label>
           <input
             value={thumbnailUrl}
-            onChange={e => setThumbnailUrl(e.target.value)}
+            onChange={(e) => setThumbnailUrl(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
         <div className="sm:col-span-2">
           <p className="mb-2 text-sm font-medium">Thẻ</p>
           <div className="flex flex-wrap gap-2">
-            {tags.map(t => (
-              <label key={t.id} className="inline-flex items-center gap-1.5 text-sm">
+            {tags.map((t) => (
+              <label key={t.id} className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
                 <input
                   type="checkbox"
                   checked={tagIds.includes(t.id)}
@@ -228,7 +404,7 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
           <label className="mb-1 block text-sm font-medium">SEO title</label>
           <input
             value={seoTitle}
-            onChange={e => setSeoTitle(e.target.value)}
+            onChange={(e) => setSeoTitle(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
@@ -236,15 +412,17 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
           <label className="mb-1 block text-sm font-medium">SEO description</label>
           <input
             value={seoDescription}
-            onChange={e => setSeoDescription(e.target.value)}
+            onChange={(e) => setSeoDescription(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">SEO keywords (phân tách bằng dấu phẩy)</label>
+          <label className="mb-1 block text-sm font-medium">
+            SEO keywords (phân tách bằng dấu phẩy)
+          </label>
           <input
             value={seoKeywords}
-            onChange={e => setSeoKeywords(e.target.value)}
+            onChange={(e) => setSeoKeywords(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
         </div>
@@ -253,8 +431,8 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          disabled={loading}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+          disabled={loading || slugStatus === 'taken' || slugStatus === 'checking'}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60 cursor-pointer"
         >
           {loading ? 'Đang lưu…' : 'Lưu'}
         </button>
@@ -263,7 +441,7 @@ export function PostEditorForm({ mode, initial, categories, tags }: PostEditorFo
             type="button"
             disabled={loading}
             onClick={onDelete}
-            className="rounded-lg border border-destructive px-4 py-2 text-sm font-medium text-destructive disabled:opacity-60"
+            className="rounded-lg border border-destructive px-4 py-2 text-sm font-medium text-destructive disabled:opacity-60 cursor-pointer"
           >
             Xóa bài
           </button>
