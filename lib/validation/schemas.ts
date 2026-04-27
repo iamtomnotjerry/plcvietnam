@@ -79,6 +79,7 @@ export const CreatePostSchema = z.object({
     .string()
     .max(500, 'Meta description không được vượt quá 500 ký tự')
     .optional(),
+  meta_keywords: z.array(z.string()).optional(),
   tag_ids: z.array(UUIDSchema).default([]),
 });
 

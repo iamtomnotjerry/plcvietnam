@@ -161,15 +161,18 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
       keywords,
     };
     const body = {
+      ...(mode === 'edit' && initial.id ? { id: initial.id } : {}),
       slug,
       title,
       excerpt,
       content,
-      categoryId,
-      tagIds,
-      thumbnailUrl: thumbnailUrl.trim() || undefined,
+      category_id: categoryId,
+      tag_ids: tagIds,
+      thumbnail_url: thumbnailUrl.trim() || undefined,
       status,
-      seo,
+      meta_title: seo.title,
+      meta_description: seo.description,
+      meta_keywords: keywords,
     };
     try {
       const url = mode === 'create' ? '/api/admin/posts' : `/api/admin/posts/${initial.id}`;
@@ -183,12 +186,20 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
         setError(typeof data.error === 'string' ? data.error : 'Lưu thất bại');
         return;
       }
-      if (mode === 'create' && data.id) {
+
+      // Navigate to the published post if possible, otherwise admin list
+      const postSlug = data.slug;
+      const fieldSlug = data.category?.field?.slug;
+      const categorySlug = data.category?.slug;
+
+      if (postSlug && fieldSlug && categorySlug) {
+        router.push(`/fields/${fieldSlug}/${categorySlug}/${postSlug}` as Route);
+      } else if (mode === 'create' && data.id) {
+        // createPost doesn't return full category — redirect to edit page
         router.push(`/admin/posts/${data.id}/edit` as Route);
-        router.refresh();
-        return;
+      } else {
+        router.push('/admin/posts' as Route);
       }
-      router.push('/admin/posts' as Route);
       router.refresh();
     } finally {
       setLoading(false);

@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
       seo: {
         title: validated.meta_title || '',
         description: validated.meta_description || '',
-        keywords: [],
+        keywords: validated.meta_keywords || [],
       },
     });
 

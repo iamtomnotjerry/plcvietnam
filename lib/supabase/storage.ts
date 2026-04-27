@@ -9,10 +9,11 @@ import type { Database } from './database.types';
 type Bucket = 'thumbnails' | 'avatars' | 'books';
 
 function getClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  // Use service role key for uploads (bypasses RLS/storage policies)
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+    auth: { persistSession: false },
+  });
 }
 
 /**

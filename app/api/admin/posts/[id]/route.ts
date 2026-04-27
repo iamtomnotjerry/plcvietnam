@@ -71,11 +71,15 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (validated.tag_ids !== undefined) input.tagIds = validated.tag_ids;
   if (validated.thumbnail_url !== undefined) input.thumbnailUrl = validated.thumbnail_url ?? null;
   if (validated.status !== undefined) input.status = validated.status as 'draft' | 'published';
-  if (validated.meta_title !== undefined || validated.meta_description !== undefined) {
+  if (
+    validated.meta_title !== undefined ||
+    validated.meta_description !== undefined ||
+    validated.meta_keywords !== undefined
+  ) {
     input.seo = {
       title: validated.meta_title,
       description: validated.meta_description,
-      keywords: [],
+      keywords: validated.meta_keywords ?? [],
     };
   }
 

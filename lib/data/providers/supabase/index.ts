@@ -534,7 +534,7 @@ export class SupabaseProvider implements ContentRepository {
         reading_time: estimateReadingTime(input.content),
         published_at: input.status === 'published' ? new Date().toISOString() : null,
       })
-      .select()
+      .select('*, categories(*, fields(*))')
       .single();
 
     if (error) throw error;
@@ -545,7 +545,10 @@ export class SupabaseProvider implements ContentRepository {
         .insert(input.tagIds.map((tag_id) => ({ post_id: data.id, tag_id })));
     }
 
-    return mapPost(data, []);
+    const typedData = data as unknown as PostWithRelations;
+    const field = typedData.categories?.fields ? mapField(typedData.categories.fields) : undefined;
+    const category = typedData.categories ? mapCategory(typedData.categories, field) : undefined;
+    return mapPost(data, [], category);
   }
 
   async updatePost(id: string, input: UpdatePostInput): Promise<Post | null> {
@@ -574,7 +577,7 @@ export class SupabaseProvider implements ContentRepository {
       .from('posts')
       .update(updateData)
       .eq('id', id)
-      .select()
+      .select('*, categories(*, fields(*))')
       .single();
     if (error) return null;
 
@@ -589,7 +592,10 @@ export class SupabaseProvider implements ContentRepository {
       }
     }
 
-    return mapPost(data, []);
+    const typedData = data as unknown as PostWithRelations;
+    const field = typedData.categories?.fields ? mapField(typedData.categories.fields) : undefined;
+    const category = typedData.categories ? mapCategory(typedData.categories, field) : undefined;
+    return mapPost(data, [], category);
   }
 
   async deletePost(id: string): Promise<boolean> {
