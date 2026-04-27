@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import type { PostPublicationStatus, SEOMetadata } from '@/lib/types/domain';
@@ -378,12 +379,8 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">Ảnh thumbnail (URL, tuỳ chọn)</label>
-          <input
-            value={thumbnailUrl}
-            onChange={(e) => setThumbnailUrl(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          />
+          <label className="mb-1 block text-sm font-medium">Ảnh thumbnail</label>
+          <ThumbnailUploader value={thumbnailUrl} onChange={setThumbnailUrl} postSlug={slug} />
         </div>
         <div className="sm:col-span-2">
           <p className="mb-2 text-sm font-medium">Thẻ</p>
@@ -448,5 +445,141 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
         )}
       </div>
     </form>
+  );
+}
+
+// ── ThumbnailUploader ─────────────────────────────────────────────────────────
+
+interface ThumbnailUploaderProps {
+  value: string;
+  onChange: (url: string) => void;
+  postSlug: string;
+}
+
+function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const ext = file.name.split('.').pop() ?? 'jpg';
+      const slug = postSlug.trim() || `post-${Date.now()}`;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'thumbnails');
+      formData.append('path', `${slug}/thumbnail.${ext}`);
+
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Upload thất bại');
+      onChange(data.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload thất bại');
+    } finally {
+      setUploading(false);
+      // Reset input so same file can be re-selected
+      if (inputRef.current) inputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Preview */}
+      {value && (
+        <div className="relative w-full max-w-sm overflow-hidden rounded-lg border border-border bg-muted">
+          <Image
+            src={value}
+            alt="Thumbnail preview"
+            width={400}
+            height={225}
+            className="h-auto w-full object-cover"
+            unoptimized
+          />
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 transition-colors cursor-pointer"
+            aria-label="Xóa ảnh"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Upload + URL row */}
+      <div className="flex gap-2">
+        {/* Upload button */}
+        <label
+          className={`inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm cursor-pointer hover:bg-muted transition-colors ${uploading ? 'opacity-60 pointer-events-none' : ''}`}
+        >
+          {uploading ? (
+            <>
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              Đang tải...
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                />
+              </svg>
+              Tải ảnh lên
+            </>
+          )}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="sr-only"
+            onChange={handleFileChange}
+            disabled={uploading}
+          />
+        </label>
+
+        {/* URL input */}
+        <input
+          type="url"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Hoặc dán URL ảnh..."
+          className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+        />
+      </div>
+
+      {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
+      <p className="text-xs text-muted-foreground">JPEG, PNG, WebP, GIF · Tối đa 5MB</p>
+    </div>
   );
 }
