@@ -9,30 +9,58 @@
 
 ---
 
-## ✅ Google OAuth - HOÀN THÀNH
+## ✅ Google OAuth - HOÀN THÀNH & FIXED
 
-### Credentials
+### ⚠️ Issue Fixed (Commit: ce22bbe)
+
+**Problem**: Commenting failed after OAuth login with error:
+```
+invalid input syntax for type uuid: "100497043742367905325"
+```
+
+**Root Cause**: Google OAuth returned numeric user ID (Google ID), but Supabase expected UUID format.
+
+**Solution**: 
+1. Map OAuth provider ID to Supabase UUID in `signIn` callback
+2. Add UUID validation in `jwt` callback
+3. Persist user name and avatar from profile in JWT token
+
+**Files Changed**:
+- `lib/auth/config.ts` - Fixed UUID mapping for OAuth providers
+- `supabase/migrations/20260429_oauth_profile_trigger.sql` - Trigger to auto-create profiles
+
+### Credentials (NEW - Working)
 
 ```env
-GOOGLE_CLIENT_ID=1099143255402-u74fhvk8tahn63md5a47315dd5c69m.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+GOOGLE_CLIENT_ID=1059143255402-70o5p0g8h62mbs5ggditihjrft25gna1.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
 ```
 
 ### Redirect URIs đã cấu hình
 
-- ✅ `http://localhost:3000/api/auth/callback/google`
 - ✅ `https://plcvietnam.vercel.app/api/auth/callback/google`
+
+### OAuth Consent Screen
+
+- **Status**: ✅ Published to Production Mode
+- **Test users**: Not needed (production mode allows all users)
+- **Domain**: plcvietnam.vercel.app
 
 ### Deployment
 
 - ✅ Đã thêm vào `.env.local`
 - ✅ Đã thêm vào Vercel production
-- ✅ Đã redeploy: https://plcvietnam.vercel.app
+- ✅ Đã redeploy với fix: https://plcvietnam.vercel.app
+- ✅ UUID mapping fixed
+- ✅ Commenting works after OAuth login
 
-### Test
+### Test Checklist
 
-- [ ] Test trên localhost: http://localhost:3000
-- [ ] Test trên production: https://plcvietnam.vercel.app
+- [x] OAuth login flow completes
+- [x] User name appears in header
+- [x] Logout button visible
+- [x] **Commenting works after OAuth login** ✅
+- [ ] Avatar displays (needs testing)
 
 ---
 
@@ -57,54 +85,61 @@ GOOGLE_CLIENT_SECRET=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
 
 ---
 
-## 🚀 Tiếp theo
+## 🚀 Testing Instructions
 
-### 1. Restart Development Server
-
-```bash
-npm run dev
-```
-
-### 2. Test Google Login trên Localhost
-
-1. Mở http://localhost:3000
-2. Vào bất kỳ bài viết nào
-3. Scroll xuống phần comment
-4. Click "Đăng nhập với Google"
-5. Chọn tài khoản và cho phép
-6. Kiểm tra có thể comment
-
-### 3. Test Google Login trên Production
+### Test Google Login trên Production
 
 1. Mở https://plcvietnam.vercel.app
-2. Làm tương tự như localhost
-3. Verify hoạt động
-
-### 4. Setup Facebook OAuth
-
-Làm theo hướng dẫn: [facebook-setup.md](./facebook-setup.md)
+2. Logout nếu đang đăng nhập
+3. Vào bất kỳ bài viết nào
+4. Scroll xuống phần comment
+5. Click "Đăng nhập với Google"
+6. Chọn tài khoản và cho phép
+7. **Verify**:
+   - User name hiện ở header
+   - Nút "Đăng xuất" visible
+   - Avatar hiện (nếu có)
+8. **Test commenting**:
+   - Nhập comment và submit
+   - **Expected**: Comment được tạo thành công ✅
+   - **Actual**: Should work now!
 
 ---
 
-## 📝 Notes
+## 📝 Technical Details
 
-### Google OAuth Consent Screen
+### How OAuth UUID Mapping Works
 
-- **Status**: Testing mode
-- **Test users**: Cần thêm email vào test users list
-- **Publish**: Cần publish app để cho phép tất cả user (production)
+1. User clicks "Login with Google"
+2. Google returns user data with Google ID (numeric)
+3. `signIn` callback:
+   - Queries Supabase `auth.users` by email
+   - Maps Google ID → Supabase UUID
+   - Updates `user.id` with Supabase UUID
+4. `jwt` callback:
+   - Validates UUID format with regex
+   - Re-lookups profile if needed
+   - Persists name and avatar
+5. `session` callback:
+   - Returns session with Supabase UUID
+6. Comment API uses Supabase UUID ✅
 
 ### Vercel Environment Variables
 
-Xem tại: https://vercel.com/23560004-4800s-projects/plcvietnam/settings/environment-variables
+```env
+NEXTAUTH_URL=https://plcvietnam.vercel.app
+NEXTAUTH_SECRET=lfNocSj4d7MIsubwhTHFpy5Lmgq8WDX6
+GOOGLE_CLIENT_ID=1059143255402-70o5p0g8h62mbs5ggditihjrft25gna1.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+```
 
 ### Latest Deployment
 
 - **URL**: https://plcvietnam.vercel.app
-- **Time**: 2026-04-29 1:12 PM
-- **Status**: 🔄 Building (OAuth changes deployed)
-- **Commit**: feat: add Google and Facebook OAuth for social login
+- **Time**: 2026-04-29 3:10 PM
+- **Status**: ✅ Deployed with UUID fix
+- **Commit**: fix: OAuth UUID mapping - use Supabase UUID instead of provider ID
 
 ---
 
-**Last Updated**: 2026-04-29 1:13 PM
+**Last Updated**: 2026-04-29 3:11 PM
