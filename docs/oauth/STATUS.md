@@ -101,9 +101,10 @@ Xem tại: https://vercel.com/23560004-4800s-projects/plcvietnam/settings/enviro
 ### Latest Deployment
 
 - **URL**: https://plcvietnam.vercel.app
-- **Time**: 2026-04-29 12:48 PM
-- **Status**: ✅ Success
+- **Time**: 2026-04-29 1:12 PM
+- **Status**: 🔄 Building (OAuth changes deployed)
+- **Commit**: feat: add Google and Facebook OAuth for social login
 
 ---
 
-**Last Updated**: 2026-04-29 12:48 PM
+**Last Updated**: 2026-04-29 1:13 PM

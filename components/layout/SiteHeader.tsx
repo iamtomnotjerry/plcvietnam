@@ -8,6 +8,7 @@ import { MobileSearchOverlay } from '@/components/ui/MobileSearchOverlay';
 import { HamburgerButton } from '@/components/ui/HamburgerButton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { AdminHeaderLink } from '@/features/cms/components/AdminHeaderLink';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 const nav = [
   { href: '/', label: 'Trang chủ' },
@@ -77,6 +78,7 @@ export function SiteHeader({ mobileNavOpen = false, onMobileNavToggle }: SiteHea
             <MobileSearchOverlay />
           </div>
           <ThemeToggle />
+          <UserMenu />
           <AdminHeaderLink />
         </div>
       </div>

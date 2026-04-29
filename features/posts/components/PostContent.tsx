@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
-import { sanitizeHtml } from '@/lib/security/sanitize';
+import { sanitizeHtmlClient } from '@/lib/security/sanitize.client';
 
 export interface PostContentProps {
   /**
@@ -38,7 +38,7 @@ export interface PostContentProps {
 export function PostContent({ content, className = '' }: PostContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const sanitizedContent = useMemo(() => sanitizeHtml(content), [content]);
+  const sanitizedContent = useMemo(() => sanitizeHtmlClient(content), [content]);
 
   useEffect(() => {
     if (!contentRef.current) return;
