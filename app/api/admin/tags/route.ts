@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
+import { revalidatePath } from 'next/cache';
 
 function unauthorized() {
   return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
@@ -45,6 +46,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  
+  // Revalidate tags cache
+  revalidatePath('/api/tags');
+  revalidatePath('/');
+  
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -57,5 +63,10 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const db = getServiceClient();
   const { error } = await db.from('tags').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  
+  // Revalidate tags cache
+  revalidatePath('/api/tags');
+  revalidatePath('/');
+  
   return NextResponse.json({ ok: true });
 }

@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { createClient } from '@supabase/supabase-js';
+import { revalidatePath } from 'next/cache';
 import type { Database } from '@/lib/supabase/database.types';
 
 function getAdminClient() {
@@ -59,6 +60,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  
+  // Revalidate navigation cache
+  revalidatePath('/api/navigation');
+  revalidatePath('/');
+  
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -88,6 +94,11 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  
+  // Revalidate navigation cache
+  revalidatePath('/api/navigation');
+  revalidatePath('/');
+  
   return NextResponse.json(data);
 }
 
@@ -100,5 +111,10 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const db = getAdminClient();
   const { error } = await db.from('fields').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  
+  // Revalidate navigation cache
+  revalidatePath('/api/navigation');
+  revalidatePath('/');
+  
   return NextResponse.json({ ok: true });
 }

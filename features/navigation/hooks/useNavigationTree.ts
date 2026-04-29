@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { NavigationNode } from '@/lib/types/domain';
+import { onNavigationRefresh } from '@/lib/events/navigation';
 
 const STORAGE_KEY = 'navigation-tree-expanded';
 
@@ -91,6 +92,11 @@ interface UseNavigationTreeReturn {
    * Error state
    */
   error: Error | null;
+
+  /**
+   * Refresh navigation tree data
+   */
+  refresh: () => Promise<void>;
 }
 
 /**
@@ -117,39 +123,36 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  // Fetch navigation tree
+  const fetchTree = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Add timestamp to bypass cache
+      const res = await fetch(`/api/navigation?t=${Date.now()}`);
+      if (!res.ok) throw new Error('Failed to fetch navigation');
+      const data: NavigationNode[] = await res.json();
+
+      setTree(data);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch navigation tree'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // Fetch navigation tree on mount
   useEffect(() => {
-    let mounted = true;
-
-    async function fetchTree() {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const res = await fetch('/api/navigation');
-        if (!res.ok) throw new Error('Failed to fetch navigation');
-        const data: NavigationNode[] = await res.json();
-
-        if (mounted) {
-          setTree(data);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err : new Error('Failed to fetch navigation tree'));
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    }
-
     fetchTree();
+  }, [fetchTree]);
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  // Listen for refresh events
+  useEffect(() => {
+    return onNavigationRefresh(() => {
+      fetchTree();
+    });
+  }, [fetchTree]);
 
   // Persist expansion state to localStorage whenever it changes
   useEffect(() => {
@@ -229,5 +232,6 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
     collapseAll,
     isLoading,
     error,
+    refresh: fetchTree,
   };
 }

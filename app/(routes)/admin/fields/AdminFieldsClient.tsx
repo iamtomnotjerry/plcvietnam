@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { triggerNavigationRefresh } from '@/lib/events/navigation';
 
 interface Field {
   id: string;
@@ -150,6 +151,7 @@ export function AdminFieldsClient() {
       if (!res.ok) throw new Error(data.error ?? 'Lỗi lưu dữ liệu');
       closeForm();
       fetchFields();
+      triggerNavigationRefresh(); // Refresh navigation tree
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Lỗi không xác định');
     } finally {
@@ -166,6 +168,7 @@ export function AdminFieldsClient() {
       }
       setDeletingId(null);
       fetchFields();
+      triggerNavigationRefresh(); // Refresh navigation tree
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Lỗi xóa');
     }
