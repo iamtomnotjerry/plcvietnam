@@ -2,10 +2,11 @@
 
 import { signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
+import Image from 'next/image';
 
 /**
  * UserMenu - Only shows when user is logged in
- * Displays user name and sign out button
+ * Displays user avatar, name and sign out button
  */
 export function UserMenu() {
   const { data: session, status } = useSession();
@@ -20,11 +21,39 @@ export function UserMenu() {
     return null;
   }
 
+  const user = session.user;
+  const displayName = user.name ?? user.email ?? 'User';
+  const initials = displayName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="hidden sm:inline max-w-[140px] truncate text-sm text-muted-foreground">
-        {session.user.name ?? session.user.email}
+    <div className="flex items-center gap-3">
+      {/* Avatar */}
+      <div className="relative h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+        {user.image ? (
+          <Image
+            src={user.image}
+            alt={displayName}
+            width={32}
+            height={32}
+            className="object-cover"
+            unoptimized
+          />
+        ) : (
+          <span className="text-xs font-semibold text-primary">{initials}</span>
+        )}
+      </div>
+
+      {/* Name */}
+      <span className="hidden sm:inline max-w-[140px] truncate text-sm font-medium text-foreground">
+        {displayName}
       </span>
+
+      {/* Logout Button */}
       <button
         type="button"
         disabled={signingOut}
