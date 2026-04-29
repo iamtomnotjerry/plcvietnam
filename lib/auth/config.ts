@@ -72,8 +72,42 @@ export const authOptions: NextAuthOptions = {
         user.email
       ) {
         try {
-          await ensureProfile(user.id, user.email, user.name ?? undefined, user.image ?? undefined);
-        } catch {
+          // For OAuth, user.id is the provider ID (e.g., Google ID)
+          // We need to find or create a profile using email as the key
+          const admin = await import('@/lib/supabase/client-singleton').then((m) =>
+            m.getServiceClient()
+          );
+
+          // Check if profile exists by email
+          const { data: existingProfile } = await admin
+            .from('profiles')
+            .select('id')
+            .eq('email', user.email)
+            .single();
+
+          if (!existingProfile) {
+            // Create new profile with generated UUID
+            const { data: newProfile } = await admin
+              .from('profiles')
+              .insert({
+                email: user.email,
+                full_name: user.name ?? user.email.split('@')[0],
+                avatar_url: user.image ?? null,
+                role: 'reader',
+              })
+              .select('id')
+              .single();
+
+            if (newProfile) {
+              // Update user.id to use the Supabase UUID
+              user.id = newProfile.id;
+            }
+          } else {
+            // Use existing profile ID
+            user.id = existingProfile.id;
+          }
+        } catch (error) {
+          console.error('Profile creation error:', error);
           // Non-fatal: profile creation failure shouldn't block sign-in
         }
       }
