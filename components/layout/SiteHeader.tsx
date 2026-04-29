@@ -7,7 +7,6 @@ import { SearchInput } from '@/features/search/components/SearchInput';
 import { MobileSearchOverlay } from '@/components/ui/MobileSearchOverlay';
 import { HamburgerButton } from '@/components/ui/HamburgerButton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { AuthButton } from '@/components/auth/AuthButton';
 import { AdminHeaderLink } from '@/features/cms/components/AdminHeaderLink';
 
 const nav = [
@@ -79,7 +78,6 @@ export function SiteHeader({ mobileNavOpen = false, onMobileNavToggle }: SiteHea
           </div>
           <ThemeToggle />
           <AdminHeaderLink />
-          <AuthButton />
         </div>
       </div>
 

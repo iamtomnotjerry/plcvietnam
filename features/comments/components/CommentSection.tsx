@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import { SignInButton } from './SignInButton';
 import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
+import { SocialLoginPrompt } from './SocialLoginPrompt';
 import type { Comment } from '@/lib/types/domain';
 
 interface CommentSectionProps {
@@ -39,12 +40,7 @@ export function CommentSection({
 
       {/* Auth area — top-level comment form */}
       <div>
-        {status === 'unauthenticated' && (
-          <div className="rounded-lg border border-border bg-muted/30 p-4 flex flex-col gap-3">
-            <p className="text-sm text-muted-foreground">Đăng nhập để để lại bình luận.</p>
-            <SignInButton />
-          </div>
-        )}
+        {status === 'unauthenticated' && <SocialLoginPrompt />}
 
         {status === 'loading' && (
           <div

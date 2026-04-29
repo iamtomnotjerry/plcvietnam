@@ -64,15 +64,14 @@ describe('CommentSection', () => {
     it('shows sign-in prompt when unauthenticated', () => {
       render(<CommentSection {...defaultProps} />);
 
-      expect(screen.getByText(/Đăng nhập để để lại bình luận/)).toBeInTheDocument();
+      expect(screen.getByText(/Đăng nhập để bình luận/)).toBeInTheDocument();
     });
 
-    it('shows SignInButton when unauthenticated', () => {
+    it('shows social login buttons when unauthenticated', () => {
       render(<CommentSection {...defaultProps} />);
 
-      const link = screen.getByRole('link', { name: /Đăng nhập để bình luận/i });
-      expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute('href', '/auth/sign-in');
+      expect(screen.getByRole('button', { name: /Đăng nhập với Google/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Đăng nhập với Facebook/i })).toBeInTheDocument();
     });
 
     it('does not show comment form when unauthenticated', () => {
@@ -121,10 +120,15 @@ describe('CommentSection', () => {
       expect(screen.getByRole('button', { name: /Đăng xuất/i })).toBeInTheDocument();
     });
 
-    it('does not show sign-in button when authenticated', () => {
+    it('does not show social login buttons when authenticated', () => {
       render(<CommentSection {...defaultProps} />);
 
-      expect(screen.queryByRole('button', { name: /Đăng nhập với Google/i })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /Đăng nhập với Google/i })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /Đăng nhập với Facebook/i })
+      ).not.toBeInTheDocument();
     });
   });
 

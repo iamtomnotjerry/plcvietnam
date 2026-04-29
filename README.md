@@ -7,11 +7,16 @@ Blog chuyên về tự động hóa công nghiệp, PLC, SCADA, và Siemens Auto
 - **Framework**: Next.js 14+ with App Router
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS with CSS variables
-- **Authentication**: NextAuth.js with Google OAuth
+- **Authentication**: NextAuth.js with Google & Facebook OAuth
+- **Database**: Supabase (PostgreSQL)
 - **Testing**: Vitest + React Testing Library + fast-check (property-based testing)
 - **Image Optimization**: Next.js Image component
 
 ## Getting Started
+
+⚡ **Quick Start**: [QUICK-START.md](./QUICK-START.md)
+
+### Detailed Setup
 
 1. Install dependencies:
 
@@ -22,10 +27,22 @@ npm install
 2. Copy environment variables:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-3. Update `.env` with your configuration (Google OAuth credentials, etc.)
+3. **Setup Social Login (Google & Facebook OAuth)**:
+
+📖 **Hướng dẫn đầy đủ**: [docs/oauth/README.md](./docs/oauth/README.md)
+
+**Google OAuth** (✅ Đã setup):
+
+- Client ID và Secret đã có trong `.env.local`
+- Đã deploy lên Vercel production
+- Cần restart server: `npm run dev`
+
+**Facebook OAuth** (⏳ Chưa setup):
+
+- Xem hướng dẫn: [docs/oauth/facebook-setup.md](./docs/oauth/facebook-setup.md)
 
 4. Run the development server:
 
@@ -67,6 +84,20 @@ public/                # Static assets
 ## Environment Variables
 
 See `.env.example` for required environment variables.
+
+### Required for Social Login
+
+```env
+# Google OAuth (✅ Đã có)
+GOOGLE_CLIENT_ID=1099143255402-u74fhvk8tahn63md5a47315dd5c69m.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+
+# Facebook OAuth (⏳ Chưa setup)
+FACEBOOK_CLIENT_ID=your-facebook-app-id
+FACEBOOK_CLIENT_SECRET=your-facebook-app-secret
+```
+
+📖 **Setup guide**: [docs/oauth/README.md](./docs/oauth/README.md)
 
 ## Data Provider
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import type { Comment } from '@/lib/types/domain';
 import { CommentForm } from './CommentForm';
+import { SocialLoginPrompt } from './SocialLoginPrompt';
 
 interface CommentListProps {
   comments: Comment[];

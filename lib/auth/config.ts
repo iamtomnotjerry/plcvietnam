@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import FacebookProvider from 'next-auth/providers/facebook';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { signInWithPassword, ensureProfile } from '@/lib/auth/supabase-auth';
 
@@ -8,6 +9,10 @@ type UserRole = 'admin' | 'author' | 'reader';
 const googleConfigured =
   Boolean(process.env.GOOGLE_CLIENT_ID?.trim()) &&
   Boolean(process.env.GOOGLE_CLIENT_SECRET?.trim());
+
+const facebookConfigured =
+  Boolean(process.env.FACEBOOK_CLIENT_ID?.trim()) &&
+  Boolean(process.env.FACEBOOK_CLIENT_SECRET?.trim());
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -21,6 +26,14 @@ export const authOptions: NextAuthOptions = {
           GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+          }),
+        ]
+      : []),
+    ...(facebookConfigured
+      ? [
+          FacebookProvider({
+            clientId: process.env.FACEBOOK_CLIENT_ID!,
+            clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
           }),
         ]
       : []),
@@ -52,8 +65,12 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
   callbacks: {
     async signIn({ user, account }) {
-      // For Google OAuth: ensure profile exists in Supabase
-      if (account?.provider === 'google' && user.id && user.email) {
+      // For OAuth providers (Google, Facebook): ensure profile exists in Supabase
+      if (
+        (account?.provider === 'google' || account?.provider === 'facebook') &&
+        user.id &&
+        user.email
+      ) {
         try {
           await ensureProfile(user.id, user.email, user.name ?? undefined, user.image ?? undefined);
         } catch {
