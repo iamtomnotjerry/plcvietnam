@@ -2,7 +2,7 @@ import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { signInWithPassword, ensureProfile } from '@/lib/auth/supabase-auth';
+import { signInWithPassword } from '@/lib/auth/supabase-auth';
 
 type UserRole = 'admin' | 'author' | 'reader';
 
@@ -66,49 +66,34 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       // For OAuth providers (Google, Facebook): ensure profile exists in Supabase
-      if (
-        (account?.provider === 'google' || account?.provider === 'facebook') &&
-        user.id &&
-        user.email
-      ) {
+      if (account?.provider && account.provider !== 'credentials' && user.email) {
         try {
-          // For OAuth, user.id is the provider ID (e.g., Google ID)
-          // We need to find or create a profile using email as the key
-          const admin = await import('@/lib/supabase/client-singleton').then((m) =>
-            m.getServiceClient()
-          );
+          const { getServiceClient } = await import('@/lib/supabase/client-singleton');
+          const admin = getServiceClient();
 
-          // Check if profile exists by email
-          const { data: existingProfile } = await admin
-            .from('profiles')
-            .select('id')
-            .eq('email', user.email)
-            .single();
+          // For OAuth, we need to find the Supabase auth.users record by email
+          // The trigger will have created the profile automatically
+          const { data: authUser } = await admin.auth.admin.listUsers();
+          const supabaseUser = authUser?.users?.find((u) => u.email === user.email);
 
-          if (!existingProfile) {
-            // Create new profile with generated UUID
-            const { data: newProfile } = await admin
+          if (supabaseUser) {
+            // Map OAuth provider ID to Supabase UUID
+            user.id = supabaseUser.id;
+
+            // Get profile data for avatar
+            const { data: profile } = await admin
               .from('profiles')
-              .insert({
-                email: user.email,
-                full_name: user.name ?? user.email.split('@')[0],
-                avatar_url: user.image ?? null,
-                role: 'reader',
-              })
-              .select('id')
-              .single();
+              .select('avatar_url, full_name')
+              .eq('id', supabaseUser.id)
+              .maybeSingle();
 
-            if (newProfile) {
-              // Update user.id to use the Supabase UUID
-              user.id = newProfile.id;
+            if (profile) {
+              user.name = profile.full_name ?? user.name;
+              user.image = profile.avatar_url ?? user.image;
             }
-          } else {
-            // Use existing profile ID
-            user.id = existingProfile.id;
           }
         } catch (error) {
-          console.error('Profile creation error:', error);
-          // Non-fatal: profile creation failure shouldn't block sign-in
+          console.error('OAuth profile lookup error:', error);
         }
       }
       return true;
@@ -118,8 +103,37 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id ?? token.sub ?? '';
         token.role = (user as { role?: UserRole }).role ?? 'reader';
         token.picture = user.image ?? token.picture;
+        token.name = user.name ?? token.name;
       }
-      // Persist sub as id fallback
+
+      // For OAuth users on subsequent requests, ensure we have the Supabase UUID
+      if (
+        account?.provider &&
+        account.provider !== 'credentials' &&
+        token.email &&
+        !token.id?.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+      ) {
+        try {
+          const { getServiceClient } = await import('@/lib/supabase/client-singleton');
+          const admin = getServiceClient();
+
+          const { data: profile } = await admin
+            .from('profiles')
+            .select('id, avatar_url, full_name')
+            .eq('email', token.email as string)
+            .maybeSingle();
+
+          if (profile) {
+            token.id = profile.id;
+            token.picture = profile.avatar_url ?? token.picture;
+            token.name = profile.full_name ?? token.name;
+          }
+        } catch (error) {
+          console.error('JWT profile lookup error:', error);
+        }
+      }
+
+      // Fallback defaults
       if (!token.id && token.sub) token.id = token.sub;
       if (!token.role) token.role = 'reader';
       return token;
@@ -129,6 +143,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = (token.id as string) ?? (token.sub as string) ?? '';
         session.user.role = (token.role as UserRole) ?? 'reader';
         session.user.image = (token.picture as string | null | undefined) ?? session.user.image;
+        session.user.name = (token.name as string | null | undefined) ?? session.user.name;
       }
       return session;
     },
