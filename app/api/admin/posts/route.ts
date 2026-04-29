@@ -13,6 +13,7 @@ import { contentRepository } from '@/lib/data/factory';
 import { CreatePostSchema, PaginationSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 import type { AdminPostStatusFilter } from '@/lib/data/repository';
 
@@ -142,6 +143,10 @@ export async function POST(request: NextRequest) {
         keywords: validated.meta_keywords || [],
       },
     });
+
+    // Revalidate posts page and homepage
+    revalidatePath('/posts');
+    revalidatePath('/');
 
     return NextResponse.json(post, { status: 201 });
   } catch (error: unknown) {

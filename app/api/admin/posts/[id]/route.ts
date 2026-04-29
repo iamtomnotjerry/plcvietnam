@@ -5,6 +5,7 @@ import { contentRepository } from '@/lib/data/factory';
 import { UpdatePostSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 import type { UpdatePostInput } from '@/lib/data/repository';
 
@@ -86,6 +87,11 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   try {
     const post = await contentRepository.updatePost(id, input);
     if (!post) return NextResponse.json({ error: 'Không tìm thấy' }, { status: 404 });
+
+    // Revalidate posts page and homepage
+    revalidatePath('/posts');
+    revalidatePath('/');
+
     return NextResponse.json(post);
   } catch (e) {
     if (e instanceof Error) {
@@ -113,5 +119,10 @@ export async function DELETE(_request: NextRequest, context: { params: Promise<{
   const { id } = await context.params;
   const ok = await contentRepository.deletePost(id);
   if (!ok) return NextResponse.json({ error: 'Không tìm thấy' }, { status: 404 });
+
+  // Revalidate posts page and homepage
+  revalidatePath('/posts');
+  revalidatePath('/');
+
   return NextResponse.json({ ok: true });
 }

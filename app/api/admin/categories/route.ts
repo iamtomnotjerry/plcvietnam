@@ -61,11 +61,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  
-  // Revalidate navigation cache
+
+  // Revalidate navigation and posts cache
   revalidatePath('/api/navigation');
   revalidatePath('/');
-  
+  revalidatePath('/posts');
+
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -95,11 +96,12 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  
-  // Revalidate navigation cache
+
+  // Revalidate navigation and posts cache
   revalidatePath('/api/navigation');
   revalidatePath('/');
-  
+  revalidatePath('/posts');
+
   return NextResponse.json(data);
 }
 
@@ -112,10 +114,11 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const db = getServiceClient();
   const { error } = await db.from('categories').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  
-  // Revalidate navigation cache
+
+  // Revalidate navigation and posts cache
   revalidatePath('/api/navigation');
   revalidatePath('/');
-  
+  revalidatePath('/posts');
+
   return NextResponse.json({ ok: true });
 }
