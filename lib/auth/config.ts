@@ -64,7 +64,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: 'jwt' },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       // For OAuth providers (Google, Facebook): ensure profile exists in Supabase
       if (account?.provider && account.provider !== 'credentials' && user.email) {
         try {
@@ -80,16 +80,29 @@ export const authOptions: NextAuthOptions = {
             // Map OAuth provider ID to Supabase UUID
             user.id = supabaseUser.id;
 
-            // Get profile data for avatar
-            const { data: profile } = await admin
+            // Update profile with avatar from OAuth provider
+            const avatarUrl = user.image || (profile as any)?.picture || (profile as any)?.avatar_url;
+            
+            if (avatarUrl) {
+              await admin
+                .from('profiles')
+                .update({ 
+                  avatar_url: avatarUrl,
+                  full_name: user.name || (profile as any)?.name || supabaseUser.email?.split('@')[0]
+                })
+                .eq('id', supabaseUser.id);
+            }
+
+            // Get updated profile data
+            const { data: updatedProfile } = await admin
               .from('profiles')
               .select('avatar_url, full_name')
               .eq('id', supabaseUser.id)
               .maybeSingle();
 
-            if (profile) {
-              user.name = profile.full_name ?? user.name;
-              user.image = profile.avatar_url ?? user.image;
+            if (updatedProfile) {
+              user.name = updatedProfile.full_name ?? user.name;
+              user.image = updatedProfile.avatar_url ?? user.image;
             }
           }
         } catch (error) {
