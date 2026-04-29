@@ -22,6 +22,8 @@ function slugify(text: string) {
     .replace(/\s+/g, '-');
 }
 
+type SlugStatus = 'idle' | 'checking' | 'available' | 'taken';
+
 export function AdminFieldsClient() {
   const [fields, setFields] = useState<Field[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +34,7 @@ export function AdminFieldsClient() {
   const [editingField, setEditingField] = useState<Field | null>(null);
   const [formName, setFormName] = useState('');
   const [formSlug, setFormSlug] = useState('');
+  const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle');
   const [formDescription, setFormDescription] = useState('');
   const [formIcon, setFormIcon] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -59,10 +62,42 @@ export function AdminFieldsClient() {
     fetchFields();
   }, [fetchFields]);
 
+  // Check slug availability
+  const checkSlug = useCallback(
+    async (slug: string) => {
+      if (!slug.trim()) {
+        setSlugStatus('idle');
+        return;
+      }
+      setSlugStatus('checking');
+      let timeoutId: NodeJS.Timeout;
+      await new Promise((resolve) => {
+        timeoutId = setTimeout(resolve, 400);
+      });
+      try {
+        const params = new URLSearchParams({ slug });
+        if (editingField?.id) params.append('excludeId', editingField.id);
+        const res = await fetch(`/api/admin/fields/check-slug?${params}`);
+        const data = await res.json();
+        setSlugStatus(data.available ? 'available' : 'taken');
+      } catch {
+        setSlugStatus('idle');
+      }
+    },
+    [editingField?.id]
+  );
+
+  // Check slug whenever it changes
+  useEffect(() => {
+    if (formSlug) checkSlug(formSlug);
+    else setSlugStatus('idle');
+  }, [formSlug, checkSlug]);
+
   function openCreate() {
     setEditingField(null);
     setFormName('');
     setFormSlug('');
+    setSlugStatus('idle');
     setFormDescription('');
     setFormIcon('');
     setFormError(null);
@@ -73,6 +108,7 @@ export function AdminFieldsClient() {
     setEditingField(field);
     setFormName(field.name);
     setFormSlug(field.slug);
+    setSlugStatus('idle');
     setFormDescription(field.description ?? '');
     setFormIcon(field.icon ?? '');
     setFormError(null);
@@ -90,6 +126,10 @@ export function AdminFieldsClient() {
     setFormError(null);
     if (!formName.trim() || !formSlug.trim()) {
       setFormError('Tên và slug không được để trống');
+      return;
+    }
+    if (slugStatus === 'taken') {
+      setFormError('Slug đã tồn tại. Vui lòng chọn slug khác.');
       return;
     }
     setIsSaving(true);
@@ -282,15 +322,55 @@ export function AdminFieldsClient() {
                 <label className="text-sm font-medium text-foreground" htmlFor="field-slug">
                   Slug <span className="text-destructive">*</span>
                 </label>
-                <input
-                  id="field-slug"
-                  type="text"
-                  value={formSlug}
-                  onChange={(e) => setFormSlug(e.target.value)}
-                  placeholder="vd: plc, scada, hmi"
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    id="field-slug"
+                    type="text"
+                    value={formSlug}
+                    onChange={(e) => setFormSlug(e.target.value)}
+                    placeholder="vd: plc, scada, hmi"
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring pr-10"
+                    required
+                  />
+                  {slugStatus === 'checking' && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-muted-foreground/30 border-t-primary rounded-full animate-spin" />
+                    </div>
+                  )}
+                  {slugStatus === 'available' && (
+                    <svg
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                  {slugStatus === 'taken' && (
+                    <svg
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-destructive"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  )}
+                </div>
+                {slugStatus === 'taken' && (
+                  <p className="text-xs text-destructive">Slug đã tồn tại</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground" htmlFor="field-desc">
