@@ -29,6 +29,7 @@ export function AdminTagsClient() {
 
   // Form state
   const [showForm, setShowForm] = useState(false);
+  const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [formName, setFormName] = useState('');
   const [formSlug, setFormSlug] = useState('');
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle');
@@ -73,14 +74,16 @@ export function AdminTagsClient() {
         timeoutId = setTimeout(resolve, 400);
       });
       try {
-        const res = await fetch(`/api/admin/tags/check-slug?slug=${encodeURIComponent(slug)}`);
+        const params = new URLSearchParams({ slug });
+        if (editingTag?.id) params.append('excludeId', editingTag.id);
+        const res = await fetch(`/api/admin/tags/check-slug?${params}`);
         const data = await res.json();
         setSlugStatus(data.available ? 'available' : 'taken');
       } catch {
         setSlugStatus('idle');
       }
     },
-    []
+    [editingTag?.id]
   );
 
   // Check slug whenever it changes
@@ -90,6 +93,7 @@ export function AdminTagsClient() {
   }, [formSlug, checkSlug]);
 
   function openCreate() {
+    setEditingTag(null);
     setFormName('');
     setFormSlug('');
     setSlugStatus('idle');
@@ -97,8 +101,18 @@ export function AdminTagsClient() {
     setShowForm(true);
   }
 
+  function openEdit(tag: Tag) {
+    setEditingTag(tag);
+    setFormName(tag.name);
+    setFormSlug(tag.slug);
+    setSlugStatus('idle');
+    setFormError(null);
+    setShowForm(true);
+  }
+
   function closeForm() {
     setShowForm(false);
+    setEditingTag(null);
     setFormError(null);
   }
 
@@ -115,15 +129,23 @@ export function AdminTagsClient() {
     }
     setIsSaving(true);
     try {
+      const body = {
+        id: editingTag?.id,
+        name: formName.trim(),
+        slug: formSlug.trim(),
+      };
       const res = await fetch('/api/admin/tags', {
-        method: 'POST',
+        method: editingTag ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: formName.trim(), slug: formSlug.trim() }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Lỗi lưu dữ liệu');
       closeForm();
       fetchTags();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('navigation:refresh'));
+      }
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Lỗi không xác định');
     } finally {
@@ -140,6 +162,9 @@ export function AdminTagsClient() {
       }
       setDeletingId(null);
       fetchTags();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('navigation:refresh'));
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Lỗi xóa');
     }
@@ -239,13 +264,19 @@ export function AdminTagsClient() {
                   <td className="px-4 py-3 text-right text-muted-foreground">{tag.post_count}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => openEdit(tag)}
+                        className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+                      >
+                        Sửa
+                      </button>
                       {deletingId === tag.id ? (
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => handleDelete(tag.id)}
                             className="rounded-md px-3 py-1.5 text-xs font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
                           >
-                            Xác nhận xóa
+                            Xác nhận
                           </button>
                           <button
                             onClick={() => setDeletingId(null)}
@@ -277,7 +308,9 @@ export function AdminTagsClient() {
           <div className="absolute inset-0 bg-black/50" onClick={closeForm} aria-hidden="true" />
           <div className="relative w-full max-w-sm rounded-xl border border-border bg-card shadow-xl">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <h2 className="text-base font-semibold text-foreground">Thêm thẻ mới</h2>
+              <h2 className="text-base font-semibold text-foreground">
+                {editingTag ? 'Sửa thẻ' : 'Thêm thẻ mới'}
+              </h2>
               <button
                 onClick={closeForm}
                 className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
@@ -309,7 +342,7 @@ export function AdminTagsClient() {
                   value={formName}
                   onChange={(e) => {
                     setFormName(e.target.value);
-                    setFormSlug(slugify(e.target.value));
+                    if (!editingTag) setFormSlug(slugify(e.target.value));
                   }}
                   placeholder="VD: Ladder Logic, TIA Portal..."
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -384,7 +417,7 @@ export function AdminTagsClient() {
                   disabled={isSaving}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors cursor-pointer"
                 >
-                  {isSaving ? 'Đang lưu...' : 'Thêm thẻ'}
+                  {isSaving ? 'Đang lưu...' : editingTag ? 'Cập nhật' : 'Thêm thẻ'}
                 </button>
               </div>
             </form>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { contentRepository } from '@/lib/data/factory';
 import type { AdminPostStatusFilter } from '@/lib/data/repository';
+import { AdminPostsClient } from './AdminPostsClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,57 +46,7 @@ export default async function AdminPostsPage({ searchParams }: AdminPostsPagePro
         <FilterLink href="/admin/posts?status=draft" label="Nháp" active={status === 'draft'} />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-border bg-muted/40">
-            <tr>
-              <th className="px-4 py-3 font-medium">Tiêu đề</th>
-              <th className="px-4 py-3 font-medium">Slug</th>
-              <th className="px-4 py-3 font-medium">Trạng thái</th>
-              <th className="px-4 py-3 font-medium">Cập nhật</th>
-              <th className="px-4 py-3 font-medium" />
-            </tr>
-          </thead>
-          <tbody>
-            {result.data.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
-                  Không có bài viết.
-                </td>
-              </tr>
-            ) : (
-              result.data.map((post) => (
-                <tr key={post.id} className="border-b border-border/80 last:border-0">
-                  <td className="px-4 py-3 font-medium">{post.title}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{post.slug}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={
-                        (post.status ?? 'published') === 'draft'
-                          ? 'rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
-                          : 'rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
-                      }
-                    >
-                      {(post.status ?? 'published') === 'draft' ? 'Nháp' : 'Xuất bản'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {post.updatedAt.toLocaleDateString('vi-VN')}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/posts/${post.id}/edit` as Route}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      Sửa
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AdminPostsClient posts={result.data} />
 
       {result.pagination.totalPages > 1 && (
         <div className="mt-6 flex justify-center gap-2 text-sm">

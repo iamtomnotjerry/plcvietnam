@@ -6,7 +6,10 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import type { Route } from 'next';
 import { Post } from '@/lib/types/domain';
 import { PostContent } from './PostContent';
 import { TableOfContents } from './TableOfContents';
@@ -60,6 +63,48 @@ export interface PostDetailProps {
  * - 14.1-14.5: Social sharing buttons
  */
 export function PostDetail({ post, relatedPosts, className = '' }: PostDetailProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Check if user can edit/delete (admin or author)
+  const canEdit =
+    session?.user && (session.user.role === 'admin' || session.user.role === 'author');
+
+  /**
+   * Handle delete post
+   */
+  const handleDelete = async () => {
+    if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/posts/${post.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Xóa bài viết thất bại');
+        return;
+      }
+
+      // Trigger navigation refresh
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('navigation:refresh'));
+      }
+
+      // Redirect to posts list
+      router.push('/admin/posts' as Route);
+      router.refresh();
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Xóa bài viết thất bại');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   /**
    * Increment view count on component mount
    * Requirement 13.4: Increment view count on post page load
@@ -109,7 +154,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
       <nav className="mb-6" aria-label="Breadcrumb">
         <ol className="flex items-center gap-2 text-sm text-muted-foreground">
           <li>
-            <Link href="/" className="hover:text-primary transition-colors duration-200">
+            <Link href={'/' as Route} className="hover:text-primary transition-colors duration-200">
               Trang chủ
             </Link>
           </li>
@@ -126,7 +171,9 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
           </li>
           <li>
             <Link
-              href={post.category?.field?.slug ? fieldHref(post.category.field.slug) : '/'}
+              href={
+                (post.category?.field?.slug ? fieldHref(post.category.field.slug) : '/') as Route
+              }
               className="hover:text-primary transition-colors duration-200"
             >
               {post.category?.field?.name}
@@ -146,9 +193,9 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
           <li>
             <Link
               href={
-                post.category?.field?.slug && post.category?.slug
+                (post.category?.field?.slug && post.category?.slug
                   ? categoryHref(post.category.field.slug, post.category.slug)
-                  : '/'
+                  : '/') as Route
               }
               className="hover:text-primary transition-colors duration-200"
             >
@@ -172,8 +219,29 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
 
       {/* Post header */}
       <header className="mb-8">
-        {/* Title */}
-        <h1 className="text-4xl font-bold text-card-foreground mb-4">{post.title}</h1>
+        {/* Title and Action Buttons */}
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <h1 className="text-4xl font-bold text-card-foreground flex-1">{post.title}</h1>
+
+          {/* Edit and Delete buttons (admin/author only) */}
+          {canEdit && (
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href={`/admin/posts/${post.id}/edit` as Route}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+              >
+                Sửa
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? 'Đang xóa...' : 'Xóa'}
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Metadata */}
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
@@ -278,7 +346,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
                 {post.tags.map((tag) => (
                   <Link
                     key={tag.id}
-                    href={tagHref(tag.slug)}
+                    href={tagHref(tag.slug) as Route}
                     className="
                       inline-flex items-center
                       px-3 py-1.5

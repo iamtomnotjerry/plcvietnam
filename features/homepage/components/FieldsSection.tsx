@@ -1,39 +1,32 @@
 /**
  * FieldsSection Component
  * Display all fields with post counts
- * Validates Requirements: 11.4, 11.7
+ * Validates Requirements: 11.4
  */
 
 'use client';
 
 import Link from 'next/link';
 import type { Field } from '@/lib/types/domain';
-import { categoryHref, fieldHref } from '@/lib/utils/routes';
-
-/**
- * Extended Field type with first category slug for navigation
- */
-interface FieldWithFirstCategory extends Field {
-  firstCategorySlug?: string;
-}
+import { fieldHref } from '@/lib/utils/routes';
 
 export interface FieldsSectionProps {
-  fields: FieldWithFirstCategory[];
+  fields: Field[];
 }
 
 /**
  * FieldsSection Component
- * 
+ *
  * Displays:
  * - Section heading: "Lĩnh vực"
  * - Grid of field cards showing name, icon, and post count
- * - Click navigates to field's first category page (Requirement 11.7)
+ * - Click navigates to field page
  */
 export function FieldsSection({ fields }: FieldsSectionProps) {
   if (fields.length === 0) {
     return null;
   }
-  
+
   /**
    * Get icon component for field
    * Default to document icon if no icon specified
@@ -57,27 +50,21 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
       </svg>
     );
   };
-  
+
   return (
     <section className="py-16 md:py-20 bg-muted/30">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Section Header */}
         <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Lĩnh vực
-          </h2>
-          <p className="text-muted-foreground mt-2">
-            Khám phá các chủ đề tự động hóa công nghiệp
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Lĩnh vực</h2>
+          <p className="text-muted-foreground mt-2">Khám phá các chủ đề tự động hóa công nghiệp</p>
         </div>
-        
+
         {/* Fields Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {fields.map((field) => {
-            // Navigate to field's first category page (Requirement 11.7)
-            const fieldUrl = field.firstCategorySlug
-              ? categoryHref(field.slug, field.firstCategorySlug)
-              : fieldHref(field.slug);
+            // Navigate to field page
+            const fieldUrl = fieldHref(field.slug);
 
             return (
               <Link
@@ -89,17 +76,17 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
                 <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-lg mb-4 text-primary group-hover:bg-primary/20 transition-colors duration-200">
                   {getFieldIcon(field.icon)}
                 </div>
-                
+
                 {/* Field Name */}
                 <h3 className="text-xl font-semibold text-card-foreground mb-2 group-hover:text-primary transition-colors duration-200">
                   {field.name}
                 </h3>
-                
+
                 {/* Description */}
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                   {field.description}
                 </p>
-                
+
                 {/* Post Count */}
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <svg

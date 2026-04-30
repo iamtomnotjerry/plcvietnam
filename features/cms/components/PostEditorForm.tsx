@@ -187,18 +187,37 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
         return;
       }
 
-      // Navigate to the published post if possible, otherwise admin list
-      const postSlug = data.slug;
-      const fieldSlug = data.category?.field?.slug;
-      const categorySlug = data.category?.slug;
+      // Trigger navigation refresh to update post counts in sidebar
+      if (typeof window !== 'undefined') {
+        const event = new CustomEvent('navigation:refresh');
+        window.dispatchEvent(event);
+      }
 
-      if (postSlug && fieldSlug && categorySlug) {
-        router.push(`/fields/${fieldSlug}/${categorySlug}/${postSlug}` as Route);
-      } else if (mode === 'create' && data.id) {
-        // createPost doesn't return full category — redirect to edit page
-        router.push(`/admin/posts/${data.id}/edit` as Route);
-      } else {
+      // Redirect logic:
+      // - Create mode: Always go to posts list to see the new post
+      // - Edit mode + Draft: Stay on edit page to continue editing
+      // - Edit mode + Published: Can go to public page
+      if (mode === 'create') {
+        // After creating, go to posts list
         router.push('/admin/posts' as Route);
+      } else if (data.status === 'draft') {
+        // Draft in edit mode - stay on edit page
+        if (data.id) {
+          router.push(`/admin/posts/${data.id}/edit` as Route);
+        } else {
+          router.push('/admin/posts' as Route);
+        }
+      } else {
+        // Published post in edit mode - can go to public page
+        const postSlug = data.slug;
+        const fieldSlug = data.category?.field?.slug;
+        const categorySlug = data.category?.slug;
+
+        if (postSlug && fieldSlug && categorySlug) {
+          router.push(`/fields/${fieldSlug}/${categorySlug}/${postSlug}` as Route);
+        } else {
+          router.push('/admin/posts' as Route);
+        }
       }
       router.refresh();
     } finally {

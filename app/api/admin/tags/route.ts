@@ -55,6 +55,44 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   return NextResponse.json(data, { status: 201 });
 }
 
+export async function PATCH(request: NextRequest): Promise<NextResponse> {
+  if (!(await requireAdmin())) return unauthorized();
+
+  let body: { id?: string; slug?: string; name?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+  }
+
+  const id = typeof body.id === 'string' ? body.id.trim() : '';
+  const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
+  const name = typeof body.name === 'string' ? body.name.trim() : '';
+  if (!id || !slug || !name)
+    return NextResponse.json({ error: 'Thiếu id, slug hoặc name' }, { status: 400 });
+
+  const db = getServiceClient();
+  const { data, error } = await db
+    .from('tags')
+    .update({ slug, name })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === '23505')
+      return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Revalidate tags and posts cache
+  revalidatePath('/api/tags');
+  revalidatePath('/');
+  revalidatePath('/posts');
+
+  return NextResponse.json(data);
+}
+
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdmin())) return unauthorized();
 

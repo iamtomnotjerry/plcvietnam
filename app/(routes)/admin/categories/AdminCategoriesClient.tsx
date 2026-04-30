@@ -165,7 +165,7 @@ export function AdminCategoriesClient() {
       if (!res.ok) throw new Error(data.error ?? 'Lỗi lưu dữ liệu');
       closeForm();
       fetchData();
-      triggerNavigationRefresh(); // Refresh navigation tree
+      triggerNavigationRefresh();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Lỗi không xác định');
     } finally {
@@ -182,7 +182,7 @@ export function AdminCategoriesClient() {
       }
       setDeletingId(null);
       fetchData();
-      triggerNavigationRefresh(); // Refresh navigation tree
+      triggerNavigationRefresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Lỗi xóa');
     }

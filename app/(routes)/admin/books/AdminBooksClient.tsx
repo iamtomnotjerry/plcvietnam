@@ -131,6 +131,9 @@ export function AdminBooksClient() {
 
       setShowForm(false);
       await fetchBooks();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('navigation:refresh'));
+      }
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Lỗi không xác định');
     } finally {
@@ -146,6 +149,9 @@ export function AdminBooksClient() {
     }
     setDeleteConfirm(null);
     await fetchBooks();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('navigation:refresh'));
+    }
   }
 
   function slugify(title: string) {
@@ -244,46 +250,37 @@ export function AdminBooksClient() {
             <div className="flex gap-2 flex-shrink-0">
               <button
                 onClick={() => openEdit(book)}
-                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 Sửa
               </button>
-              <button
-                onClick={() => setDeleteConfirm(book.id)}
-                className="rounded-lg border border-destructive/30 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-              >
-                Xóa
-              </button>
+              {deleteConfirm === book.id ? (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleDelete(book.id)}
+                    className="rounded-md px-3 py-1.5 text-xs font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
+                  >
+                    Xác nhận
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirm(null)}
+                    className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setDeleteConfirm(book.id)}
+                  className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                >
+                  Xóa
+                </button>
+              )}
             </div>
           </div>
         ))}
       </div>
-
-      {/* Delete confirm modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full mx-4 shadow-xl">
-            <h3 className="font-semibold text-foreground mb-2">Xác nhận xóa</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Bạn có chắc muốn xóa cuốn sách này? Hành động này không thể hoàn tác.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 rounded-lg border border-border py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 rounded-lg bg-destructive py-2 text-sm font-semibold text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
-              >
-                Xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Create/Edit form modal */}
       {showForm && (
