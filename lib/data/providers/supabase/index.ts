@@ -233,9 +233,18 @@ export class SupabaseProvider implements ContentRepository {
   // ── Fields ────────────────────────────────────────────────────────────────
 
   async getFields(): Promise<Field[]> {
-    const { data, error } = await this.db.from('fields').select('*').order('name');
+    const { data, error } = await this.db.from('fields').select('*, categories(id)').order('name');
+
     if (error) throw error;
-    return (data ?? []).map(mapField);
+
+    return (data ?? []).map((row: any) => {
+      const cats = Array.isArray(row.categories) ? row.categories : [];
+      const field = mapField(row);
+      return {
+        ...field,
+        postCount: cats.length, // Số lượng danh mục
+      };
+    });
   }
 
   async getFieldBySlug(slug: string): Promise<Field | null> {
@@ -262,14 +271,17 @@ export class SupabaseProvider implements ContentRepository {
     (data ?? []).forEach((row: any) => {
       const fieldId = row.id;
       if (!fieldsMap.has(fieldId)) {
-        const field = mapField(row);
         const cats: Array<{ slug: string }> = Array.isArray(row.categories)
           ? row.categories
           : row.categories
             ? [row.categories]
             : [];
+
+        // Map field with category count as postCount
+        const field = mapField(row);
         fieldsMap.set(fieldId, {
           ...field,
+          postCount: cats.length, // Số lượng danh mục
           firstCategorySlug: cats[0]?.slug,
         });
       }
