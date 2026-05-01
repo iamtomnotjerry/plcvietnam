@@ -20,17 +20,17 @@ interface NavigationNodeProps {
    * Expanded node ids (each row uses its own id, not the parent's state)
    */
   expandedIds: Set<string>;
-  
+
   /**
    * Callback when the node is clicked
    */
   onToggle: (nodeId: string) => void;
-  
+
   /**
    * Optional callback for custom node click handling
    */
   onNodeClick?: (node: NavigationNodeType) => void;
-  
+
   /**
    * Current nesting level (0 = field, 1 = category, 2 = post)
    */
@@ -39,14 +39,14 @@ interface NavigationNodeProps {
 
 /**
  * NavigationNode Component
- * 
+ *
  * Renders a single node in the navigation tree with:
  * - Expand/collapse functionality for nodes with children
  * - Smooth height transitions using CSS
  * - Active state highlighting based on current route
  * - Click handlers for navigation
  * - Recursive rendering of child nodes
- * 
+ *
  * Requirement 1.2: Expand Field to show Categories
  * Requirement 1.3: Expand Category to show Posts
  * Requirement 1.4: Navigate to Post detail page on click
@@ -61,37 +61,40 @@ export function NavigationNode({
   const pathname = usePathname();
   const hasChildren = node.children && node.children.length > 0;
   const isExpanded = expandedIds.has(node.id);
-  
+
+  // Field nodes are always expandable (even without children)
+  const isExpandable = node.type === 'field' || hasChildren;
+
   // Check if this node's URL matches the current route
   const isActive = pathname === node.url;
-  
+
   /**
    * Handle node click
-   * For nodes with children (fields, categories), toggle expansion
+   * For expandable nodes (fields, categories with children), toggle expansion
    * For leaf nodes (posts), allow navigation
    */
   const handleClick = (e: React.MouseEvent) => {
-    if (hasChildren) {
-      // Prevent navigation for parent nodes, just toggle
+    if (isExpandable) {
+      // Prevent navigation for expandable nodes, just toggle
       e.preventDefault();
       onToggle(node.id);
     }
-    
+
     // Call custom click handler if provided
     if (onNodeClick) {
       onNodeClick(node);
     }
   };
-  
+
   /**
    * Get indentation padding based on nesting level
    */
   const getPaddingLeft = () => {
     const basePadding = 12; // 0.75rem
     const increment = 16; // 1rem per level
-    return basePadding + (level * increment);
+    return basePadding + level * increment;
   };
-  
+
   /**
    * Get icon based on node type
    * Using SVG icons instead of emojis per UI guidelines
@@ -115,7 +118,7 @@ export function NavigationNode({
         </svg>
       );
     }
-    
+
     if (node.type === 'category') {
       return (
         <svg
@@ -134,7 +137,7 @@ export function NavigationNode({
         </svg>
       );
     }
-    
+
     // Post type
     return (
       <svg
@@ -153,13 +156,13 @@ export function NavigationNode({
       </svg>
     );
   };
-  
+
   /**
    * Render chevron icon for expandable nodes
    */
   const renderChevron = () => {
-    if (!hasChildren) return null;
-    
+    if (!isExpandable) return null;
+
     return (
       <svg
         className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
@@ -170,16 +173,11 @@ export function NavigationNode({
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 5l7 7-7 7"
-        />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
     );
   };
-  
+
   return (
     <div className="w-full">
       {/* Node button/link */}
@@ -200,17 +198,15 @@ export function NavigationNode({
       >
         {/* Chevron for expandable nodes */}
         {renderChevron()}
-        
+
         {/* Node icon */}
         <span className={isActive ? 'text-primary-foreground' : 'text-muted-foreground'}>
           {renderIcon()}
         </span>
-        
+
         {/* Node label */}
-        <span className="flex-1 truncate">
-          {node.label}
-        </span>
-        
+        <span className="flex-1 truncate">{node.label}</span>
+
         {/* Post count badge for fields and categories */}
         {node.postCount !== undefined && node.postCount > 0 && (
           <span
@@ -227,9 +223,9 @@ export function NavigationNode({
           </span>
         )}
       </Link>
-      
+
       {/* Children container with smooth height transition */}
-      {hasChildren && (
+      {isExpandable && (
         <div
           className={`
             overflow-hidden transition-all duration-300 ease-in-out
@@ -237,16 +233,25 @@ export function NavigationNode({
           `}
         >
           <div className="py-1">
-            {node.children!.map((child) => (
-              <NavigationNode
-                key={child.id}
-                node={child}
-                expandedIds={expandedIds}
-                onToggle={onToggle}
-                onNodeClick={onNodeClick}
-                level={level + 1}
-              />
-            ))}
+            {hasChildren ? (
+              node.children!.map((child) => (
+                <NavigationNode
+                  key={child.id}
+                  node={child}
+                  expandedIds={expandedIds}
+                  onToggle={onToggle}
+                  onNodeClick={onNodeClick}
+                  level={level + 1}
+                />
+              ))
+            ) : (
+              <div
+                className="text-sm text-muted-foreground italic py-2 px-3"
+                style={{ paddingLeft: `${getPaddingLeft() + 28}px` }}
+              >
+                Chưa có danh mục nào cả
+              </div>
+            )}
           </div>
         </div>
       )}
