@@ -233,7 +233,11 @@ export class SupabaseProvider implements ContentRepository {
   // ── Fields ────────────────────────────────────────────────────────────────
 
   async getFields(): Promise<Field[]> {
-    const { data, error } = await this.db.from('fields').select('*, categories(id)').order('name');
+    const { data, error } = await this.db
+      .from('fields')
+      .select('*, categories(id)')
+      .order('order', { ascending: true })
+      .order('name', { ascending: true });
 
     if (error) throw error;
 
@@ -260,8 +264,10 @@ export class SupabaseProvider implements ContentRepository {
     const { data, error } = await this.db
       .from('fields')
       .select('*, categories(slug, name)')
-      .order('name')
-      .order('name', { foreignTable: 'categories' });
+      .order('order', { ascending: true })
+      .order('name', { ascending: true })
+      .order('order', { ascending: true, foreignTable: 'categories' })
+      .order('name', { ascending: true, foreignTable: 'categories' });
 
     if (error) throw error;
 
@@ -297,7 +303,8 @@ export class SupabaseProvider implements ContentRepository {
       .from('categories')
       .select('*')
       .eq('field_id', fieldId)
-      .order('name');
+      .order('order', { ascending: true })
+      .order('name', { ascending: true });
     if (error) throw error;
     return (data ?? []).map((row) => mapCategory(row));
   }
@@ -791,7 +798,10 @@ export class SupabaseProvider implements ContentRepository {
     const { data: fields, error } = await this.db
       .from('fields')
       .select('*, categories(*)')
-      .order('name');
+      .order('order', { ascending: true })
+      .order('name', { ascending: true })
+      .order('order', { ascending: true, foreignTable: 'categories' })
+      .order('name', { ascending: true, foreignTable: 'categories' });
 
     if (error) throw error;
 
