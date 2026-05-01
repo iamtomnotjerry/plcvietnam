@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
+import { revalidatePath } from 'next/cache';
 
 /**
  * PATCH /api/admin/reorder
@@ -47,6 +48,11 @@ export async function PATCH(request: NextRequest) {
     });
 
     await Promise.all(updates);
+
+    // Revalidate navigation cache
+    revalidatePath('/api/navigation');
+    revalidatePath('/');
+    revalidatePath('/posts');
 
     return NextResponse.json({ success: true });
   } catch (error) {
