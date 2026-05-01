@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { triggerNavigationRefresh } from '@/lib/events/navigation';
+import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
 
 interface Field {
   id: string;
@@ -10,6 +11,11 @@ interface Field {
   description: string | null;
   icon: string | null;
   post_count: number;
+}
+
+interface DeleteState {
+  fieldId: string;
+  fieldName: string;
 }
 
 function slugify(text: string) {
@@ -41,8 +47,9 @@ export function AdminFieldsClient() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Delete confirm
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Delete state
+  const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchFields = useCallback(async () => {
     setIsLoading(true);
@@ -159,18 +166,23 @@ export function AdminFieldsClient() {
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete() {
+    if (!deleteState) return;
+
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/fields?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/fields?id=${deleteState.fieldId}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error ?? 'Không thể xóa');
       }
-      setDeletingId(null);
+      setDeleteState(null);
       fetchFields();
       triggerNavigationRefresh(); // Refresh navigation tree
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Lỗi xóa');
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -242,29 +254,13 @@ export function AdminFieldsClient() {
                       >
                         Sửa
                       </button>
-                      {deletingId === field.id ? (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleDelete(field.id)}
-                            className="rounded-md px-3 py-1.5 text-xs font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
-                          >
-                            Xác nhận
-                          </button>
-                          <button
-                            onClick={() => setDeletingId(null)}
-                            className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                          >
-                            Hủy
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setDeletingId(field.id)}
-                          className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                        >
-                          Xóa
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setDeleteState({ fieldId: field.id, fieldName: field.name })}
+                        disabled={isDeleting}
+                        className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Xóa
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -421,6 +417,17 @@ export function AdminFieldsClient() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteState !== null}
+        onClose={() => setDeleteState(null)}
+        onConfirm={handleDelete}
+        title="Xóa lĩnh vực?"
+        description="Hành động này không thể hoàn tác. Lĩnh vực và tất cả danh mục, bài viết liên quan sẽ bị xóa vĩnh viễn."
+        itemName={deleteState?.fieldName}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

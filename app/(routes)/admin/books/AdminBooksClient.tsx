@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
 
 interface BookRow {
   id: string;
@@ -19,6 +20,11 @@ interface BookRow {
   download_url: string | null;
   amazon_url: string | null;
   featured: boolean;
+}
+
+interface DeleteState {
+  bookId: string;
+  bookTitle: string;
 }
 
 const EMPTY_FORM: Omit<BookRow, 'id'> = {
@@ -46,7 +52,8 @@ export function AdminBooksClient() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<BookRow, 'id'>>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
@@ -141,16 +148,26 @@ export function AdminBooksClient() {
     }
   }
 
-  async function handleDelete(id: string) {
-    const res = await fetch(`/api/admin/books/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
+  async function handleDelete() {
+    if (!deleteState) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/books/${deleteState.bookId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        alert('Xóa thất bại');
+        return;
+      }
+      setDeleteState(null);
+      await fetchBooks();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('navigation:refresh'));
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
       alert('Xóa thất bại');
-      return;
-    }
-    setDeleteConfirm(null);
-    await fetchBooks();
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('navigation:refresh'));
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -254,33 +271,28 @@ export function AdminBooksClient() {
               >
                 Sửa
               </button>
-              {deleteConfirm === book.id ? (
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleDelete(book.id)}
-                    className="rounded-md px-3 py-1.5 text-xs font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
-                  >
-                    Xác nhận
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(null)}
-                    className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                  >
-                    Hủy
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setDeleteConfirm(book.id)}
-                  className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                >
-                  Xóa
-                </button>
-              )}
+              <button
+                onClick={() => setDeleteState({ bookId: book.id, bookTitle: book.title })}
+                disabled={isDeleting}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Xóa
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteState !== null}
+        onClose={() => setDeleteState(null)}
+        onConfirm={handleDelete}
+        title="Xóa sách?"
+        description="Hành động này không thể hoàn tác. Sách sẽ bị xóa vĩnh viễn."
+        itemName={deleteState?.bookTitle}
+        isDeleting={isDeleting}
+      />
 
       {/* Create/Edit form modal */}
       {showForm && (

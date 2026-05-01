@@ -1,12 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
 
 interface Tag {
   id: string;
   slug: string;
   name: string;
   post_count: number;
+}
+
+interface DeleteState {
+  tagId: string;
+  tagName: string;
 }
 
 function slugify(text: string) {
@@ -36,8 +42,9 @@ export function AdminTagsClient() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Delete confirm
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Delete state
+  const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Search
   const [search, setSearch] = useState('');
@@ -153,20 +160,25 @@ export function AdminTagsClient() {
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete() {
+    if (!deleteState) return;
+
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/tags?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/tags?id=${deleteState.tagId}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error ?? 'Không thể xóa');
       }
-      setDeletingId(null);
+      setDeleteState(null);
       fetchTags();
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('navigation:refresh'));
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Lỗi xóa');
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -270,29 +282,13 @@ export function AdminTagsClient() {
                       >
                         Sửa
                       </button>
-                      {deletingId === tag.id ? (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleDelete(tag.id)}
-                            className="rounded-md px-3 py-1.5 text-xs font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
-                          >
-                            Xác nhận
-                          </button>
-                          <button
-                            onClick={() => setDeletingId(null)}
-                            className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                          >
-                            Hủy
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setDeletingId(tag.id)}
-                          className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                        >
-                          Xóa
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setDeleteState({ tagId: tag.id, tagName: tag.name })}
+                        disabled={isDeleting}
+                        className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Xóa
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -301,6 +297,17 @@ export function AdminTagsClient() {
           </table>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteState !== null}
+        onClose={() => setDeleteState(null)}
+        onConfirm={handleDelete}
+        title="Xóa thẻ?"
+        description="Hành động này không thể hoàn tác. Thẻ sẽ bị xóa vĩnh viễn khỏi tất cả bài viết."
+        itemName={deleteState?.tagName}
+        isDeleting={isDeleting}
+      />
 
       {/* Modal form */}
       {showForm && (

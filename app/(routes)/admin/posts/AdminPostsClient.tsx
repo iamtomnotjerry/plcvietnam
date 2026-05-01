@@ -5,21 +5,32 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import type { Post } from '@/lib/types/domain';
+import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
 
 interface AdminPostsClientProps {
   posts: Post[];
 }
 
+interface DeleteState {
+  postId: string;
+  postTitle: string;
+}
+
 export function AdminPostsClient({ posts }: AdminPostsClientProps) {
   const router = useRouter();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async (postId: string, postTitle: string) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa bài viết "${postTitle}"?`)) return;
+  const handleDeleteClick = (postId: string, postTitle: string) => {
+    setDeleteState({ postId, postTitle });
+  };
 
-    setDeletingId(postId);
+  const handleDeleteConfirm = async () => {
+    if (!deleteState) return;
+
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/posts/${postId}`, {
+      const res = await fetch(`/api/admin/posts/${deleteState.postId}`, {
         method: 'DELETE',
       });
 
@@ -34,13 +45,14 @@ export function AdminPostsClient({ posts }: AdminPostsClientProps) {
         window.dispatchEvent(new CustomEvent('navigation:refresh'));
       }
 
-      // Refresh the page to show updated list
+      // Close dialog and refresh
+      setDeleteState(null);
       router.refresh();
     } catch (error) {
       console.error('Delete error:', error);
       alert('Xóa bài viết thất bại');
     } finally {
-      setDeletingId(null);
+      setIsDeleting(false);
     }
   };
 
@@ -91,11 +103,11 @@ export function AdminPostsClient({ posts }: AdminPostsClientProps) {
                       Sửa
                     </Link>
                     <button
-                      onClick={() => handleDelete(post.id, post.title)}
-                      disabled={deletingId === post.id}
+                      onClick={() => handleDeleteClick(post.id, post.title)}
+                      disabled={isDeleting}
                       className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {deletingId === post.id ? 'Đang xóa...' : 'Xóa'}
+                      Xóa
                     </button>
                   </div>
                 </td>
@@ -104,6 +116,17 @@ export function AdminPostsClient({ posts }: AdminPostsClientProps) {
           )}
         </tbody>
       </table>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteState !== null}
+        onClose={() => setDeleteState(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Xóa bài viết?"
+        description="Hành động này không thể hoàn tác. Bài viết sẽ bị xóa vĩnh viễn."
+        itemName={deleteState?.postTitle}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

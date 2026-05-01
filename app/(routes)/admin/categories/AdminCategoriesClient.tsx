@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { triggerNavigationRefresh } from '@/lib/events/navigation';
+import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
 
 interface Field {
   id: string;
@@ -17,6 +18,11 @@ interface Category {
   field_id: string | null;
   post_count: number;
   fields?: { id: string; name: string; slug: string } | null;
+}
+
+interface DeleteState {
+  categoryId: string;
+  categoryName: string;
 }
 
 function slugify(text: string) {
@@ -50,8 +56,9 @@ export function AdminCategoriesClient() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Delete confirm
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Delete state
+  const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -173,18 +180,25 @@ export function AdminCategoriesClient() {
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete() {
+    if (!deleteState) return;
+
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/categories?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/categories?id=${deleteState.categoryId}`, {
+        method: 'DELETE',
+      });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error ?? 'Không thể xóa');
       }
-      setDeletingId(null);
+      setDeleteState(null);
       fetchData();
       triggerNavigationRefresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Lỗi xóa');
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -283,29 +297,15 @@ export function AdminCategoriesClient() {
                       >
                         Sửa
                       </button>
-                      {deletingId === cat.id ? (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleDelete(cat.id)}
-                            className="rounded-md px-3 py-1.5 text-xs font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
-                          >
-                            Xác nhận
-                          </button>
-                          <button
-                            onClick={() => setDeletingId(null)}
-                            className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                          >
-                            Hủy
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setDeletingId(cat.id)}
-                          className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                        >
-                          Xóa
-                        </button>
-                      )}
+                      <button
+                        onClick={() =>
+                          setDeleteState({ categoryId: cat.id, categoryName: cat.name })
+                        }
+                        disabled={isDeleting}
+                        className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Xóa
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -314,6 +314,17 @@ export function AdminCategoriesClient() {
           </table>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        isOpen={deleteState !== null}
+        onClose={() => setDeleteState(null)}
+        onConfirm={handleDelete}
+        title="Xóa danh mục?"
+        description="Hành động này không thể hoàn tác. Danh mục và tất cả bài viết liên quan sẽ bị xóa vĩnh viễn."
+        itemName={deleteState?.categoryName}
+        isDeleting={isDeleting}
+      />
 
       {/* Modal form */}
       {showForm && (
