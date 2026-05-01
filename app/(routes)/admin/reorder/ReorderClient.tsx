@@ -125,8 +125,8 @@ export function ReorderClient() {
       const res = await fetch('/api/admin/categories');
       const data = await res.json();
       const filtered = data
-        .filter((c: Category) => c.fieldId === fieldId)
-        .sort((a: Category, b: Category) => a.order - b.order);
+        .filter((c: any) => c.field_id === fieldId)
+        .sort((a: any, b: any) => a.order - b.order);
       setCategories(filtered);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
@@ -141,8 +141,8 @@ export function ReorderClient() {
       const res = await fetch('/api/admin/posts');
       const data = await res.json();
       const filtered = data.posts
-        .filter((p: Post) => p.categoryId === categoryId)
-        .sort((a: Post, b: Post) => a.order - b.order);
+        .filter((p: any) => p.categoryId === categoryId || p.category_id === categoryId)
+        .sort((a: any, b: any) => a.order - b.order);
       setPosts(filtered);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
