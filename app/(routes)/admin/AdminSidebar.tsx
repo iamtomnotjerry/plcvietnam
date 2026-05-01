@@ -19,6 +19,7 @@ const navItems = [
       { href: '/admin/fields', label: 'Lĩnh vực' },
       { href: '/admin/categories', label: 'Danh mục' },
       { href: '/admin/tags', label: 'Thẻ (Tags)' },
+      { href: '/admin/reorder', label: 'Sắp xếp thứ tự' },
     ],
   },
   {
