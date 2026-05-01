@@ -139,8 +139,9 @@ export function ReorderClient() {
     setIsLoading(true);
     try {
       const res = await fetch('/api/admin/posts');
-      const data = await res.json();
-      const filtered = data.posts
+      const result = await res.json();
+      const posts = result.data || [];
+      const filtered = posts
         .filter((p: any) => p.categoryId === categoryId || p.category_id === categoryId)
         .sort((a: any, b: any) => a.order - b.order);
       setPosts(filtered);
