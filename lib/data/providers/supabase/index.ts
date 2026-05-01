@@ -783,21 +783,24 @@ export class SupabaseProvider implements ContentRepository {
 
     if (error) throw error;
 
-    return (fields ?? []).map((field) => ({
-      id: field.id,
-      type: 'field' as const,
-      label: field.name,
-      slug: field.slug,
-      url: `/fields/${field.slug}`,
-      postCount: field.post_count ?? 0,
-      children: ((field as any).categories ?? []).map((cat: any) => ({
-        id: cat.id,
-        type: 'category' as const,
-        label: cat.name,
-        slug: cat.slug,
-        url: `/fields/${field.slug}/${cat.slug}`,
-        postCount: cat.post_count ?? 0,
-      })),
-    }));
+    return (fields ?? []).map((field) => {
+      const categories = (field as any).categories ?? [];
+      return {
+        id: field.id,
+        type: 'field' as const,
+        label: field.name,
+        slug: field.slug,
+        url: `/fields/${field.slug}`,
+        postCount: categories.length, // Số lượng danh mục, không phải số bài viết
+        children: categories.map((cat: any) => ({
+          id: cat.id,
+          type: 'category' as const,
+          label: cat.name,
+          slug: cat.slug,
+          url: `/fields/${field.slug}/${cat.slug}`,
+          postCount: cat.post_count ?? 0, // Số bài viết trong danh mục
+        })),
+      };
+    });
   }
 }

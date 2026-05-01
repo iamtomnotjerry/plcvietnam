@@ -514,7 +514,7 @@ export class MockProvider implements ContentRepository {
         label: field.name,
         slug: field.slug,
         url: `/fields/${field.slug}`,
-        postCount: field.postCount,
+        postCount: fieldCategories.length, // Số lượng danh mục, không phải số bài viết
         children: fieldCategories.map((category) => {
           const categoryPosts = this.posts.filter(
             (p) => p.categoryId === category.id && isPublishedPost(p)
@@ -526,7 +526,7 @@ export class MockProvider implements ContentRepository {
             label: category.name,
             slug: category.slug,
             url: `/fields/${field.slug}/${category.slug}`,
-            postCount: category.postCount,
+            postCount: category.postCount, // Số bài viết trong danh mục
             children: categoryPosts.map((post) => ({
               id: post.id,
               type: 'post' as const,
