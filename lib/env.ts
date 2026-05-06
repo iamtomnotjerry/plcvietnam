@@ -58,13 +58,37 @@ const envSchema = z.object({
 // Validate environment variables
 function validateEnv() {
   try {
-    const parsed = envSchema.parse(process.env);
+    const isTest = process.env.NODE_ENV === 'test';
+    const rawEnv = isTest
+      ? {
+          NEXT_PUBLIC_SUPABASE_URL:
+            process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://localhost:54321',
+          NEXT_PUBLIC_SUPABASE_ANON_KEY:
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'test-anon-key',
+          SUPABASE_SERVICE_ROLE_KEY:
+            process.env.SUPABASE_SERVICE_ROLE_KEY ?? 'test-service-role-key',
+          NEXTAUTH_SECRET:
+            process.env.NEXTAUTH_SECRET ?? 'test-nextauth-secret-with-minimum-32-chars',
+          NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+          GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+          GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+          UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+          UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+          NODE_ENV: process.env.NODE_ENV ?? 'test',
+        }
+      : process.env;
+
+    const parsed = envSchema.parse(rawEnv);
 
     // Additional validation: Service key should not equal anon key
     if (parsed.SUPABASE_SERVICE_ROLE_KEY === parsed.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       throw new Error(
         'SUPABASE_SERVICE_ROLE_KEY must be different from NEXT_PUBLIC_SUPABASE_ANON_KEY'
       );
+    }
+
+    if (parsed.UPSTASH_REDIS_REST_URL && !parsed.UPSTASH_REDIS_REST_TOKEN) {
+      throw new Error('UPSTASH_REDIS_REST_TOKEN is required when UPSTASH_REDIS_REST_URL is set');
     }
 
     // Warn if Redis is not configured in production

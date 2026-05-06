@@ -3,6 +3,7 @@ import { requestPasswordReset } from '@/lib/auth/supabase-auth';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { ForgotPasswordSchema } from '@/lib/validation/schemas';
 import { ZodError } from 'zod';
+import { apiBadRequest } from '@/lib/api/responses';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const identifier = getClientIdentifier(request);
@@ -10,7 +11,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   if (!rateLimit.success) {
     return NextResponse.json(
-      { error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.', retryAfter: rateLimit.reset },
+      {
+        error: {
+          code: 'TOO_MANY_REQUESTS',
+          message: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+        },
+        retryAfter: rateLimit.reset,
+      },
       {
         status: 429,
         headers: {
@@ -26,7 +33,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   let validated;
@@ -34,9 +41,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     validated = ForgotPasswordSchema.parse(body);
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: error.issues[0].message }, { status: 400 });
+      return apiBadRequest(error.issues[0].message);
     }
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';

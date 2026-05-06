@@ -12,10 +12,11 @@ import { SupabaseProvider } from './providers/supabase';
  * Creates a ContentRepository instance based on DATA_PROVIDER environment variable
  *
  * Environment Variables:
- * - DATA_PROVIDER: 'mock' | 'supabase' (defaults to 'mock')
+ * - DATA_PROVIDER: 'mock' | 'supabase' (defaults to 'supabase', test defaults to 'mock')
  */
 export function createContentRepository(): ContentRepository {
-  const provider = process.env.DATA_PROVIDER || 'mock';
+  const provider =
+    process.env.DATA_PROVIDER ?? (process.env.NODE_ENV === 'test' ? 'mock' : 'supabase');
 
   switch (provider) {
     case 'mock':
@@ -46,7 +47,7 @@ export const contentRepository = new Proxy({} as ContentRepository, {
     if (!_instance) {
       _instance = createContentRepository();
     }
-    return (_instance as any)[prop];
+    return Reflect.get(_instance, prop);
   },
 });
 

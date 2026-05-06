@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { SearchInput } from '@/features/search/components/SearchInput';
 
 /**
@@ -18,6 +18,9 @@ import { SearchInput } from '@/features/search/components/SearchInput';
  */
 export function MobileSearchOverlay() {
   const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
@@ -26,14 +29,36 @@ export function MobileSearchOverlay() {
   useEffect(() => {
     if (!isOpen) return;
 
+    const triggerElement = triggerRef.current;
+    closeButtonRef.current?.focus();
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         close();
+        return;
+      }
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      triggerElement?.focus();
+    };
   }, [isOpen, close]);
 
   /* Prevent body scroll while overlay is open */
@@ -52,6 +77,7 @@ export function MobileSearchOverlay() {
     <>
       {/* Search icon button — visible on mobile, hidden on desktop */}
       <button
+        ref={triggerRef}
         type="button"
         onClick={open}
         aria-label="Mở tìm kiếm"
@@ -86,6 +112,7 @@ export function MobileSearchOverlay() {
       {/* Full-screen overlay */}
       {isOpen && (
         <div
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-label="Tìm kiếm"
@@ -105,6 +132,7 @@ export function MobileSearchOverlay() {
 
             {/* Close button — 44×44px tap target */}
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={close}
               aria-label="Đóng tìm kiếm"

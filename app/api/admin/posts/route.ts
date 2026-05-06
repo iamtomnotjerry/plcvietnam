@@ -16,6 +16,13 @@ import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 import type { AdminPostStatusFilter } from '@/lib/data/repository';
+import {
+  apiBadRequest,
+  apiConflict,
+  apiInternalError,
+  apiTooManyRequests,
+  apiUnauthorized,
+} from '@/lib/api/responses';
 
 // Helper to check editor role
 async function requireEditor() {
@@ -28,7 +35,7 @@ async function requireEditor() {
 }
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 // ── GET: List Posts ───────────────────────────────────────────────────────────
@@ -41,7 +48,7 @@ export async function GET(request: NextRequest) {
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {
-    return NextResponse.json({ error: 'Quá nhiều yêu cầu' }, { status: 429 });
+    return apiTooManyRequests('Quá nhiều yêu cầu');
   }
 
   // Parse and validate query params
@@ -55,10 +62,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json(
-        { error: 'Tham số không hợp lệ', details: error.issues },
-        { status: 400 }
-      );
+      return apiBadRequest('Tham số không hợp lệ');
     }
   }
 
@@ -77,7 +81,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('[admin/posts GET]', error);
-    return NextResponse.json({ error: 'Không thể tải danh sách bài viết' }, { status: 500 });
+    return apiInternalError('Không thể tải danh sách bài viết');
   }
 }
 
@@ -92,7 +96,7 @@ export async function POST(request: NextRequest) {
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {
-    return NextResponse.json({ error: 'Quá nhiều yêu cầu' }, { status: 429 });
+    return apiTooManyRequests('Quá nhiều yêu cầu');
   }
 
   // Parse request body
@@ -100,7 +104,7 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Validate with Zod
@@ -110,16 +114,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
-      return NextResponse.json(
-        {
-          error: firstError.message,
-          field: firstError.path.join('.'),
-          details: error.issues,
-        },
-        { status: 400 }
-      );
+      return apiBadRequest(firstError.message);
     }
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Sanitize HTML content to prevent XSS
@@ -157,25 +154,22 @@ export async function POST(request: NextRequest) {
       // Duplicate key (slug already exists)
       if (pgError.code === '23505') {
         if (pgError.message.includes('posts_slug_key')) {
-          return NextResponse.json(
-            { error: 'Slug đã tồn tại. Vui lòng chọn slug khác.' },
-            { status: 409 }
-          );
+          return apiConflict('Slug đã tồn tại. Vui lòng chọn slug khác.');
         }
       }
 
       // Foreign key violation (invalid category/tag)
       if (pgError.code === '23503') {
         if (pgError.message.includes('category_id')) {
-          return NextResponse.json({ error: 'Danh mục không tồn tại' }, { status: 400 });
+          return apiBadRequest('Danh mục không tồn tại');
         }
         if (pgError.message.includes('tag')) {
-          return NextResponse.json({ error: 'Tag không hợp lệ' }, { status: 400 });
+          return apiBadRequest('Tag không hợp lệ');
         }
       }
     }
 
     console.error('[admin/posts POST]', error);
-    return NextResponse.json({ error: 'Tạo bài viết thất bại' }, { status: 500 });
+    return apiInternalError('Tạo bài viết thất bại');
   }
 }

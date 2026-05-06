@@ -51,7 +51,7 @@ export function initSentry() {
   }
 }
 
-export function captureException(error: Error, context?: Record<string, any>) {
+export function captureException(error: Error, context?: Record<string, unknown>) {
   if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     Sentry.captureException(error, {
       extra: context,
@@ -75,7 +75,7 @@ export function initSentry() {
   console.log('Sentry not configured. Install @sentry/nextjs to enable error tracking.');
 }
 
-export function captureException(error: Error, context?: Record<string, any>) {
+export function captureException(error: Error, context?: Record<string, unknown>) {
   console.error('Error:', error, context);
 }
 

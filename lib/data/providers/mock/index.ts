@@ -218,7 +218,8 @@ export class MockProvider implements ContentRepository {
       post.category = this.categories.find((c) => c.id === p.categoryId);
 
       // Link tags
-      post.tags = this.tags.filter((tag) => (p as any).tagIds?.includes(tag.id));
+      const postSource = p as { tagIds?: string[] };
+      post.tags = this.tags.filter((tag) => postSource.tagIds?.includes(tag.id));
 
       // Calculate reading time
       post.readingTimeMinutes = calculateReadingTime(p.content);

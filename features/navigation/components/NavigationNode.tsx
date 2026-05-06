@@ -8,6 +8,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import type { MouseEvent } from 'react';
 import type { NavigationNode as NavigationNodeType } from '@/lib/types/domain';
 
 interface NavigationNodeProps {
@@ -73,14 +74,15 @@ export function NavigationNode({
    * For expandable nodes (fields, categories with children), toggle expansion
    * For leaf nodes (posts), allow navigation
    */
-  const handleClick = (e: React.MouseEvent) => {
-    if (isExpandable) {
-      // Prevent navigation for expandable nodes, just toggle
-      e.preventDefault();
-      onToggle(node.id);
+  const handleLinkClick = () => {
+    if (onNodeClick) {
+      onNodeClick(node);
     }
+  };
 
-    // Call custom click handler if provided
+  const handleToggleClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    onToggle(node.id);
     if (onNodeClick) {
       onNodeClick(node);
     }
@@ -181,52 +183,85 @@ export function NavigationNode({
   return (
     <div className="w-full">
       {/* Node button/link */}
-      <Link
-        href={node.url as any}
-        onClick={handleClick}
-        className={`
-          flex items-center gap-2 w-full py-2 px-3 rounded-md
-          text-sm transition-colors duration-200
-          cursor-pointer
-          ${
-            isActive
-              ? 'bg-primary text-primary-foreground font-medium'
-              : 'text-foreground hover:bg-muted hover:text-foreground'
-          }
-        `}
-        style={{ paddingLeft: `${getPaddingLeft()}px` }}
-      >
-        {/* Chevron for expandable nodes */}
-        {renderChevron()}
-
-        {/* Node icon */}
-        <span className={isActive ? 'text-primary-foreground' : 'text-muted-foreground'}>
-          {renderIcon()}
-        </span>
-
-        {/* Node label */}
-        <span className="flex-1 truncate">{node.label}</span>
-
-        {/* Post count badge for fields and categories */}
-        {node.postCount !== undefined && node.postCount > 0 && (
-          <span
-            className={`
-              text-xs px-2 py-0.5 rounded-full
-              ${
-                isActive
-                  ? 'bg-primary-foreground/20 text-primary-foreground'
-                  : 'bg-muted text-muted-foreground'
-              }
-            `}
-          >
-            {node.postCount}
+      {isExpandable ? (
+        <button
+          type="button"
+          onClick={handleToggleClick}
+          aria-expanded={isExpanded}
+          aria-controls={`navigation-node-children-${node.id}`}
+          className={`
+            flex items-center gap-2 w-full py-2 px-3 rounded-md
+            text-sm transition-colors duration-200
+            cursor-pointer text-left
+            ${
+              isActive
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'text-foreground hover:bg-muted hover:text-foreground'
+            }
+          `}
+          style={{ paddingLeft: `${getPaddingLeft()}px` }}
+        >
+          {renderChevron()}
+          <span className={isActive ? 'text-primary-foreground' : 'text-muted-foreground'}>
+            {renderIcon()}
           </span>
-        )}
-      </Link>
+          <span className="flex-1 truncate">{node.label}</span>
+          {node.postCount !== undefined && node.postCount > 0 && (
+            <span
+              className={`
+                text-xs px-2 py-0.5 rounded-full
+                ${
+                  isActive
+                    ? 'bg-primary-foreground/20 text-primary-foreground'
+                    : 'bg-muted text-muted-foreground'
+                }
+              `}
+            >
+              {node.postCount}
+            </span>
+          )}
+        </button>
+      ) : (
+        <Link
+          href={node.url}
+          onClick={handleLinkClick}
+          className={`
+            flex items-center gap-2 w-full py-2 px-3 rounded-md
+            text-sm transition-colors duration-200
+            cursor-pointer
+            ${
+              isActive
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'text-foreground hover:bg-muted hover:text-foreground'
+            }
+          `}
+          style={{ paddingLeft: `${getPaddingLeft()}px` }}
+        >
+          <span className={isActive ? 'text-primary-foreground' : 'text-muted-foreground'}>
+            {renderIcon()}
+          </span>
+          <span className="flex-1 truncate">{node.label}</span>
+          {node.postCount !== undefined && node.postCount > 0 && (
+            <span
+              className={`
+                text-xs px-2 py-0.5 rounded-full
+                ${
+                  isActive
+                    ? 'bg-primary-foreground/20 text-primary-foreground'
+                    : 'bg-muted text-muted-foreground'
+                }
+              `}
+            >
+              {node.postCount}
+            </span>
+          )}
+        </Link>
+      )}
 
       {/* Children container with smooth height transition */}
       {isExpandable && (
         <div
+          id={`navigation-node-children-${node.id}`}
           className={`
             overflow-hidden transition-all duration-300 ease-in-out
             ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}

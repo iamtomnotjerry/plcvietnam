@@ -1,0 +1,22 @@
+---
+description: Mandatory source awareness checklist for every prompt
+alwaysApply: true
+---
+
+# Agent Source Awareness (Strict)
+
+Before making any code change, always do all checks below:
+
+1. Read `docs/senior-md/` and active rules in `.cursor/rules/`.
+2. Read the target file(s) completely and inspect adjacent call sites.
+3. Validate assumptions with project scripts (`type-check`, `lint`, relevant tests).
+4. Keep changes surgical: no unrelated refactors, no style churn.
+5. If uncertain about behavior or scope, ask instead of guessing.
+
+## Common mistakes to avoid
+
+- Changing APIs without updating all call sites.
+- Introducing `any` in production code when concrete types are available.
+- Silent behavior changes without tests or verification.
+- Mixing unrelated cleanup into a feature/fix diff.
+- Creating temporary docs/reports that should not persist.

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { contentRepository } from '@/lib/data/factory';
+import { apiInternalError } from '@/lib/api/responses';
 
 export async function GET(
   request: NextRequest,
@@ -15,6 +16,6 @@ export async function GET(
     return NextResponse.json(result);
   } catch (e) {
     console.error('[api/tags/[slug]/posts]', e);
-    return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
+    return apiInternalError('Lỗi server');
   }
 }

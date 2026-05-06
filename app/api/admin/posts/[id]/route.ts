@@ -8,9 +8,17 @@ import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { revalidatePath } from 'next/cache';
 import { ZodError } from 'zod';
 import type { UpdatePostInput } from '@/lib/data/repository';
+import {
+  apiBadRequest,
+  apiConflict,
+  apiInternalError,
+  apiNotFound,
+  apiTooManyRequests,
+  apiUnauthorized,
+} from '@/lib/api/responses';
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 async function requireEditor() {
@@ -24,7 +32,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
   if (!(await requireEditor())) return unauthorized();
   const { id } = await context.params;
   const post = await contentRepository.getPostById(id);
-  if (!post) return NextResponse.json({ error: 'Không tìm thấy' }, { status: 404 });
+  if (!post) return apiNotFound('Không tìm thấy');
   return NextResponse.json(post);
 }
 
@@ -35,7 +43,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {
-    return NextResponse.json({ error: 'Quá nhiều yêu cầu' }, { status: 429 });
+    return apiTooManyRequests('Quá nhiều yêu cầu');
   }
 
   const { id } = await context.params;
@@ -44,7 +52,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Full Zod validation
@@ -54,12 +62,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
-      return NextResponse.json(
-        { error: firstError.message, field: firstError.path.join('.'), details: error.issues },
-        { status: 400 }
-      );
+      return apiBadRequest(firstError.message);
     }
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Build sanitized input
@@ -86,7 +91,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 
   try {
     const post = await contentRepository.updatePost(id, input);
-    if (!post) return NextResponse.json({ error: 'Không tìm thấy' }, { status: 404 });
+    if (!post) return apiNotFound('Không tìm thấy');
 
     // Revalidate posts page and homepage
     revalidatePath('/posts');
@@ -96,21 +101,21 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   } catch (e) {
     if (e instanceof Error) {
       if (e.message === 'SLUG_TAKEN') {
-        return NextResponse.json({ error: 'Slug đã tồn tại trong danh mục' }, { status: 409 });
+        return apiConflict('Slug đã tồn tại trong danh mục');
       }
       if (e.message === 'INVALID_CATEGORY') {
-        return NextResponse.json({ error: 'Danh mục không hợp lệ' }, { status: 400 });
+        return apiBadRequest('Danh mục không hợp lệ');
       }
     }
     // Handle Postgres errors
     if (e && typeof e === 'object' && 'code' in e) {
       const pg = e as { code: string };
       if (pg.code === '23505') {
-        return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
+        return apiConflict('Slug đã tồn tại');
       }
     }
     console.error('[admin/posts/[id] PATCH]', e);
-    return NextResponse.json({ error: 'Cập nhật thất bại' }, { status: 500 });
+    return apiInternalError('Cập nhật thất bại');
   }
 }
 
@@ -118,7 +123,7 @@ export async function DELETE(_request: NextRequest, context: { params: Promise<{
   if (!(await requireEditor())) return unauthorized();
   const { id } = await context.params;
   const ok = await contentRepository.deletePost(id);
-  if (!ok) return NextResponse.json({ error: 'Không tìm thấy' }, { status: 404 });
+  if (!ok) return apiNotFound('Không tìm thấy');
 
   // Revalidate posts page and homepage
   revalidatePath('/posts');

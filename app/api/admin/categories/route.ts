@@ -8,9 +8,10 @@ import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { revalidatePath } from 'next/cache';
 import type { Database } from '@/lib/supabase/database.types';
+import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 async function requireAdmin() {
@@ -19,7 +20,16 @@ async function requireAdmin() {
   return session;
 }
 
+async function requireEditor() {
+  const session = await getServerSession(authOptions);
+  const role = session?.user?.role;
+  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
+  return session;
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
+  if (!(await requireEditor())) return unauthorized();
+
   const fieldId = new URL(request.url).searchParams.get('fieldId');
   const db = getServiceClient();
 
@@ -27,7 +37,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (fieldId) query = query.eq('field_id', fieldId);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể tải danh mục');
   return NextResponse.json(data);
 }
 
@@ -38,7 +48,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
@@ -46,7 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const fieldId = typeof body.fieldId === 'string' ? body.fieldId.trim() : '';
 
   if (!slug || !name || !fieldId) {
-    return NextResponse.json({ error: 'Thiếu slug, name hoặc fieldId' }, { status: 400 });
+    return apiBadRequest('Thiếu slug, name hoặc fieldId');
   }
 
   const db = getServiceClient();
@@ -57,9 +67,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    if (error.code === '23505')
-      return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error.code === '23505') return apiConflict('Slug đã tồn tại');
+    return apiInternalError('Không thể tạo danh mục');
   }
 
   // Revalidate navigation and posts cache
@@ -77,10 +86,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
-  if (!body.id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
+  if (!body.id) return apiBadRequest('Thiếu id');
 
   const update: Database['public']['Tables']['categories']['Update'] = {};
   if (body.slug) update.slug = body.slug;
@@ -95,7 +104,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể cập nhật danh mục');
 
   // Revalidate navigation and posts cache
   revalidatePath('/api/navigation');
@@ -109,11 +118,11 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdmin())) return unauthorized();
 
   const id = new URL(request.url).searchParams.get('id');
-  if (!id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
+  if (!id) return apiBadRequest('Thiếu id');
 
   const db = getServiceClient();
   const { error } = await db.from('categories').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể xóa danh mục');
 
   // Revalidate navigation and posts cache
   revalidatePath('/api/navigation');

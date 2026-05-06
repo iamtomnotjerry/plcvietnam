@@ -8,12 +8,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { uploadFile } from '@/lib/supabase/storage';
+import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const SAFE_PATH_PATTERN = /^[a-zA-Z0-9/_-]+$/;
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const formData = await request.formData().catch(() => null);
   if (!formData) {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   const file = formData.get('file');
@@ -33,26 +35,42 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const path = formData.get('path') as string | null;
 
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: 'Thiếu file' }, { status: 400 });
+    return apiBadRequest('Thiếu file');
   }
   if (!ALLOWED_TYPES.includes(file.type)) {
-    return NextResponse.json({ error: 'Chỉ hỗ trợ JPEG, PNG, WebP, GIF' }, { status: 400 });
+    return apiBadRequest('Chỉ hỗ trợ JPEG, PNG, WebP, GIF');
   }
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: 'File tối đa 5MB' }, { status: 400 });
+    return apiBadRequest('File tối đa 5MB');
   }
 
   const targetBucket =
     bucket === 'thumbnails' || bucket === 'avatars' || bucket === 'books' ? bucket : 'thumbnails';
 
   const ext = file.name.split('.').pop() ?? 'jpg';
-  const targetPath = path ?? `uploads/${Date.now()}.${ext}`;
+  const providedPath = typeof path === 'string' ? path.trim() : '';
+  const unsafePath =
+    providedPath.includes('..') ||
+    providedPath.startsWith('/') ||
+    !SAFE_PATH_PATTERN.test(providedPath);
+  if (providedPath && unsafePath) {
+    return apiBadRequest('Đường dẫn upload không hợp lệ');
+  }
+
+  const safeUserId =
+    typeof session.user.id === 'string' && session.user.id.trim()
+      ? session.user.id.trim()
+      : 'unknown';
+  const targetPath =
+    providedPath && providedPath.startsWith(`uploads/${safeUserId}/`)
+      ? providedPath
+      : `uploads/${safeUserId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
   try {
     const url = await uploadFile(targetBucket, targetPath, file, file.type);
     return NextResponse.json({ url }, { status: 201 });
   } catch (e) {
     console.error('[upload]', e);
-    return NextResponse.json({ error: 'Upload thất bại' }, { status: 500 });
+    return apiInternalError('Upload thất bại');
   }
 }

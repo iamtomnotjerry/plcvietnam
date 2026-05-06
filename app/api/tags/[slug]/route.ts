@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { contentRepository } from '@/lib/data/factory';
+import { apiInternalError, apiNotFound } from '@/lib/api/responses';
 
 export async function GET(
   _request: NextRequest,
@@ -8,10 +9,10 @@ export async function GET(
   const { slug } = await context.params;
   try {
     const tag = await contentRepository.getTagBySlug(slug);
-    if (!tag) return NextResponse.json({ error: 'Không tìm thấy' }, { status: 404 });
+    if (!tag) return apiNotFound('Không tìm thấy');
     return NextResponse.json(tag);
   } catch (e) {
     console.error('[api/tags/[slug]]', e);
-    return NextResponse.json({ error: 'Lỗi server' }, { status: 500 });
+    return apiInternalError('Lỗi server');
   }
 }

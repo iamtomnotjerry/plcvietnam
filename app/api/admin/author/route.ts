@@ -1,7 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
 import { contentRepository } from '@/lib/data/factory';
+import { z } from 'zod';
+import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 
 export const dynamic = 'force-dynamic';
+
+const UpdateAuthorPayloadSchema = z.object({
+  name: z.string().min(1, 'Tên không được để trống'),
+  email: z.string().email('Email không hợp lệ'),
+  bio: z.string().min(1, 'Tiểu sử không được để trống'),
+  avatarUrl: z.string().url('Avatar URL không hợp lệ').optional().or(z.literal('')),
+  expertise: z.array(z.string()).optional(),
+  certifications: z.array(z.string()).optional(),
+  socialLinks: z.record(z.string(), z.string()).optional(),
+});
+
+function unauthorized() {
+  return apiUnauthorized();
+}
+
+async function requireEditor() {
+  const session = await getServerSession(authOptions);
+  const role = session?.user?.role;
+  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
+  return session;
+}
 
 /**
  * PUT /api/admin/author
@@ -9,46 +34,28 @@ export const dynamic = 'force-dynamic';
  */
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
+    if (!(await requireEditor())) return unauthorized();
 
-    // Validate required fields
-    if (!body.name || !body.email || !body.bio) {
-      return NextResponse.json(
-        { error: 'Thiếu thông tin bắt buộc: name, email, bio' },
-        { status: 400 }
-      );
+    const payload = UpdateAuthorPayloadSchema.safeParse(await request.json());
+    if (!payload.success) {
+      return apiBadRequest(payload.error.issues[0]?.message ?? 'Dữ liệu không hợp lệ');
     }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.email)) {
-      return NextResponse.json({ error: 'Email không hợp lệ' }, { status: 400 });
-    }
-
-    // Validate expertise array
-    if (body.expertise && !Array.isArray(body.expertise)) {
-      return NextResponse.json({ error: 'Expertise phải là mảng' }, { status: 400 });
-    }
-
-    // Validate certifications array
-    if (body.certifications && !Array.isArray(body.certifications)) {
-      return NextResponse.json({ error: 'Certifications phải là mảng' }, { status: 400 });
-    }
+    const body = payload.data;
 
     // Update author via repository
     const updatedAuthor = await contentRepository.updateAuthor({
       name: body.name,
       email: body.email,
       bio: body.bio,
-      avatarUrl: body.avatarUrl,
-      expertise: body.expertise || [],
-      certifications: body.certifications || [],
-      socialLinks: body.socialLinks || {},
+      avatarUrl: body.avatarUrl || undefined,
+      expertise: body.expertise ?? [],
+      certifications: body.certifications ?? [],
+      socialLinks: body.socialLinks ?? {},
     });
 
     return NextResponse.json({ success: true, author: updatedAuthor }, { status: 200 });
   } catch (error) {
     console.error('Error updating author:', error);
-    return NextResponse.json({ error: 'Không thể cập nhật thông tin tác giả' }, { status: 500 });
+    return apiInternalError('Không thể cập nhật thông tin tác giả');
   }
 }

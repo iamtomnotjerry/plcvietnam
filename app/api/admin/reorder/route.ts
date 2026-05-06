@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { revalidatePath } from 'next/cache';
+import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+
+const MAX_REORDER_ITEMS = 200;
 
 /**
  * PATCH /api/admin/reorder
@@ -11,15 +14,28 @@ import { revalidatePath } from 'next/cache';
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const role = session?.user?.role;
+    if (!session?.user || (role !== 'admin' && role !== 'author')) {
+      return apiUnauthorized('Unauthorized');
     }
 
-    const body = await request.json();
-    const { type, items } = body;
+    const body: unknown = await request.json();
+    const payload = body as {
+      type?: 'field' | 'category' | 'post';
+      items?: Array<{ id: string; order: number }>;
+    };
+    const { type, items } = payload;
 
-    if (!type || !items || !Array.isArray(items)) {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    if (
+      !type ||
+      !items ||
+      !Array.isArray(items) ||
+      !items.every((item) => typeof item.id === 'string' && typeof item.order === 'number')
+    ) {
+      return apiBadRequest('Invalid request body');
+    }
+    if (items.length > MAX_REORDER_ITEMS) {
+      return apiBadRequest(`Too many items. Maximum allowed is ${MAX_REORDER_ITEMS}`);
     }
 
     const supabase = getServiceClient();
@@ -43,11 +59,15 @@ export async function PATCH(request: NextRequest) {
 
       return supabase
         .from(table)
-        .update({ order: item.order } as any)
+        .update({ order: item.order } as never)
         .eq('id', item.id);
     });
 
-    await Promise.all(updates);
+    const results = await Promise.all(updates);
+    const failed = results.find((result) => result.error);
+    if (failed?.error) {
+      throw failed.error;
+    }
 
     // Revalidate navigation cache
     revalidatePath('/api/navigation');
@@ -57,6 +77,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[api/admin/reorder] Error:', error);
-    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
+    return apiInternalError('Failed to update order');
   }
 }

@@ -6,12 +6,14 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
+import type { RateLimiterRes } from 'rate-limiter-flexible';
+import { env } from '@/lib/env';
 
 // Create Redis client (Upstash for production)
-const redis = process.env.UPSTASH_REDIS_REST_URL
+const redis = env.UPSTASH_REDIS_REST_URL
   ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+      url: env.UPSTASH_REDIS_REST_URL,
+      token: env.UPSTASH_REDIS_REST_TOKEN!,
     })
   : undefined;
 
@@ -107,13 +109,14 @@ export async function checkRateLimit(
         remaining: result.remainingPoints,
         reset: Date.now() + (result.msBeforeNext || 0),
       };
-    } catch (rateLimiterRes: any) {
+    } catch (rateLimiterRes) {
+      const exceeded = rateLimiterRes as RateLimiterRes;
       // Rate limit exceeded
       return {
         success: false,
         limit: memoryLimiter.points,
         remaining: 0,
-        reset: Date.now() + (rateLimiterRes.msBeforeNext || 60000),
+        reset: Date.now() + (exceeded.msBeforeNext || 60000),
       };
     }
   } catch (error) {
@@ -133,14 +136,23 @@ export async function checkRateLimit(
  * Order: x-real-ip → x-vercel-forwarded-for → x-forwarded-for (first entry) → fallback
  */
 export function getClientIdentifier(request: Request): string {
-  const realIp = request.headers.get('x-real-ip');
-  if (realIp?.trim()) return realIp.trim();
+  const parseIpHeader = (value: string | null): string | null => {
+    if (!value) return null;
+    const candidate = value.split(',')[0]?.trim();
+    if (!candidate) return null;
+    if (candidate.length > 64) return null;
+    if (!/^[a-zA-Z0-9:._-]+$/.test(candidate)) return null;
+    return candidate;
+  };
 
-  const vercelIp = request.headers.get('x-vercel-forwarded-for');
-  if (vercelIp?.trim()) return vercelIp.split(',')[0].trim();
+  const realIp = parseIpHeader(request.headers.get('x-real-ip'));
+  if (realIp) return realIp;
 
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded?.trim()) return forwarded.split(',')[0].trim();
+  const vercelIp = parseIpHeader(request.headers.get('x-vercel-forwarded-for'));
+  if (vercelIp) return vercelIp;
+
+  const forwarded = parseIpHeader(request.headers.get('x-forwarded-for'));
+  if (forwarded) return forwarded;
 
   return 'unknown';
 }

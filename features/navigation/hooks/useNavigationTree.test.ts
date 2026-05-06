@@ -67,8 +67,7 @@ describe('useNavigationTree', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.tree).toHaveLength(1);
     expect(result.current.tree[0].label).toBe('PLC');
-    // Check that fetch was called with navigation endpoint (with cache-busting timestamp)
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/navigation?t='));
+    expect(mockFetch).toHaveBeenCalledWith('/api/navigation');
   });
 
   it('should expand all nodes', async () => {

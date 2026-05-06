@@ -430,8 +430,8 @@ export default async function AboutPage() {
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-foreground mb-2">Tác giả bộ sách</h2>
           <p className="text-muted-foreground mb-6">
-            "Thiết kế hệ thống tự động hóa với TIA Portal" — Hệ thống hóa kiến thức PLC/HMI/SCADA
-            cho kỹ sư tự động hóa
+            &quot;Thiết kế hệ thống tự động hóa với TIA Portal&quot; — Hệ thống hóa kiến thức
+            PLC/HMI/SCADA cho kỹ sư tự động hóa
           </p>
           <div className="bg-card border border-border rounded-xl p-6">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">

@@ -129,8 +129,7 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
       setIsLoading(true);
       setError(null);
 
-      // Add timestamp to bypass cache
-      const res = await fetch(`/api/navigation?t=${Date.now()}`);
+      const res = await fetch('/api/navigation');
       if (!res.ok) throw new Error('Failed to fetch navigation');
       const data: NavigationNode[] = await res.json();
 

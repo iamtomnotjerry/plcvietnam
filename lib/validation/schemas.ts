@@ -83,9 +83,7 @@ export const CreatePostSchema = z.object({
   tag_ids: z.array(UUIDSchema).default([]),
 });
 
-export const UpdatePostSchema = CreatePostSchema.partial().extend({
-  id: UUIDSchema,
-});
+export const UpdatePostSchema = CreatePostSchema.partial();
 
 export const GetPostsSchema = PaginationSchema.extend({
   category_id: UUIDSchema.optional(),
@@ -106,10 +104,10 @@ export const CreateBookSchema = z.object({
     .max(500, 'Tiêu đề không được vượt quá 500 ký tự'),
   slug: SlugSchema,
   description: z.string().max(2000, 'Mô tả không được vượt quá 2000 ký tự').optional(),
-  content: z.string().min(1, 'Nội dung không được để trống'),
+  content: z.string().min(1, 'Nội dung không được để trống').optional(),
   cover_url: URLSchema.optional(),
-  author_id: UUIDSchema,
-  status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  author_id: UUIDSchema.optional(),
+  status: z.enum(['draft', 'published', 'archived']).default('draft').optional(),
   published_at: z
     .string()
     .refine((v) => !isNaN(Date.parse(v)), 'published_at phải là ISO datetime hợp lệ')

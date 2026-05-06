@@ -5,13 +5,13 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { env } from '@/lib/env';
 
 type Bucket = 'thumbnails' | 'avatars' | 'books';
 
 function getClient() {
   // Use service role key for uploads (bypasses RLS/storage policies)
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+  return createClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   });
 }
@@ -30,7 +30,7 @@ export async function uploadFile(
 
   const { error } = await supabase.storage.from(bucket).upload(path, file, {
     contentType: contentType ?? (file instanceof File ? file.type : 'application/octet-stream'),
-    upsert: true,
+    upsert: false,
   });
 
   if (error) throw new Error(`Upload failed: ${error.message}`);

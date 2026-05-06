@@ -31,7 +31,7 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
    * Get icon component for field
    * Default to folder icon if no icon specified
    */
-  const getFieldIcon = (iconName?: string) => {
+  const getFieldIcon = () => {
     // Default folder icon for fields
     return (
       <svg
@@ -74,7 +74,7 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
               >
                 {/* Icon */}
                 <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-lg mb-4 text-primary group-hover:bg-primary/20 transition-colors duration-200">
-                  {getFieldIcon(field.icon)}
+                  {getFieldIcon()}
                 </div>
 
                 {/* Field Name */}

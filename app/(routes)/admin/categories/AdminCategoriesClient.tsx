@@ -92,10 +92,7 @@ export function AdminCategoriesClient() {
         return;
       }
       setSlugStatus('checking');
-      let timeoutId: NodeJS.Timeout;
-      await new Promise((resolve) => {
-        timeoutId = setTimeout(resolve, 400);
-      });
+      await new Promise((resolve) => setTimeout(resolve, 400));
       try {
         const params = new URLSearchParams({ slug });
         if (editingCategory?.id) params.append('excludeId', editingCategory.id);

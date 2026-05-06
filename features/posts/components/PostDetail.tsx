@@ -66,6 +66,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
   const { data: session } = useSession();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Check if user can edit/delete (admin or author)
   const canEdit =
@@ -75,8 +76,9 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
    * Handle delete post
    */
   const handleDelete = async () => {
-    if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
 
+    setDeleteError(null);
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/admin/posts/${post.id}`, {
@@ -85,7 +87,11 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.error || 'Xóa bài viết thất bại');
+        const message =
+          typeof data?.error?.message === 'string'
+            ? data.error.message
+            : 'Xóa bài viết thất bại. Vui lòng thử lại.';
+        setDeleteError(message);
         return;
       }
 
@@ -99,7 +105,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
       router.refresh();
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Xóa bài viết thất bại');
+      setDeleteError('Xóa bài viết thất bại. Vui lòng thử lại.');
     } finally {
       setIsDeleting(false);
     }
@@ -219,6 +225,11 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
 
       {/* Post header */}
       <header className="mb-8">
+        {deleteError && (
+          <p className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {deleteError}
+          </p>
+        )}
         {/* Title and Action Buttons */}
         <div className="flex items-start justify-between gap-4 mb-4">
           <h1 className="text-4xl font-bold text-card-foreground flex-1">{post.title}</h1>

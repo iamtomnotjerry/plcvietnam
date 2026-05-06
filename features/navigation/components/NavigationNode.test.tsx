@@ -179,8 +179,9 @@ describe('NavigationNode', () => {
     it('should call onToggle when clicking a field node', () => {
       render(<NavigationNode node={fieldNode} expandedIds={new Set()} onToggle={mockOnToggle} />);
 
-      const link = screen.getByText('PLC').closest('a');
-      fireEvent.click(link!);
+      const button = screen.getByText('PLC').closest('button');
+      expect(button).not.toBeNull();
+      fireEvent.click(button!);
 
       expect(mockOnToggle).toHaveBeenCalledWith('field-1');
     });
@@ -190,8 +191,9 @@ describe('NavigationNode', () => {
         <NavigationNode node={categoryNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      const link = screen.getByText('Basics').closest('a');
-      fireEvent.click(link!);
+      const button = screen.getByText('Basics').closest('button');
+      expect(button).not.toBeNull();
+      fireEvent.click(button!);
 
       expect(mockOnToggle).toHaveBeenCalledWith('category-1');
     });
@@ -291,8 +293,9 @@ describe('NavigationNode', () => {
         />
       );
 
-      const link = screen.getByText('PLC').closest('a');
-      fireEvent.click(link!);
+      const button = screen.getByText('PLC').closest('button');
+      expect(button).not.toBeNull();
+      fireEvent.click(button!);
 
       expect(mockOnToggle).toHaveBeenCalledWith('field-1');
       expect(mockOnNodeClick).toHaveBeenCalledWith(fieldNode);
@@ -355,8 +358,8 @@ describe('NavigationNode', () => {
       );
 
       // Category should have level 1 padding
-      const categoryLink = screen.getByText('Basics').closest('a');
-      expect(categoryLink).toHaveStyle({ paddingLeft: '28px' });
+      const categoryButton = screen.getByText('Basics').closest('button');
+      expect(categoryButton).toHaveStyle({ paddingLeft: '28px' });
     });
   });
 
@@ -373,6 +376,13 @@ describe('NavigationNode', () => {
 
       const link = screen.getByRole('link');
       expect(link).toHaveClass('cursor-pointer');
+    });
+
+    it('should render expandable nodes as buttons with aria-expanded', () => {
+      render(<NavigationNode node={fieldNode} expandedIds={new Set()} onToggle={mockOnToggle} />);
+
+      const button = screen.getByText('PLC').closest('button');
+      expect(button).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('should truncate long labels', () => {

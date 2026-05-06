@@ -15,6 +15,7 @@ import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { CreateCommentSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 import { ZodError } from 'zod';
+import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 
 /**
  * GET /api/comments?postId=...
@@ -23,7 +24,7 @@ import { ZodError } from 'zod';
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const postId = request.nextUrl.searchParams.get('postId');
   if (!postId || typeof postId !== 'string') {
-    return NextResponse.json({ error: 'postId là bắt buộc' }, { status: 400 });
+    return apiBadRequest('postId là bắt buộc');
   }
 
   try {
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(list);
   } catch (error) {
     console.error('Failed to load comments:', error);
-    return NextResponse.json({ error: 'Không thể tải bình luận' }, { status: 500 });
+    return apiInternalError('Không thể tải bình luận');
   }
 }
 
@@ -55,7 +56,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!rateLimit.success) {
     return NextResponse.json(
       {
-        error: 'Quá nhiều bình luận. Vui lòng thử lại sau.',
+        error: {
+          code: 'TOO_MANY_REQUESTS',
+          message: 'Quá nhiều bình luận. Vui lòng thử lại sau.',
+        },
         retryAfter: rateLimit.reset,
       },
       {
@@ -73,7 +77,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user) {
-    return NextResponse.json({ error: 'Bạn cần đăng nhập để bình luận' }, { status: 401 });
+    return apiUnauthorized('Bạn cần đăng nhập để bình luận');
   }
 
   // Parse request body
@@ -81,7 +85,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Validate with Zod
@@ -91,12 +95,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
-      return NextResponse.json(
-        { error: firstError.message, field: firstError.path.join('.') },
-        { status: 400 }
-      );
+      return apiBadRequest(firstError.message);
     }
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Sanitize HTML content
@@ -123,9 +124,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {
     console.error('Failed to create comment:', error);
-    return NextResponse.json(
-      { error: 'Không thể lưu bình luận. Vui lòng thử lại.' },
-      { status: 500 }
-    );
+    return apiInternalError('Không thể lưu bình luận. Vui lòng thử lại.');
   }
 }

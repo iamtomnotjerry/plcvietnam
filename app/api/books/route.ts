@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { contentRepository } from '@/lib/data/factory';
+import { apiInternalError } from '@/lib/api/responses';
 
 export const revalidate = 3600;
 
@@ -13,6 +14,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(result);
   } catch (e) {
     console.error('[api/books]', e);
-    return NextResponse.json({ error: 'Không thể tải sách' }, { status: 500 });
+    return apiInternalError('Không thể tải sách');
   }
 }

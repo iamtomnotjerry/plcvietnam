@@ -3,6 +3,7 @@ import { registerUser } from '@/lib/auth/supabase-auth';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { SignUpSchema } from '@/lib/validation/schemas';
 import { ZodError } from 'zod';
+import { apiBadRequest, apiConflict, apiInternalError } from '@/lib/api/responses';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Rate limiting
@@ -11,7 +12,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   if (!rateLimit.success) {
     return NextResponse.json(
-      { error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.', retryAfter: rateLimit.reset },
+      {
+        error: {
+          code: 'TOO_MANY_REQUESTS',
+          message: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+        },
+        retryAfter: rateLimit.reset,
+      },
       {
         status: 429,
         headers: {
@@ -28,7 +35,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Validate with Zod
@@ -38,12 +45,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
-      return NextResponse.json(
-        { error: firstError.message, field: firstError.path.join('.') },
-        { status: 400 }
-      );
+      return apiBadRequest(firstError.message);
     }
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Register user
@@ -59,9 +63,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   } catch (e) {
     if (e instanceof Error && e.message === 'EMAIL_TAKEN') {
-      return NextResponse.json({ error: 'Email đã được đăng ký' }, { status: 409 });
+      return apiConflict('Email đã được đăng ký');
     }
     console.error('[register]', e);
-    return NextResponse.json({ error: 'Đăng ký thất bại' }, { status: 500 });
+    return apiInternalError('Đăng ký thất bại');
   }
 }

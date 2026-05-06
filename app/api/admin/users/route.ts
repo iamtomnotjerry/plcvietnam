@@ -9,11 +9,12 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
+import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 
 type UserRole = Database['public']['Enums']['user_role'];
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 async function requireAdmin() {
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .order('created_at', { ascending: false })
     .range((page - 1) * limit, page * limit - 1);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể tải danh sách người dùng');
 
   return NextResponse.json({
     data,
@@ -54,19 +55,19 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
-  if (!body.id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
+  if (!body.id) return apiBadRequest('Thiếu id');
 
   const validRoles: UserRole[] = ['admin', 'author', 'reader'];
   if (!body.role || !validRoles.includes(body.role as UserRole)) {
-    return NextResponse.json({ error: 'Role không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Role không hợp lệ');
   }
 
   // Prevent admin from demoting themselves
   if (body.id === session.user.id && body.role !== 'admin') {
-    return NextResponse.json({ error: 'Không thể thay đổi role của chính mình' }, { status: 400 });
+    return apiBadRequest('Không thể thay đổi role của chính mình');
   }
 
   const db = getServiceClient();
@@ -77,6 +78,6 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .select('id, email, full_name, role')
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể cập nhật role người dùng');
   return NextResponse.json(data);
 }

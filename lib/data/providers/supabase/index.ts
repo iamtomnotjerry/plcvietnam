@@ -58,6 +58,15 @@ type PostWithAuthor = PostWithTags & {
 type PostTagJoinRow = {
   posts: PostWithRelations;
 };
+type FieldWithCategories = DbField & {
+  categories?: Array<{ id: string }> | { id: string } | null;
+};
+type FieldWithCategorySlugs = DbField & {
+  categories?: Array<{ slug: string }> | { slug: string } | null;
+};
+type FieldWithNavigationCategories = DbField & {
+  categories?: DbCategory[] | DbCategory | null;
+};
 
 // ── Clients — use singletons to reuse connection pools ────────────────────────
 import {
@@ -241,8 +250,9 @@ export class SupabaseProvider implements ContentRepository {
 
     if (error) throw error;
 
-    return (data ?? []).map((row: any) => {
-      const cats = Array.isArray(row.categories) ? row.categories : [];
+    return (data ?? []).map((row) => {
+      const typedRow = row as unknown as FieldWithCategories;
+      const cats = Array.isArray(typedRow.categories) ? typedRow.categories : [];
       const field = mapField(row);
       return {
         ...field,
@@ -274,13 +284,14 @@ export class SupabaseProvider implements ContentRepository {
     // Group categories by field and get first category slug
     const fieldsMap = new Map<string, Field & { firstCategorySlug?: string }>();
 
-    (data ?? []).forEach((row: any) => {
+    (data ?? []).forEach((row) => {
+      const typedRow = row as unknown as FieldWithCategorySlugs;
       const fieldId = row.id;
       if (!fieldsMap.has(fieldId)) {
-        const cats: Array<{ slug: string }> = Array.isArray(row.categories)
-          ? row.categories
-          : row.categories
-            ? [row.categories]
+        const cats: Array<{ slug: string }> = Array.isArray(typedRow.categories)
+          ? typedRow.categories
+          : typedRow.categories
+            ? [typedRow.categories]
             : [];
 
         // Map field with category count as postCount
@@ -559,9 +570,13 @@ export class SupabaseProvider implements ContentRepository {
     if (error) throw error;
 
     if (input.tagIds.length > 0) {
-      await this.admin
+      const { error: tagInsertError } = await this.admin
         .from('post_tags')
         .insert(input.tagIds.map((tag_id) => ({ post_id: data.id, tag_id })));
+      if (tagInsertError) {
+        await this.admin.from('posts').delete().eq('id', data.id);
+        throw tagInsertError;
+      }
     }
 
     const typedData = data as unknown as PostWithRelations;
@@ -598,7 +613,10 @@ export class SupabaseProvider implements ContentRepository {
       .eq('id', id)
       .select('*, categories(*, fields(*))')
       .single();
-    if (error) return null;
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
 
     if (input.tagIds !== undefined) {
       const { error: delErr } = await this.admin.from('post_tags').delete().eq('post_id', id);
@@ -639,9 +657,9 @@ export class SupabaseProvider implements ContentRepository {
 
   async getBooks(options: BookQueryOptions = {}): Promise<PaginatedResult<Book>> {
     const { page = 1, limit = 20 } = options;
-    const { data, error, count } = await (
-      this.db.from('books').select('*', { count: 'exact' }) as any
-    )
+    const { data, error, count } = await this.db
+      .from('books')
+      .select('*', { count: 'exact' })
       .order('title', { ascending: true })
       .range((page - 1) * limit, page * limit - 1);
 
@@ -653,7 +671,9 @@ export class SupabaseProvider implements ContentRepository {
   }
 
   async getFeaturedBooks(limit: number): Promise<Book[]> {
-    const { data, error } = await (this.db.from('books').select('*') as any)
+    const { data, error } = await this.db
+      .from('books')
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -732,11 +752,13 @@ export class SupabaseProvider implements ContentRepository {
     const q = `%${query}%`;
 
     const [postsResult, booksResult] = await Promise.all([
-      this.db.rpc('search_posts' as any, { query, result_limit: 10 }),
+      this.db.rpc('search_posts', { query, result_limit: 10 }),
       this.db.from('books').select('*').or(`title.ilike.${q},description.ilike.${q}`).limit(5),
     ]);
 
-    const posts = (postsResult.data ?? []).map((row: any) => mapPost(row, []));
+    const posts = (postsResult.data ?? []).map((row) =>
+      mapPost(row as Database['public']['Tables']['posts']['Row'], [])
+    );
     const books = (booksResult.data ?? []).map(mapBook);
 
     return { posts, books, totalResults: posts.length + books.length };
@@ -806,7 +828,12 @@ export class SupabaseProvider implements ContentRepository {
     if (error) throw error;
 
     return (fields ?? []).map((field) => {
-      const categories = (field as any).categories ?? [];
+      const typedField = field as unknown as FieldWithNavigationCategories;
+      const categories = Array.isArray(typedField.categories)
+        ? typedField.categories
+        : typedField.categories
+          ? [typedField.categories]
+          : [];
       return {
         id: field.id,
         type: 'field' as const,
@@ -814,7 +841,7 @@ export class SupabaseProvider implements ContentRepository {
         slug: field.slug,
         url: `/fields/${field.slug}`,
         postCount: categories.length, // Số lượng danh mục, không phải số bài viết
-        children: categories.map((cat: any) => ({
+        children: categories.map((cat) => ({
           id: cat.id,
           type: 'category' as const,
           label: cat.name,

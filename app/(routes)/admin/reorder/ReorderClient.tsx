@@ -39,6 +39,8 @@ interface Post {
   categoryId: string;
   order: number;
 }
+type CategoryApi = Category & { field_id?: string };
+type PostApi = Post & { category_id?: string };
 
 interface SortableItemProps {
   id: string;
@@ -87,25 +89,6 @@ export function ReorderClient() {
     })
   );
 
-  // Fetch fields
-  useEffect(() => {
-    fetchFields();
-  }, []);
-
-  // Fetch categories when field is selected
-  useEffect(() => {
-    if (selectedFieldId) {
-      fetchCategories(selectedFieldId);
-    }
-  }, [selectedFieldId]);
-
-  // Fetch posts when category is selected
-  useEffect(() => {
-    if (selectedCategoryId) {
-      fetchPosts(selectedCategoryId);
-    }
-  }, [selectedCategoryId]);
-
   async function fetchFields() {
     setIsLoading(true);
     try {
@@ -124,9 +107,9 @@ export function ReorderClient() {
     try {
       const res = await fetch('/api/admin/categories');
       const data = await res.json();
-      const filtered = data
-        .filter((c: any) => c.field_id === fieldId)
-        .sort((a: any, b: any) => a.order - b.order);
+      const filtered = (data as CategoryApi[])
+        .filter((c) => c.fieldId === fieldId || c.field_id === fieldId)
+        .sort((a, b) => a.order - b.order);
       setCategories(filtered);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
@@ -140,10 +123,10 @@ export function ReorderClient() {
     try {
       const res = await fetch('/api/admin/posts');
       const result = await res.json();
-      const posts = result.data || [];
+      const posts = (result.data ?? []) as PostApi[];
       const filtered = posts
-        .filter((p: any) => p.categoryId === categoryId || p.category_id === categoryId)
-        .sort((a: any, b: any) => a.order - b.order);
+        .filter((p) => p.categoryId === categoryId || p.category_id === categoryId)
+        .sort((a, b) => a.order - b.order);
       setPosts(filtered);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
@@ -152,7 +135,7 @@ export function ReorderClient() {
     }
   }
 
-  async function saveOrder(type: 'field' | 'category' | 'post', items: any[]) {
+  async function saveOrder(type: 'field' | 'category' | 'post', items: Array<{ id: string }>) {
     setIsSaving(true);
     try {
       const itemsWithOrder = items.map((item, index) => ({
@@ -178,6 +161,25 @@ export function ReorderClient() {
       setIsSaving(false);
     }
   }
+
+  // Fetch fields
+  useEffect(() => {
+    fetchFields();
+  }, []);
+
+  // Fetch categories when field is selected
+  useEffect(() => {
+    if (selectedFieldId) {
+      fetchCategories(selectedFieldId);
+    }
+  }, [selectedFieldId]);
+
+  // Fetch posts when category is selected
+  useEffect(() => {
+    if (selectedCategoryId) {
+      fetchPosts(selectedCategoryId);
+    }
+  }, [selectedCategoryId]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;

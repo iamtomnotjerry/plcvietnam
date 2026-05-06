@@ -5,6 +5,11 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { signInWithPassword } from '@/lib/auth/supabase-auth';
 
 type UserRole = 'admin' | 'author' | 'reader';
+type OAuthProfile = {
+  picture?: string;
+  avatar_url?: string;
+  name?: string;
+};
 
 const googleConfigured =
   Boolean(process.env.GOOGLE_CLIENT_ID?.trim()) &&
@@ -65,6 +70,7 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
   callbacks: {
     async signIn({ user, account, profile }) {
+      const oauthProfile = (profile ?? {}) as OAuthProfile;
       // For OAuth providers (Google, Facebook): ensure profile exists in Supabase
       if (account?.provider && account.provider !== 'credentials' && user.email) {
         try {
@@ -81,14 +87,14 @@ export const authOptions: NextAuthOptions = {
             user.id = supabaseUser.id;
 
             // Update profile with avatar from OAuth provider
-            const avatarUrl = user.image || (profile as any)?.picture || (profile as any)?.avatar_url;
-            
+            const avatarUrl = user.image || oauthProfile.picture || oauthProfile.avatar_url;
+
             if (avatarUrl) {
               await admin
                 .from('profiles')
-                .update({ 
+                .update({
                   avatar_url: avatarUrl,
-                  full_name: user.name || (profile as any)?.name || supabaseUser.email?.split('@')[0]
+                  full_name: user.name || oauthProfile.name || supabaseUser.email?.split('@')[0],
                 })
                 .eq('id', supabaseUser.id);
             }

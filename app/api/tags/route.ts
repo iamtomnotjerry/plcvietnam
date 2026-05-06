@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { contentRepository } from '@/lib/data/factory';
+import { apiInternalError } from '@/lib/api/responses';
 
 export const revalidate = 3600; // 1 hour ISR
 
@@ -9,6 +10,6 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json(tags);
   } catch (e) {
     console.error('[api/tags]', e);
-    return NextResponse.json({ error: 'Không thể tải dữ liệu' }, { status: 500 });
+    return apiInternalError('Không thể tải dữ liệu');
   }
 }

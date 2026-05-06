@@ -78,10 +78,7 @@ export function AdminFieldsClient() {
         return;
       }
       setSlugStatus('checking');
-      let timeoutId: NodeJS.Timeout;
-      await new Promise((resolve) => {
-        timeoutId = setTimeout(resolve, 400);
-      });
+      await new Promise((resolve) => setTimeout(resolve, 400));
       try {
         const params = new URLSearchParams({ slug });
         if (editingField?.id) params.append('excludeId', editingField.id);

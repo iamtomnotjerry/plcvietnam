@@ -19,12 +19,7 @@ interface CommentSectionProps {
   onSubmit: (content: string, parentId?: string | null) => Promise<void>;
 }
 
-export function CommentSection({
-  postId: _postId,
-  postSlug: _postSlug,
-  comments,
-  onSubmit,
-}: CommentSectionProps) {
+export function CommentSection({ postId, postSlug, comments, onSubmit }: CommentSectionProps) {
   const { status } = useSession();
 
   // Count total including replies
@@ -33,7 +28,12 @@ export function CommentSection({
   const total = countAll(comments);
 
   return (
-    <section aria-labelledby="comments-heading" className="flex flex-col gap-6">
+    <section
+      aria-labelledby="comments-heading"
+      className="flex flex-col gap-6"
+      data-post-id={postId}
+      data-post-slug={postSlug}
+    >
       <h2 id="comments-heading" className="text-xl font-semibold text-card-foreground">
         Bình luận ({total})
       </h2>

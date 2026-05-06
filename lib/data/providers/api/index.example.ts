@@ -52,6 +52,8 @@ import {
 } from '@/lib/utils/api-transformers';
 import { calculateReadingTime } from '@/features/posts/utils/readingTime';
 
+type ApiFieldWithFirstCategory = ApiField & { firstCategorySlug?: string };
+
 export class APIProvider implements ContentRepository {
   private baseUrl: string;
 
@@ -102,10 +104,12 @@ export class APIProvider implements ContentRepository {
   }
 
   async getFieldsWithFirstCategory(): Promise<Array<Field & { firstCategorySlug?: string }>> {
-    const apiFields = await this.fetchAPI<ApiField[]>('/api/fields?include=firstCategory');
+    const apiFields = await this.fetchAPI<ApiFieldWithFirstCategory[]>(
+      '/api/fields?include=firstCategory'
+    );
     return apiFields.map((f) => ({
       ...transformField(f),
-      firstCategorySlug: (f as any).firstCategorySlug,
+      firstCategorySlug: f.firstCategorySlug,
     }));
   }
 

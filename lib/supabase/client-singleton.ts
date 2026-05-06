@@ -6,6 +6,7 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { env } from '@/lib/env';
 
 // Singleton instances
 let _anonClient: SupabaseClient<Database> | null = null;
@@ -17,14 +18,8 @@ let _serviceClient: SupabaseClient<Database> | null = null;
  */
 export function getAnonClient(): SupabaseClient<Database> {
   if (!_anonClient) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!url || !key) {
-      throw new Error(
-        'Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required'
-      );
-    }
+    const url = env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     _anonClient = createClient<Database>(url, key, {
       auth: {
@@ -52,23 +47,11 @@ export function getAnonClient(): SupabaseClient<Database> {
  */
 export function getServiceClient(): SupabaseClient<Database> {
   if (!_serviceClient) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!url) {
-      throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable');
-    }
-
-    if (!serviceKey) {
-      throw new Error(
-        'CRITICAL: SUPABASE_SERVICE_ROLE_KEY is required for admin operations. ' +
-          'Never use anon key for admin operations! ' +
-          'Get service role key from: Supabase Dashboard → Settings → API → service_role'
-      );
-    }
+    const url = env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
     // Validate service key is not same as anon key
-    if (serviceKey === process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (serviceKey === env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       throw new Error(
         'SECURITY ERROR: Service role key cannot be the same as anon key! ' +
           'This would expose admin privileges to public.'

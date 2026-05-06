@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import type { Route } from 'next';
 
@@ -28,7 +29,13 @@ export function SiteFooter() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <span className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-primary">
-                <img src="/logo.jpg" alt="PLC Việt Nam" className="w-full h-full object-cover" />
+                <Image
+                  src="/logo.jpg"
+                  alt="PLC Việt Nam"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
               </span>
               <span className="font-serif text-xl font-semibold">PLC Việt Nam</span>
             </div>

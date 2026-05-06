@@ -6,7 +6,6 @@
 
 'use client';
 
-import type { Post, Book } from '@/lib/types/domain';
 import type { SearchResults as SearchResultsType } from '@/lib/data/repository';
 import { SearchResultItem } from './SearchResultItem';
 
@@ -29,7 +28,12 @@ export interface SearchResultsProps {
  *
  * selectedIndex maps across the flat list: posts first, then books.
  */
-export function SearchResults({ query, results, selectedIndex, onResultClick }: SearchResultsProps) {
+export function SearchResults({
+  query,
+  results,
+  selectedIndex,
+  onResultClick,
+}: SearchResultsProps) {
   const hasResults = results.totalResults > 0;
 
   if (!hasResults) {

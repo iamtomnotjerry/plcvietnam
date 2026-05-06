@@ -76,10 +76,7 @@ export function AdminTagsClient() {
         return;
       }
       setSlugStatus('checking');
-      let timeoutId: NodeJS.Timeout;
-      await new Promise((resolve) => {
-        timeoutId = setTimeout(resolve, 400);
-      });
+      await new Promise((resolve) => setTimeout(resolve, 400));
       try {
         const params = new URLSearchParams({ slug });
         if (editingTag?.id) params.append('excludeId', editingTag.id);

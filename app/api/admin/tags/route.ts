@@ -7,9 +7,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { revalidatePath } from 'next/cache';
+import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 async function requireAdmin() {
@@ -18,10 +19,19 @@ async function requireAdmin() {
   return session;
 }
 
+async function requireEditor() {
+  const session = await getServerSession(authOptions);
+  const role = session?.user?.role;
+  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
+  return session;
+}
+
 export async function GET(): Promise<NextResponse> {
+  if (!(await requireEditor())) return unauthorized();
+
   const db = getServiceClient();
   const { data, error } = await db.from('tags').select('*').order('name');
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể tải tag');
   return NextResponse.json(data);
 }
 
@@ -32,19 +42,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
   const name = typeof body.name === 'string' ? body.name.trim() : '';
-  if (!slug || !name) return NextResponse.json({ error: 'Thiếu slug hoặc name' }, { status: 400 });
+  if (!slug || !name) return apiBadRequest('Thiếu slug hoặc name');
 
   const db = getServiceClient();
   const { data, error } = await db.from('tags').insert({ slug, name }).select().single();
   if (error) {
-    if (error.code === '23505')
-      return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error.code === '23505') return apiConflict('Slug đã tồn tại');
+    return apiInternalError('Không thể tạo tag');
   }
 
   // Revalidate tags and posts cache
@@ -62,14 +71,13 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   const id = typeof body.id === 'string' ? body.id.trim() : '';
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
   const name = typeof body.name === 'string' ? body.name.trim() : '';
-  if (!id || !slug || !name)
-    return NextResponse.json({ error: 'Thiếu id, slug hoặc name' }, { status: 400 });
+  if (!id || !slug || !name) return apiBadRequest('Thiếu id, slug hoặc name');
 
   const db = getServiceClient();
   const { data, error } = await db
@@ -80,9 +88,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    if (error.code === '23505')
-      return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error.code === '23505') return apiConflict('Slug đã tồn tại');
+    return apiInternalError('Không thể cập nhật tag');
   }
 
   // Revalidate tags and posts cache
@@ -97,11 +104,11 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdmin())) return unauthorized();
 
   const id = new URL(request.url).searchParams.get('id');
-  if (!id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
+  if (!id) return apiBadRequest('Thiếu id');
 
   const db = getServiceClient();
   const { error } = await db.from('tags').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể xóa tag');
 
   // Revalidate tags and posts cache
   revalidatePath('/api/tags');

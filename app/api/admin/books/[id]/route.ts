@@ -17,6 +17,14 @@ import { sanitizeHtml } from '@/lib/security/sanitize';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { ZodError } from 'zod';
 import type { Database } from '@/lib/supabase/database.types';
+import {
+  apiBadRequest,
+  apiConflict,
+  apiInternalError,
+  apiNotFound,
+  apiTooManyRequests,
+  apiUnauthorized,
+} from '@/lib/api/responses';
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -25,20 +33,20 @@ interface Params {
 export async function GET(_req: NextRequest, { params }: Params): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized('Unauthorized');
   }
 
   const { id } = await params;
   const supabase = getServiceClient();
   const { data, error } = await supabase.from('books').select('*').eq('id', id).single();
-  if (error || !data) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (error || !data) return apiNotFound('Not found');
   return NextResponse.json(data);
 }
 
 export async function PATCH(request: NextRequest, { params }: Params): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized('Unauthorized');
   }
 
   // Rate limiting
@@ -46,17 +54,7 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
   const rateLimit = await checkRateLimit(identifier, 'api');
 
   if (!rateLimit.success) {
-    return NextResponse.json(
-      { error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.' },
-      {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': rateLimit.limit?.toString() || '',
-          'X-RateLimit-Remaining': rateLimit.remaining?.toString() || '',
-          'X-RateLimit-Reset': rateLimit.reset?.toString() || '',
-        },
-      }
-    );
+    return apiTooManyRequests('Quá nhiều yêu cầu. Vui lòng thử lại sau.', rateLimit);
   }
 
   const { id } = await params;
@@ -69,12 +67,9 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
-      return NextResponse.json(
-        { error: firstError.message, field: firstError.path.join('.') },
-        { status: 400 }
-      );
+      return apiBadRequest(firstError.message);
     }
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   // Build update payload — only map fields that exist in the books table schema
@@ -100,9 +95,9 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
   if (error) {
     // Handle Postgres errors
     if (error.code === '23505') {
-      return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
+      return apiConflict('Slug đã tồn tại');
     }
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return apiInternalError('Không thể cập nhật sách');
   }
 
   return NextResponse.json(data);
@@ -111,12 +106,12 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
 export async function DELETE(_req: NextRequest, { params }: Params): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized('Unauthorized');
   }
 
   const { id } = await params;
   const supabase = getServiceClient();
   const { error } = await supabase.from('books').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return apiInternalError('Không thể xóa sách');
   return NextResponse.json({ success: true });
 }

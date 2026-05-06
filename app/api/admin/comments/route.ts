@@ -7,19 +7,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/database.types';
-
-function getAdminClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
-  );
-}
+import { getServiceClient } from '@/lib/supabase/client-singleton';
+import {
+  apiBadRequest,
+  apiInternalError,
+  apiTooManyRequests,
+  apiUnauthorized,
+} from '@/lib/api/responses';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 async function requireAdmin() {
@@ -31,6 +29,11 @@ async function requireAdmin() {
 /** GET /api/admin/comments?postId=&approved=&page=&limit= */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdmin())) return unauthorized();
+  const identifier = getClientIdentifier(request);
+  const rateLimit = await checkRateLimit(identifier, 'api');
+  if (!rateLimit.success) {
+    return apiTooManyRequests('Quá nhiều yêu cầu', rateLimit);
+  }
 
   const { searchParams } = new URL(request.url);
   const postId = searchParams.get('postId');
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') ?? '50', 10)));
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   let query = db
     .from('comments')
     .select('*', { count: 'exact' })
@@ -50,7 +53,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (approved === 'false') query = query.eq('is_approved', false);
 
   const { data, error, count } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể tải danh sách bình luận');
 
   return NextResponse.json({
     data,
@@ -61,19 +64,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 /** PATCH /api/admin/comments  body: { id, approved } */
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdmin())) return unauthorized();
+  const identifier = getClientIdentifier(request);
+  const rateLimit = await checkRateLimit(identifier, 'api');
+  if (!rateLimit.success) {
+    return apiTooManyRequests('Quá nhiều yêu cầu', rateLimit);
+  }
 
   let body: { id?: string; approved?: boolean };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   if (!body.id || typeof body.approved !== 'boolean') {
-    return NextResponse.json({ error: 'Thiếu id hoặc approved' }, { status: 400 });
+    return apiBadRequest('Thiếu id hoặc approved');
   }
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { data, error } = await db
     .from('comments')
     .update({ is_approved: body.approved })
@@ -81,19 +89,24 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể cập nhật trạng thái bình luận');
   return NextResponse.json(data);
 }
 
 /** DELETE /api/admin/comments?id= */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdmin())) return unauthorized();
+  const identifier = getClientIdentifier(request);
+  const rateLimit = await checkRateLimit(identifier, 'api');
+  if (!rateLimit.success) {
+    return apiTooManyRequests('Quá nhiều yêu cầu', rateLimit);
+  }
 
   const id = new URL(request.url).searchParams.get('id');
-  if (!id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
+  if (!id) return apiBadRequest('Thiếu id');
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { error } = await db.from('comments').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể xóa bình luận');
   return NextResponse.json({ ok: true });
 }

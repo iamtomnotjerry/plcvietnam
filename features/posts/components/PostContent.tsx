@@ -7,7 +7,6 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from 'react';
-import Image from 'next/image';
 import { sanitizeHtmlClient } from '@/lib/security/sanitize.client';
 
 export interface PostContentProps {
@@ -53,7 +52,6 @@ export function PostContent({ content, className = '' }: PostContentProps) {
 
       images.forEach((img) => {
         const src = img.getAttribute('src');
-        const alt = img.getAttribute('alt') || '';
 
         if (!src) return;
 

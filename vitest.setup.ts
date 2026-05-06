@@ -5,7 +5,7 @@ global.IntersectionObserver = class IntersectionObserver {
   readonly root = null;
   readonly rootMargin = '';
   readonly thresholds = [];
-  constructor(_cb: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
+  constructor() {}
   disconnect() {}
   observe() {}
   takeRecords(): IntersectionObserverEntry[] {

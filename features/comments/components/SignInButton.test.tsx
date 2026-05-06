@@ -23,16 +23,19 @@ vi.mock('next/link', () => ({
 }));
 
 vi.mock('next/image', () => ({
-  default: ({ src, alt, width, height, ...props }: {
+  default: ({
+    src,
+    alt,
+    width,
+    height,
+    ...props
+  }: {
     src: string;
     alt: string;
     width: number;
     height: number;
     [key: string]: unknown;
-  }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} width={width} height={height} {...props} />
-  ),
+  }) => <img src={src} alt={alt} width={width} height={height} {...props} />,
 }));
 
 describe('SignInButton', () => {

@@ -117,8 +117,8 @@ export default function TermsPage() {
 
         <h2>6. Từ chối bảo đảm</h2>
         <p>
-          PLC Việt Nam được cung cấp "nguyên trạng" mà không có bất kỳ bảo đảm nào, rõ ràng hay ngụ
-          ý. Chúng tôi không đảm bảo rằng:
+          PLC Việt Nam được cung cấp &quot;nguyên trạng&quot; mà không có bất kỳ bảo đảm nào, rõ
+          ràng hay ngụ ý. Chúng tôi không đảm bảo rằng:
         </p>
         <ul>
           <li>Dịch vụ sẽ không bị gián đoạn hoặc không có lỗi</li>

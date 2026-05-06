@@ -5,20 +5,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
-import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
-
-function getAdminClient() {
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
-  );
-}
+import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 
 function unauthorized() {
-  return NextResponse.json({ error: 'Không có quyền' }, { status: 401 });
+  return apiUnauthorized();
 }
 
 async function requireAdmin() {
@@ -28,10 +21,16 @@ async function requireAdmin() {
 }
 
 export async function GET(): Promise<NextResponse> {
-  const db = getAdminClient();
-  const { data, error } = await db.from('fields').select('*').order('name');
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  if (!(await requireAdmin())) return unauthorized();
+  try {
+    const db = getServiceClient();
+    const { data, error } = await db.from('fields').select('*').order('name');
+    if (error) return apiInternalError('Không thể tải lĩnh vực');
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('[api/admin/fields GET] Error:', error);
+    return apiInternalError('Không thể tải lĩnh vực');
+  }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -41,14 +40,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
   const name = typeof body.name === 'string' ? body.name.trim() : '';
-  if (!slug || !name) return NextResponse.json({ error: 'Thiếu slug hoặc name' }, { status: 400 });
+  if (!slug || !name) return apiBadRequest('Thiếu slug hoặc name');
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { data, error } = await db
     .from('fields')
     .insert({ slug, name, description: body.description ?? null, icon: body.icon ?? null })
@@ -56,9 +55,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    if (error.code === '23505')
-      return NextResponse.json({ error: 'Slug đã tồn tại' }, { status: 409 });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error.code === '23505') return apiConflict('Slug đã tồn tại');
+    return apiInternalError('Không thể tạo lĩnh vực');
   }
 
   // Revalidate navigation and posts cache
@@ -76,10 +74,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
+    return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
-  if (!body.id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
+  if (!body.id) return apiBadRequest('Thiếu id');
 
   const update: Database['public']['Tables']['fields']['Update'] = {};
   if (body.slug) update.slug = body.slug;
@@ -87,14 +85,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   if (body.description !== undefined) update.description = body.description ?? null;
   if (body.icon !== undefined) update.icon = body.icon ?? null;
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { data, error } = await db
     .from('fields')
     .update(update)
     .eq('id', body.id)
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể cập nhật lĩnh vực');
 
   // Revalidate navigation and posts cache
   revalidatePath('/api/navigation');
@@ -108,11 +106,11 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdmin())) return unauthorized();
 
   const id = new URL(request.url).searchParams.get('id');
-  if (!id) return NextResponse.json({ error: 'Thiếu id' }, { status: 400 });
+  if (!id) return apiBadRequest('Thiếu id');
 
-  const db = getAdminClient();
+  const db = getServiceClient();
   const { error } = await db.from('fields').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiInternalError('Không thể xóa lĩnh vực');
 
   // Revalidate navigation and posts cache
   revalidatePath('/api/navigation');
