@@ -34,7 +34,7 @@ describe('register route', () => {
         },
         body: JSON.stringify({
           email: 'a@example.com',
-          password: 'StrongPass1',
+          password: 'StrongPass1!',
           full_name: 'Alice',
         }),
       })
@@ -52,7 +52,7 @@ describe('register route', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: 'exists@example.com',
-          password: 'StrongPass1',
+          password: 'StrongPass1!',
           full_name: 'Existing User',
         }),
       })
