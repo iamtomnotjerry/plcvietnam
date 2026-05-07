@@ -3,32 +3,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { revalidatePath } from 'next/cache';
 import type { Database } from '@/lib/supabase/database.types';
 import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+import { requireAdminAuth, requireEditorAuth } from '@/lib/auth/server-auth';
 
 function unauthorized() {
   return apiUnauthorized();
 }
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== 'admin') return null;
-  return session;
-}
-
-async function requireEditor() {
-  const session = await getServerSession(authOptions);
-  const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
-  return session;
-}
-
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireEditor())) return unauthorized();
+  if (!(await requireEditorAuth())) return unauthorized();
 
   const fieldId = new URL(request.url).searchParams.get('fieldId');
   const db = getServiceClient();
@@ -42,7 +28,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
 
   let body: { slug?: string; name?: string; description?: string; fieldId?: string };
   try {
@@ -80,7 +66,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
 
   let body: { id?: string; slug?: string; name?: string; description?: string };
   try {
@@ -115,7 +101,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
 
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return apiBadRequest('Thiếu id');

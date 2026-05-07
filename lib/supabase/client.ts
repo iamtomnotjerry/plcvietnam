@@ -1,8 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const isTest = process.env.NODE_ENV === 'test';
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ?? (isTest ? 'http://localhost:54321' : '');
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? (isTest ? 'test-anon-key' : '');
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');

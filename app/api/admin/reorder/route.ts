@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { revalidatePath } from 'next/cache';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+import { requireEditorAuth } from '@/lib/auth/server-auth';
 
 const MAX_REORDER_ITEMS = 200;
 
@@ -13,9 +12,7 @@ const MAX_REORDER_ITEMS = 200;
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const role = session?.user?.role;
-    if (!session?.user || (role !== 'admin' && role !== 'author')) {
+    if (!(await requireEditorAuth())) {
       return apiUnauthorized('Unauthorized');
     }
 

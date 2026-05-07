@@ -7,8 +7,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { contentRepository } from '@/lib/data/factory';
 import { CreatePostSchema, PaginationSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
@@ -23,17 +21,9 @@ import {
   apiTooManyRequests,
   apiUnauthorized,
 } from '@/lib/api/responses';
+import { requireEditorAuth } from '@/lib/auth/server-auth';
 
 // Helper to check editor role
-async function requireEditor() {
-  const session = await getServerSession(authOptions);
-  const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'author')) {
-    return null;
-  }
-  return session;
-}
-
 function unauthorized() {
   return apiUnauthorized();
 }
@@ -42,7 +32,7 @@ function unauthorized() {
 
 export async function GET(request: NextRequest) {
   // Check authentication
-  if (!(await requireEditor())) return unauthorized();
+  if (!(await requireEditorAuth())) return unauthorized();
 
   // Rate limiting
   const identifier = getClientIdentifier(request);
@@ -89,8 +79,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   // Check authentication
-  const session = await requireEditor();
-  if (!session) return unauthorized();
+  if (!(await requireEditorAuth())) return unauthorized();
 
   // Rate limiting
   const identifier = getClientIdentifier(request);

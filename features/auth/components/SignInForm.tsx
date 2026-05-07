@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
-import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
+import { resolveSafeCallbackPath } from '@/lib/auth/safe-callback';
 
 export function SignInForm() {
   const router = useRouter();
@@ -23,22 +24,22 @@ export function SignInForm() {
     setError(null);
     setLoading(true);
     try {
-      const res = await signIn('credentials', {
-        email,
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
         password,
-        redirect: false,
-        callbackUrl,
       });
-      if (res?.error) {
-        if (res.error.toLowerCase() === 'configuration') {
-          router.push('/auth/error?error=Configuration' as Route);
+
+      if (signInError) {
+        const message = signInError.message.toLowerCase();
+        if (message.includes('email not confirmed')) {
+          setError('Email chưa được xác nhận. Vui lòng kiểm tra hộp thư của bạn.');
           return;
         }
         setError('Email hoặc mật khẩu không đúng.');
         return;
       }
-      const safe =
-        typeof callbackUrl === 'string' && callbackUrl.startsWith('/') ? callbackUrl : '/';
+
+      const safe = resolveSafeCallbackPath(callbackUrl);
       router.push(safe as Route);
       router.refresh();
     } finally {

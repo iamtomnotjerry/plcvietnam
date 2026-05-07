@@ -8,13 +8,19 @@ import { render, screen } from '@testing-library/react';
 import { CommentSection } from './CommentSection';
 import type { Comment } from '@/lib/types/domain';
 
-// Mock next-auth/react
-const mockUseSession = vi.fn();
+const mockUseSupabaseAuth = vi.fn();
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
-  signIn: vi.fn(),
-  signOut: vi.fn(),
+vi.mock('../hooks/useSupabaseAuth', () => ({
+  useSupabaseAuth: () => mockUseSupabaseAuth(),
+}));
+
+vi.mock('@/lib/supabase/client', () => ({
+  supabase: {
+    auth: {
+      signInWithOAuth: vi.fn(),
+      signOut: vi.fn(),
+    },
+  },
 }));
 
 vi.mock('next/link', () => ({
@@ -57,7 +63,7 @@ describe('CommentSection', () => {
 
   describe('Unauthenticated state', () => {
     beforeEach(() => {
-      mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated' });
+      mockUseSupabaseAuth.mockReturnValue({ user: null, session: null, status: 'unauthenticated' });
     });
 
     it('shows sign-in prompt when unauthenticated', () => {
@@ -66,11 +72,12 @@ describe('CommentSection', () => {
       expect(screen.getByText(/Đăng nhập để bình luận/)).toBeInTheDocument();
     });
 
-    it('shows social login buttons when unauthenticated', () => {
+    it('shows social login buttons when unauthenticated', async () => {
       render(<CommentSection {...defaultProps} />);
 
-      expect(screen.getByRole('button', { name: /Đăng nhập với Google/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Đăng nhập với Facebook/i })).toBeInTheDocument();
+      expect(
+        await screen.findByRole('button', { name: /Đăng nhập với Google/i })
+      ).toBeInTheDocument();
     });
 
     it('does not show comment form when unauthenticated', () => {
@@ -82,14 +89,14 @@ describe('CommentSection', () => {
 
   describe('Loading state', () => {
     it('shows loading skeleton while session is loading', () => {
-      mockUseSession.mockReturnValue({ data: null, status: 'loading' });
+      mockUseSupabaseAuth.mockReturnValue({ user: null, session: null, status: 'loading' });
       render(<CommentSection {...defaultProps} />);
 
       expect(screen.getByLabelText('Đang tải...')).toBeInTheDocument();
     });
 
     it('does not show comment form while loading', () => {
-      mockUseSession.mockReturnValue({ data: null, status: 'loading' });
+      mockUseSupabaseAuth.mockReturnValue({ user: null, session: null, status: 'loading' });
       render(<CommentSection {...defaultProps} />);
 
       expect(screen.queryByRole('textbox', { name: /bình luận/i })).not.toBeInTheDocument();
@@ -98,10 +105,25 @@ describe('CommentSection', () => {
 
   describe('Authenticated state', () => {
     beforeEach(() => {
-      mockUseSession.mockReturnValue({
-        data: {
-          user: { name: 'Trần Thị B', email: 'b@example.com', image: null },
-          expires: '2099-01-01',
+      mockUseSupabaseAuth.mockReturnValue({
+        user: {
+          id: 'a0a2ae86-cf2b-4f5b-a5c7-d2f1c2412e9c',
+          email: 'b@example.com',
+          user_metadata: {
+            full_name: 'Trần Thị B',
+            avatar_url: null,
+          },
+        },
+        session: {
+          access_token: 'token',
+          refresh_token: 'refresh',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: {
+            id: 'a0a2ae86-cf2b-4f5b-a5c7-d2f1c2412e9c',
+            email: 'b@example.com',
+            user_metadata: { full_name: 'Trần Thị B', avatar_url: null },
+          },
         },
         status: 'authenticated',
       });
@@ -125,15 +147,12 @@ describe('CommentSection', () => {
       expect(
         screen.queryByRole('button', { name: /Đăng nhập với Google/i })
       ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: /Đăng nhập với Facebook/i })
-      ).not.toBeInTheDocument();
     });
   });
 
   describe('Comment list rendering', () => {
     beforeEach(() => {
-      mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated' });
+      mockUseSupabaseAuth.mockReturnValue({ user: null, session: null, status: 'unauthenticated' });
     });
 
     it('shows empty state when no comments', () => {

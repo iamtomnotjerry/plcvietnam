@@ -5,14 +5,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { apiUnauthorized } from '@/lib/api/responses';
+import { requireEditorAuth } from '@/lib/auth/server-auth';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'author')) {
+  if (!(await requireEditorAuth())) {
     return apiUnauthorized();
   }
 

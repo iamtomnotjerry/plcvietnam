@@ -2,12 +2,11 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
-import { useSession } from 'next-auth/react';
+import { useAdminRole } from '@/features/auth/hooks/useAdminRole';
 
 export function AdminHeaderLink() {
-  const { data } = useSession();
-  const role = data?.user?.role;
-  if (role !== 'admin' && role !== 'author') return null;
+  const { isEditor } = useAdminRole();
+  if (!isEditor) return null;
   return (
     <Link
       href={'/admin/posts' as Route}

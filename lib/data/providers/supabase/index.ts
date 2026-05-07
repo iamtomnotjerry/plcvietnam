@@ -732,9 +732,9 @@ export class SupabaseProvider implements ContentRepository {
       .insert({
         post_id: input.postId,
         parent_id: input.parentId ?? null,
-        user_id: input.userId || null,
+        user_id: input.userId ?? null,
         author_name: input.userName,
-        author_email: '',
+        author_email: input.userEmail ?? '',
         author_avatar: input.userAvatar ?? null,
         content: input.content,
         is_approved: true, // Auto-approve authenticated users

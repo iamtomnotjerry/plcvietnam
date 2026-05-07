@@ -5,12 +5,12 @@
 
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { SignInButton } from './SignInButton';
 import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
 import { SocialLoginPrompt } from './SocialLoginPrompt';
 import type { Comment } from '@/lib/types/domain';
+import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 
 interface CommentSectionProps {
   postId: string;
@@ -20,7 +20,7 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({ postId, postSlug, comments, onSubmit }: CommentSectionProps) {
-  const { status } = useSession();
+  const { status } = useSupabaseAuth();
 
   // Count total including replies
   const countAll = (list: Comment[]): number =>

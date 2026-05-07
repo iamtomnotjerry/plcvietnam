@@ -13,7 +13,6 @@ Canonical reference is `.env.example`.
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `NEXTAUTH_SECRET`
 - OAuth provider keys when enabled
 
 ## Operational Guidance

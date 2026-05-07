@@ -5,10 +5,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { uploadFile } from '@/lib/supabase/storage';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+import { requireEditorAuth } from '@/lib/auth/server-auth';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -19,9 +18,8 @@ function unauthorized() {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'author')) {
+  const auth = await requireEditorAuth();
+  if (!auth) {
     return unauthorized();
   }
 
@@ -58,9 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const safeUserId =
-    typeof session.user.id === 'string' && session.user.id.trim()
-      ? session.user.id.trim()
-      : 'unknown';
+    typeof auth.userId === 'string' && auth.userId.trim() ? auth.userId.trim() : 'unknown';
   const targetPath =
     providedPath && providedPath.startsWith(`uploads/${safeUserId}/`)
       ? providedPath

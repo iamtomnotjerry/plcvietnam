@@ -1,50 +1,60 @@
-/**
- * Next.js Middleware
- * - Protects /admin routes: requires authenticated session with admin/author role
- * - Protects /api/admin routes: same requirement
- * - Redirects unauthenticated users to sign-in
- * - Type-safe with NextAuth
- */
-
-import { withAuth } from 'next-auth/middleware';
-import { NextResponse } from 'next/server';
-import type { NextRequestWithAuth } from 'next-auth/middleware';
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
 type UserRole = 'admin' | 'author' | 'reader';
 
-export default withAuth(
-  function middleware(req: NextRequestWithAuth) {
-    const token = req.nextauth.token;
-    const role = token?.role as UserRole | undefined;
-    const pathname = req.nextUrl.pathname;
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next({ request });
 
-    // Admin routes require admin or author role
-    if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-      if (role !== 'admin' && role !== 'author') {
-        if (pathname.startsWith('/api/')) {
-          return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 });
-        }
-        return NextResponse.redirect(
-          new URL('/auth/sign-in?callbackUrl=' + encodeURIComponent(pathname), req.url)
-        );
-      }
-    }
-
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized({ token, req }) {
-        const pathname = req.nextUrl.pathname;
-        // Admin routes require authentication
-        if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-          return Boolean(token);
-        }
-        return true;
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
       },
-    },
+    }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    if (request.nextUrl.pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.redirect(
+      new URL(
+        `/auth/sign-in?callbackUrl=${encodeURIComponent(request.nextUrl.pathname)}`,
+        request.url
+      )
+    );
   }
-);
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+  const role = (profile?.role ?? 'reader') as UserRole;
+
+  if (role !== 'admin' && role !== 'author') {
+    if (request.nextUrl.pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 });
+    }
+    return NextResponse.redirect(new URL('/auth/sign-in', request.url));
+  }
+
+  return response;
+}
 
 export const config = {
   matcher: ['/admin/:path*', '/api/admin/:path*'],

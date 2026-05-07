@@ -5,8 +5,8 @@ Update this file whenever API contracts, security posture, or architecture behav
 
 ## Last Updated
 
-- Date: 2026-05-06
-- Scope: API/admin hardening, frontend a11y/fetch consistency, validation contract fixes, docs+ops expansion
+- Date: 2026-05-07
+- Scope: API/admin hardening, frontend a11y/fetch consistency, validation contract fixes, docs+ops expansion, Supabase OAuth migration, Supabase auth unification
 
 ## API Contract Status
 
@@ -25,6 +25,14 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Upload endpoint validates file type/size and sanitizes upload path.
 - Upload endpoint now restricts provided path prefix to `uploads/{userId}/...` and storage write uses `upsert: false`.
 - Reset password endpoint no longer exposes raw internal error text.
+- Google login flow now runs through Supabase OAuth (`signInWithOAuth`) with callback exchange at `/auth/callback`.
+- Comment auth state is now derived from Supabase session in client (`useSupabaseAuth`) and no longer depends on NextAuth for social login.
+- `POST /api/comments` now validates auth via Supabase server session (`supabase.auth.getUser()`).
+- Comment login prompts are simplified to a single Google provider path for consistent behavior.
+- Admin API auth checks now use centralized Supabase auth context (`lib/auth/server-auth.ts`) instead of `getServerSession`.
+- Middleware now enforces `/admin` and `/api/admin` access using Supabase session + profile role (`admin`/`author`), aligning guard behavior with runtime auth source.
+- Header/editor UI role checks (`UserMenu`, `AdminHeaderLink`, `PostDetail` edit actions) now read Supabase-backed auth state.
+- Legacy NextAuth runtime has been removed (`next-auth` package, API route, and ambient types), leaving Supabase as the single auth source.
 
 ## Reliability and Maintainability Updates
 

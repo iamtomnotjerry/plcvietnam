@@ -5,11 +5,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+import { requireAdminAuth } from '@/lib/auth/server-auth';
 
 type UserRole = Database['public']['Enums']['user_role'];
 
@@ -17,15 +16,9 @@ function unauthorized() {
   return apiUnauthorized();
 }
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== 'admin') return null;
-  return session;
-}
-
 /** GET /api/admin/users?page=&limit= */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
 
   const { searchParams } = new URL(request.url);
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
@@ -48,8 +41,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 /** PATCH /api/admin/users  body: { id, role } */
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  const session = await requireAdmin();
-  if (!session) return unauthorized();
+  const auth = await requireAdminAuth();
+  if (!auth) return unauthorized();
 
   let body: { id?: string; role?: string };
   try {
@@ -66,7 +59,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   }
 
   // Prevent admin from demoting themselves
-  if (body.id === session.user.id && body.role !== 'admin') {
+  if (body.id === auth.userId && body.role !== 'admin') {
     return apiBadRequest('Không thể thay đổi role của chính mình');
   }
 

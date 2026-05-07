@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { contentRepository } from '@/lib/data/factory';
 import { UpdatePostSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
@@ -16,20 +14,14 @@ import {
   apiTooManyRequests,
   apiUnauthorized,
 } from '@/lib/api/responses';
+import { requireEditorAuth } from '@/lib/auth/server-auth';
 
 function unauthorized() {
   return apiUnauthorized();
 }
 
-async function requireEditor() {
-  const session = await getServerSession(authOptions);
-  const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
-  return session;
-}
-
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  if (!(await requireEditor())) return unauthorized();
+  if (!(await requireEditorAuth())) return unauthorized();
   const { id } = await context.params;
   const post = await contentRepository.getPostById(id);
   if (!post) return apiNotFound('Không tìm thấy');
@@ -37,7 +29,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
 }
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  if (!(await requireEditor())) return unauthorized();
+  if (!(await requireEditorAuth())) return unauthorized();
 
   // Rate limiting
   const identifier = getClientIdentifier(request);
@@ -120,7 +112,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 }
 
 export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  if (!(await requireEditor())) return unauthorized();
+  if (!(await requireEditorAuth())) return unauthorized();
   const { id } = await context.params;
   const ok = await contentRepository.deletePost(id);
   if (!ok) return apiNotFound('Không tìm thấy');

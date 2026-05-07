@@ -64,7 +64,8 @@ export interface SearchResults {
 export interface CreateCommentInput {
   postId: string;
   parentId?: string | null;
-  userId: string;
+  userId?: string | null;
+  userEmail?: string;
   userName: string;
   userAvatar?: string;
   content: string;

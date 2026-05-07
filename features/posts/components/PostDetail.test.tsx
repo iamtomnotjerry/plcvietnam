@@ -4,9 +4,12 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { SessionProvider } from 'next-auth/react';
 import { PostDetail } from './PostDetail';
 import type { Post, Author, Category, Field } from '@/lib/types/domain';
+
+vi.mock('@/features/auth/hooks/useAdminRole', () => ({
+  useAdminRole: () => ({ role: null, isEditor: false, loading: false }),
+}));
 
 // Mock child components
 vi.mock('./PostContent', () => ({
@@ -45,11 +48,6 @@ vi.mock('next/navigation', () => ({
     refresh: vi.fn(),
   }),
 }));
-
-// Helper function to render with SessionProvider
-const renderWithSession = (ui: React.ReactElement) => {
-  return render(<SessionProvider session={null}>{ui}</SessionProvider>);
-};
 
 describe('PostDetail', () => {
   const mockAuthor: Author = {
@@ -122,7 +120,7 @@ describe('PostDetail', () => {
   });
 
   it('renders breadcrumb navigation', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByText('Trang chủ')).toBeInTheDocument();
     expect(screen.getByText('PLC Programming')).toBeInTheDocument();
@@ -132,58 +130,58 @@ describe('PostDetail', () => {
   });
 
   it('renders post title', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     const title = screen.getByRole('heading', { level: 1 });
     expect(title).toHaveTextContent('Test Post Title');
   });
 
   it('renders author information', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByAltText('John Doe')).toBeInTheDocument();
   });
 
   it('renders publication date', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     // Vietnamese date format
     expect(screen.getByText(/15 tháng 1, 2024/i)).toBeInTheDocument();
   });
 
   it('renders reading time', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByText('5 phút đọc')).toBeInTheDocument();
   });
 
   it('renders view count', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByText('1.234 lượt xem')).toBeInTheDocument();
   });
 
   it('renders social share component', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByTestId('social-share')).toBeInTheDocument();
   });
 
   it('renders post content', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByTestId('post-content')).toBeInTheDocument();
   });
 
   it('renders table of contents', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByTestId('table-of-contents')).toBeInTheDocument();
   });
 
   it('renders tags section', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByText('Thẻ:')).toBeInTheDocument();
     expect(screen.getByText('#PLC')).toBeInTheDocument();
@@ -191,7 +189,7 @@ describe('PostDetail', () => {
   });
 
   it('renders tag links with correct href', () => {
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={mockRelatedPosts} />);
 
     const plcLink = screen.getByText('#PLC').closest('a');
     expect(plcLink).toHaveAttribute('href', '/tags/plc');
@@ -202,21 +200,21 @@ describe('PostDetail', () => {
 
   it('does not render tags section when post has no tags', () => {
     const postWithoutTags = { ...mockPost, tags: [] };
-    renderWithSession(<PostDetail post={postWithoutTags} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={postWithoutTags} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.queryByText('Thẻ:')).not.toBeInTheDocument();
   });
 
   it('renders related posts component', () => {
     const relatedPosts = [mockPost];
-    renderWithSession(<PostDetail post={mockPost} relatedPosts={relatedPosts} />);
+    render(<PostDetail post={mockPost} relatedPosts={relatedPosts} />);
 
     expect(screen.getByTestId('related-posts')).toBeInTheDocument();
     expect(screen.getByText('Related: 1')).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
-    const { container } = renderWithSession(
+    const { container } = render(
       <PostDetail post={mockPost} relatedPosts={mockRelatedPosts} className="custom-class" />
     );
 
@@ -230,7 +228,7 @@ describe('PostDetail', () => {
       author: { ...mockAuthor, avatarUrl: undefined },
     };
 
-    renderWithSession(<PostDetail post={postWithoutAvatar} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={postWithoutAvatar} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.queryByAltText('John Doe')).not.toBeInTheDocument();
@@ -239,7 +237,7 @@ describe('PostDetail', () => {
   it('renders without author when not provided', () => {
     const postWithoutAuthor = { ...mockPost, author: undefined };
 
-    renderWithSession(<PostDetail post={postWithoutAuthor} relatedPosts={mockRelatedPosts} />);
+    render(<PostDetail post={postWithoutAuthor} relatedPosts={mockRelatedPosts} />);
 
     expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
   });

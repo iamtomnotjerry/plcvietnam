@@ -9,8 +9,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { CreateBookSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
@@ -25,14 +23,14 @@ import {
   apiTooManyRequests,
   apiUnauthorized,
 } from '@/lib/api/responses';
+import { requireAdminAuth } from '@/lib/auth/server-auth';
 
 interface Params {
   params: Promise<{ id: string }>;
 }
 
 export async function GET(_req: NextRequest, { params }: Params): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'admin') {
+  if (!(await requireAdminAuth())) {
     return apiUnauthorized('Unauthorized');
   }
 
@@ -44,8 +42,7 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
 }
 
 export async function PATCH(request: NextRequest, { params }: Params): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'admin') {
+  if (!(await requireAdminAuth())) {
     return apiUnauthorized('Unauthorized');
   }
 
@@ -104,8 +101,7 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params): Promise<NextResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'admin') {
+  if (!(await requireAdminAuth())) {
     return apiUnauthorized('Unauthorized');
   }
 

@@ -3,25 +3,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { revalidatePath } from 'next/cache';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
 import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+import { requireAdminAuth } from '@/lib/auth/server-auth';
 
 function unauthorized() {
   return apiUnauthorized();
 }
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== 'admin') return null;
-  return session;
-}
-
 export async function GET(): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
   try {
     const db = getServiceClient();
     const { data, error } = await db.from('fields').select('*').order('name');
@@ -34,7 +27,7 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
 
   let body: { slug?: string; name?: string; description?: string; icon?: string };
   try {
@@ -68,7 +61,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
 
   let body: { id?: string; slug?: string; name?: string; description?: string; icon?: string };
   try {
@@ -103,7 +96,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
 
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return apiBadRequest('Thiếu id');

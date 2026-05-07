@@ -7,7 +7,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { Post } from '@/lib/types/domain';
@@ -19,6 +18,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { categoryHref, fieldHref, tagHref } from '@/lib/utils/routes';
 import { PostComments } from '@/features/comments/components/PostComments';
+import { useAdminRole } from '@/features/auth/hooks/useAdminRole';
 
 export interface PostDetailProps {
   /**
@@ -63,14 +63,13 @@ export interface PostDetailProps {
  * - 14.1-14.5: Social sharing buttons
  */
 export function PostDetail({ post, relatedPosts, className = '' }: PostDetailProps) {
-  const { data: session } = useSession();
+  const { isEditor } = useAdminRole();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Check if user can edit/delete (admin or author)
-  const canEdit =
-    session?.user && (session.user.role === 'admin' || session.user.role === 'author');
+  const canEdit = isEditor;
 
   /**
    * Handle delete post

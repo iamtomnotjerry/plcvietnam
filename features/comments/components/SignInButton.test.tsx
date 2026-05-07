@@ -8,12 +8,19 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SignInButton } from './SignInButton';
 
-const mockSignOut = vi.fn();
-const mockUseSession = vi.fn();
+const mockSignOut = vi.fn().mockResolvedValue(undefined);
+const mockUseSupabaseAuth = vi.fn();
 
-vi.mock('next-auth/react', () => ({
-  useSession: () => mockUseSession(),
-  signOut: (...args: unknown[]) => mockSignOut(...args),
+vi.mock('../hooks/useSupabaseAuth', () => ({
+  useSupabaseAuth: () => mockUseSupabaseAuth(),
+}));
+
+vi.mock('@/lib/supabase/client', () => ({
+  supabase: {
+    auth: {
+      signOut: () => mockSignOut(),
+    },
+  },
 }));
 
 vi.mock('next/link', () => ({
@@ -45,7 +52,7 @@ describe('SignInButton', () => {
 
   describe('Loading state', () => {
     it('should display loading skeleton while session is loading', () => {
-      mockUseSession.mockReturnValue({ data: null, status: 'loading' });
+      mockUseSupabaseAuth.mockReturnValue({ user: null, session: null, status: 'loading' });
 
       render(<SignInButton />);
 
@@ -54,7 +61,7 @@ describe('SignInButton', () => {
     });
 
     it('should not show sign-in link while loading', () => {
-      mockUseSession.mockReturnValue({ data: null, status: 'loading' });
+      mockUseSupabaseAuth.mockReturnValue({ user: null, session: null, status: 'loading' });
 
       render(<SignInButton />);
 
@@ -64,7 +71,7 @@ describe('SignInButton', () => {
 
   describe('Unauthenticated state (Requirement 4.2)', () => {
     beforeEach(() => {
-      mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated' });
+      mockUseSupabaseAuth.mockReturnValue({ user: null, session: null, status: 'unauthenticated' });
     });
 
     it('should display sign-in link when not authenticated', () => {
@@ -84,19 +91,20 @@ describe('SignInButton', () => {
 
   describe('Authenticated state (Requirement 4.4)', () => {
     const mockSession = {
-      data: {
-        user: {
-          name: 'Nguyễn Văn A',
-          email: 'user@example.com',
-          image: 'https://example.com/avatar.jpg',
+      user: {
+        id: '26fcd2b2-803c-42f8-8aa8-81f6f8fa1c42',
+        email: 'user@example.com',
+        user_metadata: {
+          full_name: 'Nguyễn Văn A',
+          avatar_url: 'https://example.com/avatar.jpg',
         },
-        expires: '2099-01-01',
       },
+      session: { access_token: 'token' },
       status: 'authenticated' as const,
     };
 
     beforeEach(() => {
-      mockUseSession.mockReturnValue(mockSession);
+      mockUseSupabaseAuth.mockReturnValue(mockSession);
     });
 
     it('should display user name when authenticated', () => {
@@ -137,15 +145,16 @@ describe('SignInButton', () => {
 
   describe('Authenticated state without avatar', () => {
     it('should display initial letter fallback when user has no avatar', () => {
-      mockUseSession.mockReturnValue({
-        data: {
-          user: {
-            name: 'Trần Thị B',
-            email: 'user@example.com',
-            image: null,
+      mockUseSupabaseAuth.mockReturnValue({
+        user: {
+          id: '26fcd2b2-803c-42f8-8aa8-81f6f8fa1c42',
+          email: 'user@example.com',
+          user_metadata: {
+            full_name: 'Trần Thị B',
+            avatar_url: null,
           },
-          expires: '2099-01-01',
         },
+        session: { access_token: 'token' },
         status: 'authenticated',
       });
 

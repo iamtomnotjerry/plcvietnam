@@ -8,14 +8,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { contentRepository } from '@/lib/data/factory';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { CreateCommentSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 import { ZodError } from 'zod';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+import { createClient } from '@/lib/supabase/server';
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * GET /api/comments?postId=...
@@ -73,10 +74,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // Check authentication
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user) {
+  // Check authentication via Supabase Auth session
+  const supabase = await createClient();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  const authUser = authData.user;
+  if (authError || !authUser) {
     return apiUnauthorized('Bạn cần đăng nhập để bình luận');
   }
 
@@ -105,19 +107,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Create comment
   try {
-    const user = session.user as {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    };
+    const metadata = authUser.user_metadata ?? {};
+    const userId = UUID_PATTERN.test(authUser.id) ? authUser.id : null;
+    const userName =
+      (typeof metadata.full_name === 'string' && metadata.full_name) ||
+      (typeof metadata.name === 'string' && metadata.name) ||
+      authUser.email ||
+      'Anonymous';
+    const userAvatar =
+      (typeof metadata.avatar_url === 'string' && metadata.avatar_url) ||
+      (typeof metadata.picture === 'string' && metadata.picture) ||
+      undefined;
 
     const comment = await contentRepository.createComment({
       postId: validated.post_id,
       parentId: validated.parent_id ?? null,
-      userId: user.id ?? user.email ?? 'unknown',
-      userName: user.name ?? 'Anonymous',
-      userAvatar: user.image ?? undefined,
+      userId,
+      userEmail: authUser.email ?? '',
+      userName,
+      userAvatar,
       content: sanitizedContent,
     });
 

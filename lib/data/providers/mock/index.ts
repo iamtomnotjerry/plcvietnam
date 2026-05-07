@@ -460,7 +460,7 @@ export class MockProvider implements ContentRepository {
     const comment: Comment = {
       id: `comment-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       postId: input.postId,
-      userId: input.userId,
+      userId: input.userId ?? '',
       userName: input.userName,
       userAvatar: input.userAvatar,
       content: input.content,

@@ -5,10 +5,10 @@ import { SignInForm } from '@/features/auth/components/SignInForm';
 import { GoogleSignInBlock } from '@/features/auth/components/GoogleSignInBlock';
 
 const googleConfigured =
-  typeof process.env.GOOGLE_CLIENT_ID === 'string' &&
-  process.env.GOOGLE_CLIENT_ID.trim().length > 0 &&
-  typeof process.env.GOOGLE_CLIENT_SECRET === 'string' &&
-  process.env.GOOGLE_CLIENT_SECRET.trim().length > 0;
+  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === 'string' &&
+  process.env.NEXT_PUBLIC_SUPABASE_URL.trim().length > 0 &&
+  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'string' &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.trim().length > 0;
 
 export const metadata: Metadata = {
   title: 'Đăng nhập | PLC Việt Nam',
@@ -21,9 +21,6 @@ export default function SignInPage() {
       <h1 className="mb-2 text-center text-2xl font-semibold tracking-tight text-foreground">
         Đăng nhập
       </h1>
-      <p className="mb-8 text-center text-sm text-muted-foreground">
-        Demo mock — không dùng cho dữ liệu thật.
-      </p>
 
       <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-muted" />}>
         <SignInForm />

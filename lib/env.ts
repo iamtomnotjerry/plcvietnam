@@ -19,20 +19,6 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'NEXT_PUBLIC_SUPABASE_ANON_KEY is required'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY is required'),
 
-  // NextAuth
-  NEXTAUTH_SECRET: z.string().min(32, 'NEXTAUTH_SECRET must be at least 32 characters'),
-  NEXTAUTH_URL: z
-    .string()
-    .refine((v) => {
-      try {
-        new URL(v);
-        return true;
-      } catch {
-        return false;
-      }
-    }, 'NEXTAUTH_URL must be a valid URL')
-    .optional(),
-
   // Google OAuth (optional)
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -67,9 +53,6 @@ function validateEnv() {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'test-anon-key',
           SUPABASE_SERVICE_ROLE_KEY:
             process.env.SUPABASE_SERVICE_ROLE_KEY ?? 'test-service-role-key',
-          NEXTAUTH_SECRET:
-            process.env.NEXTAUTH_SECRET ?? 'test-nextauth-secret-with-minimum-32-chars',
-          NEXTAUTH_URL: process.env.NEXTAUTH_URL,
           GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
           GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
           UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,

@@ -5,8 +5,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
 import {
   apiBadRequest,
@@ -15,20 +13,15 @@ import {
   apiUnauthorized,
 } from '@/lib/api/responses';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { requireAdminAuth } from '@/lib/auth/server-auth';
 
 function unauthorized() {
   return apiUnauthorized();
 }
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== 'admin') return null;
-  return session;
-}
-
 /** GET /api/admin/comments?postId=&approved=&page=&limit= */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {
@@ -63,7 +56,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 /** PATCH /api/admin/comments  body: { id, approved } */
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {
@@ -95,7 +88,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
 /** DELETE /api/admin/comments?id= */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdmin())) return unauthorized();
+  if (!(await requireAdminAuth())) return unauthorized();
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {

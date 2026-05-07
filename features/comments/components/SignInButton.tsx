@@ -7,10 +7,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Route } from 'next';
-import { useSession, signOut } from 'next-auth/react';
+import { supabase } from '@/lib/supabase/client';
+import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 
 export function SignInButton() {
-  const { data: session, status } = useSession();
+  const { user, status } = useSupabaseAuth();
 
   if (status === 'loading') {
     return (
@@ -21,8 +22,9 @@ export function SignInButton() {
     );
   }
 
-  if (status === 'authenticated' && session?.user) {
-    const { name, image } = session.user;
+  if (status === 'authenticated' && user) {
+    const name = user.user_metadata?.full_name ?? user.email ?? 'User';
+    const image = (user.user_metadata?.avatar_url as string | undefined) ?? undefined;
 
     return (
       <div className="flex items-center gap-3">
@@ -47,7 +49,9 @@ export function SignInButton() {
 
         <button
           type="button"
-          onClick={() => signOut()}
+          onClick={() => {
+            void supabase.auth.signOut();
+          }}
           className="cursor-pointer text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-destructive hover:underline"
           aria-label="Đăng xuất khỏi tài khoản"
         >

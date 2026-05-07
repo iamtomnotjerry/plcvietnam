@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { contentRepository } from '@/lib/data/factory';
 import { z } from 'zod';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
+import { requireEditorAuth } from '@/lib/auth/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,20 +20,13 @@ function unauthorized() {
   return apiUnauthorized();
 }
 
-async function requireEditor() {
-  const session = await getServerSession(authOptions);
-  const role = session?.user?.role;
-  if (!session?.user || (role !== 'admin' && role !== 'author')) return null;
-  return session;
-}
-
 /**
  * PUT /api/admin/author
  * Update author information
  */
 export async function PUT(request: NextRequest) {
   try {
-    if (!(await requireEditor())) return unauthorized();
+    if (!(await requireEditorAuth())) return unauthorized();
 
     const payload = UpdateAuthorPayloadSchema.safeParse(await request.json());
     if (!payload.success) {
