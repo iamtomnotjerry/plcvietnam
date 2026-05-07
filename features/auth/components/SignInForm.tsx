@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
 import { resolveSafeCallbackPath } from '@/lib/auth/safe-callback';
 
 export function SignInForm() {
@@ -24,18 +23,26 @@ export function SignInForm() {
     setError(null);
     setLoading(true);
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const response = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
       });
 
-      if (signInError) {
-        const message = signInError.message.toLowerCase();
-        if (message.includes('email not confirmed')) {
-          setError('Email chưa được xác nhận. Vui lòng kiểm tra hộp thư của bạn.');
-          return;
-        }
-        setError('Email hoặc mật khẩu không đúng.');
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: { message?: string } | string;
+        };
+        const message =
+          typeof data.error === 'string'
+            ? data.error
+            : typeof data.error?.message === 'string'
+              ? data.error.message
+              : 'Đăng nhập thất bại. Vui lòng thử lại.';
+        setError(message);
         return;
       }
 

@@ -6,6 +6,7 @@
 
 import { getAnonClient, getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
+import { normalizeEmail } from '@/lib/auth/security';
 
 type UserRole = Database['public']['Enums']['user_role'];
 
@@ -27,13 +28,14 @@ export interface AuthUser {
 
 export async function registerUser(input: RegisterInput): Promise<AuthUser> {
   const supabase = getAnonClient();
+  const normalizedEmail = normalizeEmail(input.email);
 
   const siteUrl =
     process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const emailRedirectTo = `${siteUrl}/auth/confirmed`;
+  const emailRedirectTo = `${siteUrl}/auth/callback?next=/auth/confirmed`;
 
   const { data, error } = await supabase.auth.signUp({
-    email: input.email,
+    email: normalizedEmail,
     password: input.password,
     options: {
       data: { full_name: input.name },
@@ -52,45 +54,25 @@ export async function registerUser(input: RegisterInput): Promise<AuthUser> {
 
   // Create profile record using service client
   const admin = getServiceClient();
-  await admin.from('profiles').upsert({
+  const { error: profileError } = await admin.from('profiles').upsert({
     id: data.user.id,
-    email: input.email,
+    email: normalizedEmail,
     full_name: input.name,
     role: 'reader',
   });
+  if (profileError) {
+    console.error('[register/profile-upsert]', {
+      userId: data.user.id,
+      reason: profileError.message,
+    });
+    throw new Error('PROFILE_SETUP_FAILED');
+  }
 
   return {
     id: data.user.id,
-    email: input.email,
+    email: normalizedEmail,
     name: input.name,
     role: 'reader',
-  };
-}
-
-// ── Sign In ───────────────────────────────────────────────────────────────────
-
-export async function signInWithPassword(
-  email: string,
-  password: string
-): Promise<AuthUser | null> {
-  const supabase = getAnonClient();
-
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error || !data.user) return null;
-
-  // Fetch role from profiles
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name, avatar_url')
-    .eq('id', data.user.id)
-    .single();
-
-  return {
-    id: data.user.id,
-    email: data.user.email ?? email,
-    name: profile?.full_name ?? data.user.user_metadata?.full_name ?? email.split('@')[0],
-    role: profile?.role ?? 'reader',
-    avatarUrl: profile?.avatar_url ?? data.user.user_metadata?.avatar_url,
   };
 }
 
@@ -98,7 +80,9 @@ export async function signInWithPassword(
 
 export async function requestPasswordReset(email: string, redirectTo: string): Promise<void> {
   const supabase = getAnonClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  const { error } = await supabase.auth.resetPasswordForEmail(normalizeEmail(email), {
+    redirectTo,
+  });
   if (error) throw new Error(error.message);
 }
 

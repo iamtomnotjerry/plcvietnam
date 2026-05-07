@@ -11,7 +11,7 @@ export default function ResetPasswordPage() {
       <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
         <h1 className="mb-2 font-serif text-2xl font-semibold">Đặt lại mật khẩu</h1>
         <p className="mb-6 text-sm text-muted-foreground">
-          Nhập token và mật khẩu mới (tối thiểu 8 ký tự).
+          Nhập mật khẩu mới (tối thiểu 8 ký tự) sau khi mở link từ email.
         </p>
         <ResetPasswordForm />
       </div>

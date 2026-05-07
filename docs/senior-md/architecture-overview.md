@@ -16,7 +16,7 @@
 
 ## Auth and Access
 
-- Auth is configured via NextAuth in `lib/auth/config.ts`.
+- Auth is unified on Supabase Auth (`@supabase/ssr` + `@supabase/supabase-js`).
 - Middleware protects `/admin` and `/api/admin` paths.
 - Sensitive admin handlers should also enforce route-level role checks (defense in depth).
 

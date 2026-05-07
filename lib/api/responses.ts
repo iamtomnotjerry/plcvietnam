@@ -41,6 +41,10 @@ export function apiUnauthorized(message = 'Không có quyền'): NextResponse<Er
   return apiError(401, 'UNAUTHORIZED', message);
 }
 
+export function apiForbidden(message = 'Không được phép'): NextResponse<ErrorBody> {
+  return apiError(403, 'FORBIDDEN', message);
+}
+
 export function apiBadRequest(message: string): NextResponse<ErrorBody> {
   return apiError(400, 'BAD_REQUEST', message);
 }

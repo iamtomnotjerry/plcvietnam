@@ -11,7 +11,7 @@ export default function ForgotPasswordPage() {
       <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
         <h1 className="mb-2 font-serif text-2xl font-semibold">Quên mật khẩu</h1>
         <p className="mb-6 text-sm text-muted-foreground">
-          Bản demo: không gửi email. Trong development, API trả về token để thử reset.
+          Nhập email để nhận liên kết đặt lại mật khẩu qua Supabase.
         </p>
         <ForgotPasswordForm />
       </div>

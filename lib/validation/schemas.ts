@@ -47,7 +47,8 @@ export const PasswordSchema = z
   .max(100, 'Mật khẩu không được vượt quá 100 ký tự')
   .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa')
   .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất 1 chữ thường')
-  .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 số');
+  .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 số')
+  .regex(/[^A-Za-z0-9]/, 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt');
 
 // Pagination schema
 export const PaginationSchema = z.object({

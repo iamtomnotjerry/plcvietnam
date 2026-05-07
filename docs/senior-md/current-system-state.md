@@ -6,7 +6,7 @@ Update this file whenever API contracts, security posture, or architecture behav
 ## Last Updated
 
 - Date: 2026-05-07
-- Scope: API/admin hardening, frontend a11y/fetch consistency, validation contract fixes, docs+ops expansion, Supabase OAuth migration, Supabase auth unification
+- Scope: API/admin hardening, frontend a11y/fetch consistency, validation contract fixes, docs+ops expansion, Supabase OAuth migration, Supabase auth unification, auth contract consistency hardening, auth CSRF hardening + anti-enumeration + abuse controls
 
 ## API Contract Status
 
@@ -33,6 +33,19 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Middleware now enforces `/admin` and `/api/admin` access using Supabase session + profile role (`admin`/`author`), aligning guard behavior with runtime auth source.
 - Header/editor UI role checks (`UserMenu`, `AdminHeaderLink`, `PostDetail` edit actions) now read Supabase-backed auth state.
 - Legacy NextAuth runtime has been removed (`next-auth` package, API route, and ambient types), leaving Supabase as the single auth source.
+- Password sign-in now goes through server route `POST /api/auth/sign-in` with layered throttling (IP + IP/email hash) and structured auth audit logging.
+- Password recovery and email confirmation callbacks are unified through `/auth/callback` to reduce flow divergence.
+- `POST /api/auth/register`, `POST /api/auth/forgot-password`, and `POST /api/auth/reset-password` now return standardized `429` errors via shared `apiTooManyRequests(...)`.
+- Reset-password now has explicit route-level rate limiting (`auth` limiter namespace with reset-password identifier suffix).
+- Registration now validates profile provisioning write result and fails closed if profile setup does not persist.
+- Auth POST routes (`sign-in`, `register`, `forgot-password`, `reset-password`) now apply same-origin guard (`sec-fetch-site` + `origin`/`referer` trust check) to reduce CSRF surface.
+- Registration now normalizes email before signup and returns indistinguishable success for existing email (`EMAIL_TAKEN`) to reduce account enumeration signal.
+- Forgot-password now normalizes email before requesting Supabase recovery email for consistent identity handling.
+- Register and forgot-password now apply layered abuse throttling (IP and `ip+emailHash`) to reduce targeted identity spraying.
+- Auth flow now records structured audit events for signup, forgot-password, and reset-password outcomes/rate-limits/input-validation failures.
+- Reset-password API now validates `{ password, confirmPassword }` server-side through `ResetPasswordSchema` to prevent mismatch bypass from direct API calls.
+- Reset-password client now bootstraps Supabase session from URL hash recovery tokens (`#access_token`, `#refresh_token`) before submitting API call, then clears hash from browser URL.
+- Password policy has been aligned across UI and API validation to require uppercase, lowercase, digit, and special character (in addition to minimum length).
 
 ## Reliability and Maintainability Updates
 
@@ -75,3 +88,4 @@ Core docs are present for senior-level onboarding and operations:
 - Expand API contract tests for additional admin routes (`reorder`, `upload`, `users`, `posts` PATCH/DELETE edge cases).
 - Add request correlation IDs and structured log schema in runtime code.
 - Move multi-step post/tag mutations to transactional DB flow (RPC/transaction).
+- Add focused API tests for `register` and `reset-password` rate-limit and error-contract paths.

@@ -8,7 +8,6 @@ export function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [devToken, setDevToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
@@ -16,7 +15,6 @@ export function ForgotPasswordForm() {
     setLoading(true);
     setError(null);
     setMessage(null);
-    setDevToken(null);
     try {
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
@@ -25,20 +23,21 @@ export function ForgotPasswordForm() {
       });
       const data = (await res.json()) as {
         ok?: boolean;
-        error?: string;
-        devResetToken?: string;
-        message?: string;
+        error?: { message?: string } | string;
       };
       if (!res.ok) {
-        setError(data.error || 'Có lỗi xảy ra');
+        const message =
+          typeof data.error === 'string'
+            ? data.error
+            : typeof data.error?.message === 'string'
+              ? data.error.message
+              : 'Có lỗi xảy ra';
+        setError(message);
         return;
       }
       setMessage(
-        'Nếu email tồn tại trong hệ thống demo, bạn có thể đặt lại mật khẩu (xem hướng dẫn bên dưới trong môi trường dev).'
+        'Nếu email tồn tại trong hệ thống, chúng tôi đã gửi link đặt lại mật khẩu. Vui lòng kiểm tra hộp thư của bạn.'
       );
-      if (typeof data.devResetToken === 'string') {
-        setDevToken(data.devResetToken);
-      }
     } catch {
       setError('Không gửi được yêu cầu');
     } finally {
@@ -55,18 +54,6 @@ export function ForgotPasswordForm() {
       )}
       {message && (
         <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">{message}</p>
-      )}
-      {devToken && (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-          <p className="font-medium text-amber-900 dark:text-amber-100">Development only</p>
-          <p className="mt-1 break-all font-mono text-xs">{devToken}</p>
-          <Link
-            href={`/auth/reset-password?token=${encodeURIComponent(devToken)}` as Route}
-            className="mt-2 inline-block text-sm font-medium text-primary underline"
-          >
-            Mở trang đặt lại mật khẩu
-          </Link>
-        </div>
       )}
       <div>
         <label htmlFor="forgot-email" className="mb-1 block text-sm font-medium">

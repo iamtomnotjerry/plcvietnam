@@ -20,11 +20,19 @@ export function SignUpForm() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ full_name: name, email, password }),
       });
-      const data = await res.json().catch(() => ({}));
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: { message?: string } | string;
+      };
       if (!res.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Đăng ký thất bại');
+        const message =
+          typeof data.error === 'string'
+            ? data.error
+            : typeof data.error?.message === 'string'
+              ? data.error.message
+              : 'Đăng ký thất bại';
+        setError(message);
         return;
       }
       setRegistered(true);

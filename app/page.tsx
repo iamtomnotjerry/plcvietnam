@@ -4,7 +4,6 @@
  * Validates Requirements: 11.1, 11.6, 11.7
  */
 
-import { Suspense } from 'react';
 import { contentRepository } from '@/lib/data/factory';
 import {
   HeroSection,
@@ -14,7 +13,6 @@ import {
 } from '@/features/homepage/components';
 import { generateWebSiteSchema, renderJsonLd } from '@/lib/utils/structuredData';
 import { ErrorRetryButton } from '@/components/ui/ErrorRetryButton';
-import { EmailConfirmRedirect } from '@/components/auth/EmailConfirmRedirect';
 
 export const revalidate = 900;
 
@@ -51,11 +49,6 @@ export default async function HomePage() {
             __html: renderJsonLd(generateWebSiteSchema(baseUrl)),
           }}
         />
-
-        {/* Detect email confirmation redirect from Supabase */}
-        <Suspense fallback={null}>
-          <EmailConfirmRedirect />
-        </Suspense>
 
         {/* Hero Section */}
         <HeroSection

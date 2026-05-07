@@ -49,4 +49,21 @@ describe('forgot-password', () => {
     const json = await res.json();
     expect(json.ok).toBe(true);
   });
+
+  it('returns 403 for cross-site request', async () => {
+    const res = await forgotPost(
+      new NextRequest('http://localhost/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'sec-fetch-site': 'cross-site',
+        },
+        body: JSON.stringify({ email: 'user@example.com' }),
+      })
+    );
+
+    expect(res.status).toBe(403);
+    const json = await res.json();
+    expect(json.error?.code).toBe('FORBIDDEN');
+  });
 });

@@ -15,11 +15,6 @@ vi.mock('@/lib/data/factory', () => ({
   },
 }));
 
-// Mock EmailConfirmRedirect — uses useRouter which requires app router context
-vi.mock('@/components/auth/EmailConfirmRedirect', () => ({
-  EmailConfirmRedirect: () => null,
-}));
-
 // Mock the homepage components
 vi.mock('@/features/homepage/components', () => ({
   HeroSection: ({ title, tagline }: { title: string; tagline: string }) => (
