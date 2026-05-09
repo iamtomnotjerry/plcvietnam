@@ -11,6 +11,11 @@ vi.mock('@/lib/rate-limit', () => ({
   getClientIdentifier: vi.fn(),
 }));
 
+vi.mock('@/lib/auth/captcha', () => ({
+  isCaptchaEnabled: vi.fn(() => false),
+  verifyCaptchaToken: vi.fn(async () => true),
+}));
+
 describe('register route', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -60,5 +65,28 @@ describe('register route', () => {
 
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ ok: true });
+  });
+
+  it('returns 400 when captcha verification fails', async () => {
+    const { isCaptchaEnabled, verifyCaptchaToken } = await import('@/lib/auth/captcha');
+    vi.mocked(isCaptchaEnabled).mockReturnValueOnce(true);
+    vi.mocked(verifyCaptchaToken).mockResolvedValueOnce(false);
+
+    const res = await registerPost(
+      new NextRequest('http://localhost/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'captcha@example.com',
+          password: 'StrongPass1!',
+          full_name: 'Captcha User',
+          captchaToken: 'bad-token',
+        }),
+      })
+    );
+
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error?.message).toContain('Xác minh bảo mật thất bại');
   });
 });

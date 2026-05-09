@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
+import { TurnstileField } from '@/features/auth/components/TurnstileField';
 
 export function SignUpForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
+  const captchaEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +23,7 @@ export function SignUpForm() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: name, email, password }),
+        body: JSON.stringify({ full_name: name, email, password, captchaToken }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         error?: { message?: string } | string;
@@ -126,11 +129,12 @@ export function SignUpForm() {
       </div>
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || (captchaEnabled && !captchaToken)}
         className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
       >
         {loading ? 'Đang tạo tài khoản…' : 'Đăng ký'}
       </button>
+      <TurnstileField onTokenChange={setCaptchaToken} />
       <p className="text-center text-sm text-muted-foreground">
         Đã có tài khoản?{' '}
         <Link href={'/auth/sign-in' as Route} className="font-medium text-primary hover:underline">

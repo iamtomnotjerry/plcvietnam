@@ -13,6 +13,10 @@ Canonical reference is `.env.example`.
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `UPSTASH_REDIS_REST_URL` (required in production)
+- `UPSTASH_REDIS_REST_TOKEN` (required when Upstash URL is set)
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (required together with Turnstile secret)
+- `TURNSTILE_SECRET_KEY` (required together with Turnstile site key)
 - OAuth provider keys when enabled
 
 ## Operational Guidance

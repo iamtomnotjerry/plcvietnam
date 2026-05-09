@@ -46,6 +46,11 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Reset-password API now validates `{ password, confirmPassword }` server-side through `ResetPasswordSchema` to prevent mismatch bypass from direct API calls.
 - Reset-password client now bootstraps Supabase session from URL hash recovery tokens (`#access_token`, `#refresh_token`) before submitting API call, then clears hash from browser URL.
 - Password policy has been aligned across UI and API validation to require uppercase, lowercase, digit, and special character (in addition to minimum length).
+- Environment validation now fails fast in production when Upstash Redis is missing, preventing deployment with in-memory auth rate limiting fallback.
+- Auth route request handling now uses shared utilities (`lib/auth/route-utils.ts`) for trusted-origin checks, request context generation, and JSON parsing to reduce duplicated boilerplate.
+- Auth audit logs now include `requestId` to improve end-to-end traceability across auth events.
+- Local Supabase auth config now enforces email confirmations and stronger password policy defaults (`minimum_password_length=8`, `password_requirements=lower_upper_letters_digits_symbols`).
+- Turnstile CAPTCHA support is now available for auth abuse-prone routes (`sign-in`, `register`, `forgot-password`) and is enforced when both Turnstile env vars are configured.
 
 ## Reliability and Maintainability Updates
 

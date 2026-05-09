@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resolveSafeCallbackPath } from '@/lib/auth/safe-callback';
+import { TurnstileField } from '@/features/auth/components/TurnstileField';
 
 export function SignInForm() {
   const router = useRouter();
@@ -15,8 +16,10 @@ export function SignInForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const captchaEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +32,7 @@ export function SignInForm() {
         body: JSON.stringify({
           email: email.trim(),
           password,
+          captchaToken,
         }),
       });
 
@@ -101,11 +105,12 @@ export function SignInForm() {
       </div>
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || (captchaEnabled && !captchaToken)}
         className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
       >
         {loading ? 'Đang đăng nhập…' : 'Đăng nhập'}
       </button>
+      <TurnstileField onTokenChange={setCaptchaToken} />
       <p className="text-center text-sm text-muted-foreground">
         <Link href={'/auth/forgot-password' as Route} className="text-primary hover:underline">
           Quên mật khẩu?

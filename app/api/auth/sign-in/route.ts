@@ -1,49 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import {
-  apiBadRequest,
-  apiForbidden,
-  apiTooManyRequests,
-  apiUnauthorized,
-} from '@/lib/api/responses';
+import { apiTooManyRequests, apiUnauthorized } from '@/lib/api/responses';
 import { SignInSchema } from '@/lib/validation/schemas';
-import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
-import { isTrustedAuthRequest } from '@/lib/auth/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { isCaptchaEnabled, verifyCaptchaToken } from '@/lib/auth/captcha';
 import { hashEmail, logAuthAudit, normalizeEmail } from '@/lib/auth/security';
+import {
+  badRequest,
+  buildAuthRequestContext,
+  ensureTrustedAuthRequest,
+  parseRequestJson,
+} from '@/lib/auth/route-utils';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  if (!isTrustedAuthRequest(request)) {
-    return apiForbidden('Yêu cầu không hợp lệ.');
-  }
+  const rejectedResponse = ensureTrustedAuthRequest(request);
+  if (rejectedResponse) return rejectedResponse;
 
-  const ip = getClientIdentifier(request);
+  const { ip, requestId } = buildAuthRequestContext(request);
 
   const ipRateLimit = await checkRateLimit(ip, 'auth');
   if (!ipRateLimit.success) {
-    logAuthAudit('auth.signin.rate_limited', { ip, reason: 'ip_limit' });
+    logAuthAudit('auth.signin.rate_limited', { ip, reason: 'ip_limit', requestId });
     return apiTooManyRequests('Quá nhiều yêu cầu đăng nhập. Vui lòng thử lại sau.', ipRateLimit);
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    logAuthAudit('auth.signin.input_invalid', { ip, reason: 'invalid_json' });
-    return apiBadRequest('Dữ liệu không hợp lệ');
+  const parsedJson = await parseRequestJson(request);
+  if (!parsedJson.ok) {
+    logAuthAudit('auth.signin.input_invalid', { ip, reason: 'invalid_json', requestId });
+    return badRequest();
   }
 
-  const parsed = SignInSchema.safeParse(body);
+  const parsed = SignInSchema.safeParse(parsedJson.body);
   if (!parsed.success) {
-    logAuthAudit('auth.signin.input_invalid', { ip, reason: 'schema_validation' });
-    return apiBadRequest(parsed.error.issues[0]?.message ?? 'Dữ liệu không hợp lệ');
+    logAuthAudit('auth.signin.input_invalid', { ip, reason: 'schema_validation', requestId });
+    return badRequest(parsed.error.issues[0]?.message);
   }
 
   const normalizedEmail = normalizeEmail(parsed.data.email);
   const emailHash = hashEmail(normalizedEmail);
 
+  if (isCaptchaEnabled()) {
+    const captchaValid = await verifyCaptchaToken(parsed.data.captchaToken ?? '', ip);
+    if (!captchaValid) {
+      logAuthAudit('auth.signin.input_invalid', {
+        ip,
+        emailHash,
+        reason: 'captcha_failed',
+        requestId,
+      });
+      return badRequest('Xác minh bảo mật thất bại. Vui lòng thử lại.');
+    }
+  }
+
   const identityRateLimit = await checkRateLimit(`signin:${ip}:${emailHash}`, 'auth');
   if (!identityRateLimit.success) {
-    logAuthAudit('auth.signin.rate_limited', { ip, emailHash, reason: 'identity_limit' });
+    logAuthAudit('auth.signin.rate_limited', {
+      ip,
+      emailHash,
+      reason: 'identity_limit',
+      requestId,
+    });
     return apiTooManyRequests(
       'Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau.',
       identityRateLimit
@@ -74,10 +90,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   });
 
   if (error) {
-    logAuthAudit('auth.signin.failure', { ip, emailHash, reason: 'invalid_credentials' });
+    logAuthAudit('auth.signin.failure', {
+      ip,
+      emailHash,
+      reason: 'invalid_credentials',
+      requestId,
+    });
     return apiUnauthorized('Email hoặc mật khẩu không đúng.');
   }
 
-  logAuthAudit('auth.signin.success', { ip, emailHash });
+  logAuthAudit('auth.signin.success', { ip, emailHash, requestId });
   return response;
 }

@@ -7,6 +7,11 @@ vi.mock('@/lib/auth/supabase-auth', () => ({
   requestPasswordReset: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock('@/lib/auth/captcha', () => ({
+  isCaptchaEnabled: vi.fn(() => false),
+  verifyCaptchaToken: vi.fn(async () => true),
+}));
+
 describe('forgot-password', () => {
   it('returns ok for any email (no account enumeration)', async () => {
     const res = await forgotPost(
@@ -65,5 +70,23 @@ describe('forgot-password', () => {
     expect(res.status).toBe(403);
     const json = await res.json();
     expect(json.error?.code).toBe('FORBIDDEN');
+  });
+
+  it('returns 400 when captcha verification fails', async () => {
+    const { isCaptchaEnabled, verifyCaptchaToken } = await import('@/lib/auth/captcha');
+    vi.mocked(isCaptchaEnabled).mockReturnValueOnce(true);
+    vi.mocked(verifyCaptchaToken).mockResolvedValueOnce(false);
+
+    const res = await forgotPost(
+      new NextRequest('http://localhost/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'user@example.com', captchaToken: 'bad-token' }),
+      })
+    );
+
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error?.message).toContain('Xác minh bảo mật thất bại');
   });
 });

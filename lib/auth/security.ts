@@ -21,6 +21,7 @@ interface AuthAuditPayload {
   ip: string;
   emailHash?: string;
   reason?: string;
+  requestId?: string;
 }
 
 export function normalizeEmail(email: string): string {
@@ -37,6 +38,7 @@ export function logAuthAudit(event: AuthAuditEvent, payload: AuthAuditPayload): 
     ip: payload.ip,
     emailHash: payload.emailHash,
     reason: payload.reason,
+    requestId: payload.requestId,
     at: new Date().toISOString(),
   });
 }

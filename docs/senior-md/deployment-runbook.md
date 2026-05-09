@@ -6,6 +6,11 @@
 - `npm run lint`
 - `npm run test`
 - Verify required environment variables are configured.
+- For production auth hardening:
+  - `UPSTASH_REDIS_REST_URL` must be set.
+  - `UPSTASH_REDIS_REST_TOKEN` must be set.
+  - If CAPTCHA is enabled, set both `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`.
+  - Verify Supabase Auth password policy and app validation are aligned.
 
 ## Deploy Steps
 

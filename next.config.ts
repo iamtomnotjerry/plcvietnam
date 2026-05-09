@@ -9,12 +9,12 @@ const securityHeaders = [
       "default-src 'self'",
       // unsafe-eval is required by React in development for call-stack reconstruction.
       // It is intentionally excluded in production.
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://vercel.live`,
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://vercel.live https://challenges.cloudflare.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data: https://fonts.gstatic.com",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vercel.live",
-      "frame-src 'self' https://www.youtube.com https://youtu.be https://vercel.live",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vercel.live https://challenges.cloudflare.com",
+      "frame-src 'self' https://www.youtube.com https://youtu.be https://vercel.live https://challenges.cloudflare.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

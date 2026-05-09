@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ResetPasswordSchema } from '@/lib/validation/schemas';
 import { ZodError } from 'zod';
-import { apiBadRequest, apiForbidden, apiTooManyRequests } from '@/lib/api/responses';
+import { apiBadRequest, apiTooManyRequests } from '@/lib/api/responses';
 import { createClient } from '@/lib/supabase/server';
-import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
-import { isTrustedAuthRequest } from '@/lib/auth/csrf';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { logAuthAudit } from '@/lib/auth/security';
+import {
+  buildAuthRequestContext,
+  ensureTrustedAuthRequest,
+  parseRequestJson,
+} from '@/lib/auth/route-utils';
 
 function mapResetPasswordError(error: { code?: string; message?: string } | null): {
   reason: string;
@@ -57,14 +61,13 @@ function mapResetPasswordError(error: { code?: string; message?: string } | null
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  if (!isTrustedAuthRequest(request)) {
-    return apiForbidden('Yêu cầu không hợp lệ.');
-  }
+  const rejectedResponse = ensureTrustedAuthRequest(request);
+  if (rejectedResponse) return rejectedResponse;
 
-  const identifier = getClientIdentifier(request);
-  const rateLimit = await checkRateLimit(`${identifier}:reset-password`, 'auth');
+  const { ip, requestId } = buildAuthRequestContext(request);
+  const rateLimit = await checkRateLimit(`${ip}:reset-password`, 'auth');
   if (!rateLimit.success) {
-    logAuthAudit('auth.reset_password.rate_limited', { ip: identifier, reason: 'ip_limit' });
+    logAuthAudit('auth.reset_password.rate_limited', { ip, reason: 'ip_limit', requestId });
     return apiTooManyRequests('Quá nhiều yêu cầu. Vui lòng thử lại sau.', {
       limit: rateLimit.limit,
       remaining: rateLimit.remaining,
@@ -72,16 +75,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    logAuthAudit('auth.reset_password.input_invalid', { ip: identifier, reason: 'invalid_json' });
+  const parsedJson = await parseRequestJson(request);
+  if (!parsedJson.ok) {
+    logAuthAudit('auth.reset_password.input_invalid', { ip, reason: 'invalid_json', requestId });
     return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   try {
-    const validated = ResetPasswordSchema.parse(body);
+    const validated = ResetPasswordSchema.parse(parsedJson.body);
     const password = validated.password;
 
     const supabase = await createClient();
@@ -91,8 +92,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (!user) {
       logAuthAudit('auth.reset_password.failure', {
-        ip: identifier,
+        ip,
         reason: 'missing_user_session',
+        requestId,
       });
       return apiBadRequest('Phiên đặt lại mật khẩu không hợp lệ hoặc đã hết hạn');
     }
@@ -104,22 +106,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         code: error.code,
         message: error.message,
       });
-      logAuthAudit('auth.reset_password.failure', { ip: identifier, reason: mapped.reason });
+      logAuthAudit('auth.reset_password.failure', { ip, reason: mapped.reason, requestId });
       return apiBadRequest(mapped.message);
     }
 
-    logAuthAudit('auth.reset_password.success', { ip: identifier });
+    logAuthAudit('auth.reset_password.success', { ip, requestId });
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (error instanceof ZodError) {
       logAuthAudit('auth.reset_password.input_invalid', {
-        ip: identifier,
+        ip,
         reason: 'schema_validation',
+        requestId,
       });
       return apiBadRequest(error.issues[0]?.message ?? 'Mật khẩu không hợp lệ');
     }
     console.error('[auth/reset-password]', error);
-    logAuthAudit('auth.reset_password.failure', { ip: identifier, reason: 'unexpected_error' });
+    logAuthAudit('auth.reset_password.failure', { ip, reason: 'unexpected_error', requestId });
     return apiBadRequest('Đặt lại mật khẩu thất bại');
   }
 }

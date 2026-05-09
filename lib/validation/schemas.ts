@@ -225,15 +225,18 @@ export const SignUpSchema = z.object({
     .string()
     .min(1, 'Họ tên không được để trống')
     .max(200, 'Họ tên không được vượt quá 200 ký tự'),
+  captchaToken: z.string().optional(),
 });
 
 export const SignInSchema = z.object({
   email: EmailSchema,
   password: z.string().min(1, 'Mật khẩu không được để trống'),
+  captchaToken: z.string().optional(),
 });
 
 export const ForgotPasswordSchema = z.object({
   email: EmailSchema,
+  captchaToken: z.string().optional(),
 });
 
 export const ResetPasswordSchema = z

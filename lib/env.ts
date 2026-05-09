@@ -23,6 +23,10 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 
+  // Cloudflare Turnstile (optional)
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
+  TURNSTILE_SECRET_KEY: z.string().optional(),
+
   // Upstash Redis (optional, but recommended for production)
   UPSTASH_REDIS_REST_URL: z
     .string()
@@ -55,6 +59,8 @@ function validateEnv() {
             process.env.SUPABASE_SERVICE_ROLE_KEY ?? 'test-service-role-key',
           GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
           GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+          TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
           UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
           UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
           NODE_ENV: process.env.NODE_ENV ?? 'test',
@@ -74,10 +80,22 @@ function validateEnv() {
       throw new Error('UPSTASH_REDIS_REST_TOKEN is required when UPSTASH_REDIS_REST_URL is set');
     }
 
-    // Warn if Redis is not configured in production
+    if (parsed.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !parsed.TURNSTILE_SECRET_KEY) {
+      throw new Error(
+        'TURNSTILE_SECRET_KEY is required when NEXT_PUBLIC_TURNSTILE_SITE_KEY is configured'
+      );
+    }
+
+    if (!parsed.NEXT_PUBLIC_TURNSTILE_SITE_KEY && parsed.TURNSTILE_SECRET_KEY) {
+      throw new Error(
+        'NEXT_PUBLIC_TURNSTILE_SITE_KEY is required when TURNSTILE_SECRET_KEY is configured'
+      );
+    }
+
+    // Fail fast if Redis is not configured in production.
     if (parsed.NODE_ENV === 'production' && !parsed.UPSTASH_REDIS_REST_URL) {
-      console.warn(
-        '⚠️ WARNING: UPSTASH_REDIS_REST_URL not configured. Rate limiting will use in-memory fallback (not suitable for multi-instance deployments)'
+      throw new Error(
+        'UPSTASH_REDIS_REST_URL is required in production. In-memory rate limiting is not allowed for production deployments.'
       );
     }
 
@@ -85,6 +103,12 @@ function validateEnv() {
     if (!parsed.GOOGLE_CLIENT_ID || !parsed.GOOGLE_CLIENT_SECRET) {
       console.warn(
         '⚠️ WARNING: Google OAuth not configured. Users will only be able to sign up with email/password.'
+      );
+    }
+
+    if (parsed.NODE_ENV === 'production' && !parsed.TURNSTILE_SECRET_KEY) {
+      console.warn(
+        '⚠️ WARNING: Turnstile not configured. Auth endpoints are protected by rate limits but have no CAPTCHA.'
       );
     }
 
