@@ -239,6 +239,9 @@ export const ForgotPasswordSchema = z.object({
   captchaToken: z.string().optional(),
 });
 
+/** Same shape as forgot-password: email + optional Turnstile token. */
+export const ResendConfirmationSchema = ForgotPasswordSchema;
+
 export const ResetPasswordSchema = z
   .object({
     password: PasswordSchema,

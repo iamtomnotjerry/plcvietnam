@@ -123,7 +123,12 @@
       "passwordPolicy": "Mật khẩu chưa đáp ứng đủ tiêu chí.",
       "checkEmailTitle": "Kiểm tra email của bạn",
       "checkEmailBody": "Chúng tôi đã gửi email xác nhận đến {email}. Vui lòng click vào link trong email để kích hoạt tài khoản, sau đó đăng nhập.",
-      "toSignIn": "Đến trang đăng nhập"
+      "toSignIn": "Đến trang đăng nhập",
+      "resendConfirmation": "Gửi lại email xác nhận",
+      "resending": "Đang gửi…",
+      "resendIn": "Gửi lại sau {seconds}s",
+      "resendSuccess": "Nếu tài khoản vẫn cần xác nhận email, chúng tôi đã gửi thêm một thư. Vui lòng kiểm tra hộp thư.",
+      "resendFailDefault": "Không gửi lại được email. Vui lòng thử lại."
     },
     "callback": {
       "processing": "Đang hoàn tất xác thực…"

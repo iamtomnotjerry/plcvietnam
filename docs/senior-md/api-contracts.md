@@ -32,12 +32,13 @@ Use `apiTooManyRequests(message, { limit, remaining, reset })` to keep this cons
 
 ### Auth routes (implemented in `lib/rate-limit.ts`)
 
-| Route                            | Limiters (identifiers)                                             | Notes                                   |
-| -------------------------------- | ------------------------------------------------------------------ | --------------------------------------- |
-| `POST /api/auth/sign-in`         | `auth` (IP), `auth` (`signin:{ip}:{emailHash}`)                    | Layered                                 |
-| `POST /api/auth/register`        | `auth` (IP), `auth` (`signup:{ip}:{emailHash}`)                    | Anti spray                              |
-| `POST /api/auth/forgot-password` | `auth` (IP), **`forgotResend`** (`forgot-resend:{ip}:{emailHash}`) | **429** if same identity within **60s** |
-| `POST /api/auth/reset-password`  | `auth` (`{ip}:reset-password`)                                     | Per-IP cap on reset attempts            |
+| Route                                | Limiters (identifiers)                                              | Notes                                                                                                       |
+| ------------------------------------ | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `POST /api/auth/sign-in`             | `auth` (IP), `auth` (`signin:{ip}:{emailHash}`)                     | Layered                                                                                                     |
+| `POST /api/auth/register`            | `auth` (IP), `auth` (`signup:{ip}:{emailHash}`)                     | Anti spray                                                                                                  |
+| `POST /api/auth/forgot-password`     | `auth` (IP), **`forgotResend`** (`forgot-resend:{ip}:{emailHash}`)  | **429** if same identity within **60s**                                                                     |
+| `POST /api/auth/resend-confirmation` | `auth` (IP), **`forgotResend`** (`confirm-resend:{ip}:{emailHash}`) | **429** if same identity within **60s**; response always `{ ok: true }` when valid input (anti-enumeration) |
+| `POST /api/auth/reset-password`      | `auth` (`{ip}:reset-password`)                                      | Per-IP cap on reset attempts                                                                                |
 
 Exact windows: **`auth`** = 10 requests / 15 minutes (memory or Upstash); **`forgotResend`** = 1 / 60s per key.
 

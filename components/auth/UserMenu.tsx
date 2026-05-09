@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
+import { getUserAvatarUrl } from '@/lib/auth/user-avatar-url';
 import { useSupabaseAuth } from '@/features/comments/hooks/useSupabaseAuth';
 
 /**
@@ -24,10 +25,10 @@ export function UserMenu() {
 
   const displayName =
     (typeof user.user_metadata?.full_name === 'string' && user.user_metadata.full_name) ||
+    (typeof user.user_metadata?.name === 'string' && user.user_metadata.name) ||
     user.email ||
     'User';
-  const avatarUrl =
-    (typeof user.user_metadata?.avatar_url === 'string' && user.user_metadata.avatar_url) || null;
+  const avatarUrl = getUserAvatarUrl(user);
   const initials = displayName
     .split(' ')
     .map((n) => n[0])

@@ -6,7 +6,7 @@ Update this file whenever API contracts, security posture, or architecture behav
 ## Last Updated
 
 - Date: 2026-05-09
-- Scope: forgot-password **60s resend cooldown** (`forgotResend` limiter + client countdown per email), docs/rules aligned to current auth rate limits; prior: API/admin hardening, i18n (`next-intl`, `app/[locale]`), Supabase auth unification, CSRF + anti-enumeration + Turnstile
+- Scope: **`POST /api/auth/resend-confirmation`** (Supabase `auth.resend` signup + same anti-enumeration + Turnstile + CSRF as forgot-password); per-identity **`confirm-resend:{ip}:{emailHash}`** on **`forgotResend`** (60s); sign-up success UI **gửi lại email xác nhận**; server **`getPublicSiteOrigin()`** in `lib/auth/public-site-url.ts` for email redirect URLs; forgot-password **60s resend cooldown** (`forgotResend` + client countdown); prior: API/admin hardening, i18n, Supabase auth unification
 
 ## API Contract Status
 
@@ -35,14 +35,15 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Legacy NextAuth runtime has been removed (`next-auth` package, API route, and ambient types), leaving Supabase as the single auth source.
 - Password sign-in now goes through server route `POST /api/auth/sign-in` with layered throttling (IP + IP/email hash) and structured auth audit logging.
 - Password recovery and email confirmation callbacks are unified through `/auth/callback` (and `/en/auth/callback`) on a client page under `[locale]`, so PKCE `code`, email `token_hash`, and hash-token redirects all establish a browser session before routing onward.
-- `POST /api/auth/register`, `POST /api/auth/forgot-password`, and `POST /api/auth/reset-password` now return standardized `429` errors via shared `apiTooManyRequests(...)`.
+- `POST /api/auth/register`, `POST /api/auth/forgot-password`, `POST /api/auth/resend-confirmation`, and `POST /api/auth/reset-password` now return standardized `429` errors via shared `apiTooManyRequests(...)` where rate limits apply.
 - Reset-password now has explicit route-level rate limiting (`auth` limiter namespace with reset-password identifier suffix).
 - Registration now validates profile provisioning write result and fails closed if profile setup does not persist.
-- Auth POST routes (`sign-in`, `register`, `forgot-password`, `reset-password`) now apply same-origin guard (`sec-fetch-site` + `origin`/`referer` trust check) to reduce CSRF surface.
+- Auth POST routes (`sign-in`, `register`, `forgot-password`, `resend-confirmation`, `reset-password`) now apply same-origin guard (`sec-fetch-site` + `origin`/`referer` trust check) to reduce CSRF surface.
 - Registration now normalizes email before signup and returns indistinguishable success for existing email (`EMAIL_TAKEN`) to reduce account enumeration signal.
 - Forgot-password now normalizes email before requesting Supabase recovery email for consistent identity handling.
 - Registration applies layered abuse throttling: per-IP `auth` bucket plus per-identity `signup:{ip}:{emailHash}` on the same `auth` bucket.
 - Forgot-password applies per-IP `auth` throttling plus a dedicated **`forgotResend`** bucket: **1 request per 60 seconds** per `forgot-resend:{ip}:{emailHash}` (Redis sliding window or in-memory equivalent). The forgot-password UI enforces a matching **60s cooldown** when the email field still matches the last successful submit.
+- Resend signup confirmation uses the same **`forgotResend`** bucket with key **`confirm-resend:{ip}:{emailHash}`**; the sign-up success screen enforces a client **60s cooldown** after a successful resend.
 - Auth flow now records structured audit events for signup, forgot-password, and reset-password outcomes/rate-limits/input-validation failures.
 - Reset-password API now validates `{ password, confirmPassword }` server-side through `ResetPasswordSchema` to prevent mismatch bypass from direct API calls.
 - Reset-password client now bootstraps Supabase session from URL hash recovery tokens (`#access_token`, `#refresh_token`) before submitting API call, then clears hash from browser URL.
@@ -51,7 +52,7 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Auth route request handling now uses shared utilities (`lib/auth/route-utils.ts`) for trusted-origin checks, request context generation, and JSON parsing to reduce duplicated boilerplate.
 - Auth audit logs now include `requestId` to improve end-to-end traceability across auth events.
 - Local Supabase auth config now enforces email confirmations and stronger password policy defaults (`minimum_password_length=8`, `password_requirements=lower_upper_letters_digits_symbols`).
-- Turnstile CAPTCHA support is now available for auth abuse-prone routes (`sign-in`, `register`, `forgot-password`) and is enforced when both Turnstile env vars are configured.
+- Turnstile CAPTCHA support is now available for auth abuse-prone routes (`sign-in`, `register`, `forgot-password`, `resend-confirmation`) and is enforced when both Turnstile env vars are configured.
 
 ## Reliability and Maintainability Updates
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { TurnstileField } from '@/features/auth/components/TurnstileField';
@@ -11,7 +11,17 @@ import {
 } from '@/features/auth/components/PasswordChecklist';
 import { isCaptchaConfigured } from '@/features/auth/captcha-config';
 import { useAuthSubmit } from '@/features/auth/hooks/useAuthSubmit';
-import { authInputClassName, authPrimaryButtonClassName } from '@/features/auth/form-classes';
+import {
+  authInputClassName,
+  authOutlineButtonClassName,
+  authPrimaryButtonClassName,
+} from '@/features/auth/form-classes';
+
+const RESEND_COOLDOWN_MS = 60_000;
+
+function normalizeSignupEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
 
 export function SignUpForm() {
   const t = useTranslations('auth.signUp');
@@ -22,9 +32,26 @@ export function SignUpForm() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
   const [registered, setRegistered] = useState(false);
+  const [resendCaptchaToken, setResendCaptchaToken] = useState<string | null>(null);
+  const [resendCaptchaResetNonce, setResendCaptchaResetNonce] = useState(0);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resendCooldownUntil, setResendCooldownUntil] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const passwordValid = isPasswordChecklistValid(password, confirmPassword);
 
   const { submit, error, loading, setError } = useAuthSubmit();
+  const resendSubmit = useAuthSubmit();
+
+  const inResendCooldown = resendCooldownUntil !== null && now < resendCooldownUntil;
+  const resendSecondsLeft = inResendCooldown
+    ? Math.max(0, Math.ceil((resendCooldownUntil! - now) / 1000))
+    : 0;
+
+  useEffect(() => {
+    if (!inResendCooldown) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [inResendCooldown]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +73,26 @@ export function SignUpForm() {
   };
 
   if (registered) {
+    const onResend = async () => {
+      setResendMessage(null);
+      const result = await resendSubmit.submit({
+        url: '/api/auth/resend-confirmation',
+        body: { email, captchaToken: resendCaptchaToken },
+        defaultErrorMessage: t('resendFailDefault'),
+      });
+      if (result.ok) {
+        setResendMessage(t('resendSuccess'));
+        setResendCooldownUntil(Date.now() + RESEND_COOLDOWN_MS);
+        setNow(Date.now());
+      } else if (isCaptchaConfigured) {
+        setResendCaptchaToken(null);
+        setResendCaptchaResetNonce((n) => n + 1);
+      }
+    };
+
+    const resendBlocked =
+      resendSubmit.loading || (isCaptchaConfigured && !resendCaptchaToken) || resendSecondsLeft > 0;
+
     return (
       <div className="space-y-4 rounded-2xl border border-primary/15 bg-primary/[0.06] p-6 text-center dark:bg-primary/[0.08]">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -65,14 +112,32 @@ export function SignUpForm() {
         </div>
         <h2 className="text-lg font-semibold text-foreground">{t('checkEmailTitle')}</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {t('checkEmailBody', { email })}
+          {t('checkEmailBody', { email: normalizeSignupEmail(email) })}
         </p>
+        {resendSubmit.error && <AuthAlert variant="error">{resendSubmit.error}</AuthAlert>}
+        {resendMessage && <AuthAlert variant="info">{resendMessage}</AuthAlert>}
         <Link
           href="/auth/sign-in"
           className={`inline-block w-full text-center ${authPrimaryButtonClassName}`}
         >
           {t('toSignIn')}
         </Link>
+        <button
+          type="button"
+          onClick={onResend}
+          disabled={resendBlocked}
+          className={authOutlineButtonClassName}
+        >
+          {resendSubmit.loading
+            ? t('resending')
+            : resendSecondsLeft > 0
+              ? t('resendIn', { seconds: resendSecondsLeft })
+              : t('resendConfirmation')}
+        </button>
+        <TurnstileField
+          onTokenChange={setResendCaptchaToken}
+          resetNonce={resendCaptchaResetNonce}
+        />
       </div>
     );
   }

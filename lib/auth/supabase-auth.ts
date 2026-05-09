@@ -4,6 +4,7 @@
  * Uses singleton clients for performance.
  */
 
+import { getPublicSiteOrigin } from '@/lib/auth/public-site-url';
 import { getAnonClient, getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
 import { normalizeEmail } from '@/lib/auth/security';
@@ -30,9 +31,8 @@ export async function registerUser(input: RegisterInput): Promise<AuthUser> {
   const supabase = getAnonClient();
   const normalizedEmail = normalizeEmail(input.email);
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const emailRedirectTo = `${siteUrl}/auth/callback?next=/auth/confirmed`;
+  const siteOrigin = getPublicSiteOrigin();
+  const emailRedirectTo = `${siteOrigin}/auth/callback?next=/auth/confirmed`;
 
   const { data, error } = await supabase.auth.signUp({
     email: normalizedEmail,
@@ -82,6 +82,19 @@ export async function requestPasswordReset(email: string, redirectTo: string): P
   const supabase = getAnonClient();
   const { error } = await supabase.auth.resetPasswordForEmail(normalizeEmail(email), {
     redirectTo,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function resendSignupConfirmation(
+  email: string,
+  emailRedirectTo: string
+): Promise<void> {
+  const supabase = getAnonClient();
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: normalizeEmail(email),
+    options: { emailRedirectTo },
   });
   if (error) throw new Error(error.message);
 }

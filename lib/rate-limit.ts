@@ -35,7 +35,7 @@ const memoryLimiters = {
     duration: 60, // per 60 seconds
     blockDuration: 60,
   }),
-  /** Forgot-password: one resend per email+IP every 60s */
+  /** Forgot-password + signup confirmation resend: one request per key (e.g. email+IP) every 60s */
   forgotResend: new RateLimiterMemory({
     points: 1,
     duration: 60,

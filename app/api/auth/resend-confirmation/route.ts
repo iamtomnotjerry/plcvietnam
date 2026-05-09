@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPublicSiteOrigin } from '@/lib/auth/public-site-url';
-import { requestPasswordReset } from '@/lib/auth/supabase-auth';
+import { resendSignupConfirmation } from '@/lib/auth/supabase-auth';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { ForgotPasswordSchema } from '@/lib/validation/schemas';
+import { ResendConfirmationSchema } from '@/lib/validation/schemas';
 import { ZodError } from 'zod';
 import { apiBadRequest, apiTooManyRequests } from '@/lib/api/responses';
 import { isCaptchaEnabled, verifyCaptchaToken } from '@/lib/auth/captcha';
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const rateLimit = await checkRateLimit(ip, 'auth');
 
   if (!rateLimit.success) {
-    logAuthAudit('auth.forgot_password.rate_limited', { ip, reason: 'ip_limit', requestId });
+    logAuthAudit('auth.resend_confirmation.rate_limited', { ip, reason: 'ip_limit', requestId });
     return apiTooManyRequests('Quá nhiều yêu cầu. Vui lòng thử lại sau.', {
       limit: rateLimit.limit,
       remaining: rateLimit.remaining,
@@ -31,23 +31,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const parsedJson = await parseRequestJson(request);
   if (!parsedJson.ok) {
-    logAuthAudit('auth.forgot_password.input_invalid', { ip, reason: 'invalid_json', requestId });
+    logAuthAudit('auth.resend_confirmation.input_invalid', {
+      ip,
+      reason: 'invalid_json',
+      requestId,
+    });
     return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
   let validated;
   try {
-    validated = ForgotPasswordSchema.parse(parsedJson.body);
+    validated = ResendConfirmationSchema.parse(parsedJson.body);
   } catch (error) {
     if (error instanceof ZodError) {
-      logAuthAudit('auth.forgot_password.input_invalid', {
+      logAuthAudit('auth.resend_confirmation.input_invalid', {
         ip,
         reason: 'schema_validation',
         requestId,
       });
       return apiBadRequest(error.issues[0].message);
     }
-    logAuthAudit('auth.forgot_password.input_invalid', {
+    logAuthAudit('auth.resend_confirmation.input_invalid', {
       ip,
       reason: 'schema_unknown',
       requestId,
@@ -60,7 +64,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (isCaptchaEnabled()) {
     const captchaValid = await verifyCaptchaToken(validated.captchaToken ?? '', ip);
     if (!captchaValid) {
-      logAuthAudit('auth.forgot_password.input_invalid', {
+      logAuthAudit('auth.resend_confirmation.input_invalid', {
         ip,
         emailHash,
         reason: 'captcha_failed',
@@ -70,9 +74,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  const resendCooldown = await checkRateLimit(`forgot-resend:${ip}:${emailHash}`, 'forgotResend');
+  const resendCooldown = await checkRateLimit(`confirm-resend:${ip}:${emailHash}`, 'forgotResend');
   if (!resendCooldown.success) {
-    logAuthAudit('auth.forgot_password.rate_limited', {
+    logAuthAudit('auth.resend_confirmation.rate_limited', {
       ip,
       emailHash,
       reason: 'resend_cooldown',
@@ -86,15 +90,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const siteOrigin = getPublicSiteOrigin();
-  const redirectTo = `${siteOrigin}/auth/callback?next=/auth/reset-password`;
+  const emailRedirectTo = `${siteOrigin}/auth/callback?next=/auth/confirmed`;
 
   try {
-    // Always return ok to prevent account enumeration
-    await requestPasswordReset(normalizedEmail, redirectTo);
+    await resendSignupConfirmation(normalizedEmail, emailRedirectTo);
   } catch {
-    // Silently ignore — don't reveal if email exists
+    // Do not reveal whether the email exists or is already confirmed
   }
 
-  logAuthAudit('auth.forgot_password.requested', { ip, emailHash, requestId });
+  logAuthAudit('auth.resend_confirmation.requested', { ip, emailHash, requestId });
   return NextResponse.json({ ok: true });
 }

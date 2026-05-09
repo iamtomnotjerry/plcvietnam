@@ -14,15 +14,16 @@ function localizedAuthUrl(request: NextRequest, pathname: string, path: string):
   return new URL(localized, request.url);
 }
 
-function isAdminArea(pathname: string) {
-  return (
-    pathname.startsWith('/api/admin') ||
-    pathname.startsWith('/admin') ||
-    pathname.startsWith('/en/admin')
-  );
+function isApiAdmin(pathname: string) {
+  return pathname.startsWith('/api/admin');
 }
 
-async function supabaseAdminGate(request: NextRequest) {
+/** Locale-prefixed or default-locale admin UI (not API). */
+function isAdminUi(pathname: string) {
+  return pathname.startsWith('/admin') || pathname.startsWith('/en/admin');
+}
+
+async function supabaseAdminGateForApi(request: NextRequest): Promise<NextResponse> {
   const response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -47,11 +48,57 @@ async function supabaseAdminGate(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    if (request.nextUrl.pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+  const role = (profile?.role ?? 'reader') as UserRole;
+
+  if (role !== 'admin' && role !== 'author') {
+    return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 });
+  }
+
+  return response;
+}
+
+/**
+ * Admin UI: must run next-intl first so `/admin` rewrites to `[locale]` routes.
+ * Supabase session refresh cookies are applied to that intl response.
+ */
+async function supabaseAdminGateForUi(
+  request: NextRequest,
+  intlResponse: NextResponse
+): Promise<NextResponse> {
+  const pathname = request.nextUrl.pathname;
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            intlResponse.cookies.set(name, value, options)
+          );
+        },
+      },
     }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
     const returnTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
-    const signIn = localizedAuthUrl(request, request.nextUrl.pathname, '/auth/sign-in');
+    const signIn = localizedAuthUrl(request, pathname, '/auth/sign-in');
     signIn.searchParams.set('callbackUrl', returnTo);
     return NextResponse.redirect(signIn);
   }
@@ -64,21 +111,27 @@ async function supabaseAdminGate(request: NextRequest) {
   const role = (profile?.role ?? 'reader') as UserRole;
 
   if (role !== 'admin' && role !== 'author') {
-    if (request.nextUrl.pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 });
-    }
-    return NextResponse.redirect(
-      localizedAuthUrl(request, request.nextUrl.pathname, '/auth/sign-in')
-    );
+    return NextResponse.redirect(localizedAuthUrl(request, pathname, '/auth/sign-in'));
   }
 
-  return response;
+  return intlResponse;
 }
 
 export async function middleware(request: NextRequest) {
-  if (isAdminArea(request.nextUrl.pathname)) {
-    return supabaseAdminGate(request);
+  const pathname = request.nextUrl.pathname;
+
+  if (isApiAdmin(pathname)) {
+    return supabaseAdminGateForApi(request);
   }
+
+  if (isAdminUi(pathname)) {
+    const intlResponse = intlMiddleware(request);
+    if (intlResponse.status !== 200) {
+      return intlResponse;
+    }
+    return supabaseAdminGateForUi(request, intlResponse);
+  }
+
   return intlMiddleware(request);
 }
 
