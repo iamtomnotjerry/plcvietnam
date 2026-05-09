@@ -87,6 +87,7 @@ export function PostCard({
   return (
     <Link
       href={postUrl}
+      prefetch
       className="group block h-full bg-card border border-border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary/50 cursor-pointer"
     >
       {/* Thumbnail */}

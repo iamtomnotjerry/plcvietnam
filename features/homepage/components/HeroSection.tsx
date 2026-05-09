@@ -18,7 +18,7 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
   const t = useTranslations('home');
   return (
     <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/[0.07] via-background to-accent/[0.06] py-20 md:py-28">
-      <div className="container relative z-[1] mx-auto max-w-6xl px-4">
+      <div className="container relative z-10 mx-auto max-w-6xl px-4">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -61,6 +61,7 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
           >
             <Link
               href="/posts"
+              prefetch
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               {t('readPosts')}
@@ -75,6 +76,7 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
             </Link>
             <Link
               href="/books"
+              prefetch
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-6 py-3 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-muted"
             >
               {t('library')}
@@ -84,7 +86,7 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
       </div>
 
       {/* Premium 3D Animated Background - Industrial Automation */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden [&_*]:pointer-events-none">
         {/* Dynamic Gradient Orbs with 3D Effect */}
         <motion.div
           className="absolute -left-32 top-0 h-[600px] w-[600px] rounded-full opacity-20"

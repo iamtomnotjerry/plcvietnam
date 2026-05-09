@@ -13,7 +13,8 @@
     "search": "Search",
     "drawerAriaLabel": "Navigation menu",
     "drawerTitle": "Navigation",
-    "drawerClose": "Close navigation menu"
+    "drawerClose": "Close navigation menu",
+    "menuOpen": "Open navigation menu"
   },
   "site": {
     "brand": "PLC Vietnam",
@@ -29,15 +30,28 @@
   },
   "footer": {
     "tagline": "In-depth knowledge on PLC, SCADA, Siemens Automation, and modern industrial automation.",
-    "linksTitle": "Links",
+    "linksTitle": "Explore",
     "resourcesTitle": "Resources",
+    "connectTitle": "Connect",
+    "valuesEyebrow": "3R · Sustainable automation",
+    "valuesHeading": "Reduce waste — Reuse playbooks — Recycle knowledge",
+    "reduceTitle": "Reduce — Run lean",
+    "reduceBody": "Field-tested ideas to cut downtime, process drift, and energy waste on the plant floor.",
+    "reuseTitle": "Reuse — Proven building blocks",
+    "reuseBody": "Favor validated PLC/SCADA patterns, libraries, and reference designs before reinventing the wheel.",
+    "recycleTitle": "Recycle — Share the learnings",
+    "recycleBody": "Community knowledge compounds: write once, help many engineers apply it across projects.",
     "rss": "RSS Feed",
     "sitemap": "Sitemap",
     "admin": "Admin",
     "copyright": "© {year} PLC Vietnam. All rights reserved.",
     "privacy": "Privacy policy",
     "terms": "Terms of use",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "socialEmail": "Send email",
+    "socialLinkedIn": "Open LinkedIn",
+    "socialGitHub": "Open GitHub",
+    "socialX": "Open X (Twitter)"
   },
   "home": {
     "title": "PLC Vietnam",

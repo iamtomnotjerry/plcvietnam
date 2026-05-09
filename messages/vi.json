@@ -13,7 +13,8 @@
     "search": "Tìm kiếm",
     "drawerAriaLabel": "Menu điều hướng",
     "drawerTitle": "Điều hướng",
-    "drawerClose": "Đóng menu điều hướng"
+    "drawerClose": "Đóng menu điều hướng",
+    "menuOpen": "Mở menu điều hướng"
   },
   "site": {
     "brand": "PLC Việt Nam",
@@ -29,15 +30,28 @@
   },
   "footer": {
     "tagline": "Chia sẻ kiến thức chuyên sâu về PLC, SCADA, Siemens Automation và các công nghệ tự động hóa công nghiệp hiện đại.",
-    "linksTitle": "Liên kết",
+    "linksTitle": "Khám phá",
     "resourcesTitle": "Tài nguyên",
+    "connectTitle": "Kết nối",
+    "valuesEyebrow": "3R · Tự động hóa bền vững",
+    "valuesHeading": "Giảm lãng phí — Tái sử dụng — Tuần hoàn tri thức",
+    "reduceTitle": "Reduce — Tối ưu vận hành",
+    "reduceBody": "Ứng dụng thực tiễn để giảm downtime, sai lệch quy trình và lãng phí năng lượng trong nhà máy.",
+    "reuseTitle": "Reuse — Tái sử dụng",
+    "reuseBody": "Ưu tiên mẫu PLC/SCADA, thư viện và giải pháp đã kiểm chứng trước khi làm lại từ đầu.",
+    "recycleTitle": "Recycle — Tuần hoàn tri thức",
+    "recycleBody": "Cộng đồng chia sẻ để mỗi bài học được nhân rộng: học một lần, ứng dụng nhiều nơi.",
     "rss": "RSS Feed",
     "sitemap": "Sitemap",
     "admin": "Quản trị",
     "copyright": "© {year} PLC Việt Nam. Tất cả quyền được bảo lưu.",
     "privacy": "Chính sách bảo mật",
     "terms": "Điều khoản sử dụng",
-    "backToTop": "Về đầu trang"
+    "backToTop": "Về đầu trang",
+    "socialEmail": "Gửi email",
+    "socialLinkedIn": "Mở LinkedIn",
+    "socialGitHub": "Mở GitHub",
+    "socialX": "Mở X (Twitter)"
   },
   "home": {
     "title": "PLC Việt Nam",

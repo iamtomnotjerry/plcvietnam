@@ -48,6 +48,7 @@ export function RecentPostsSection({ posts }: RecentPostsSectionProps) {
           </div>
           <Link
             href="/posts"
+            prefetch
             className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary hover:underline"
           >
             {t('seeAllPosts')}
