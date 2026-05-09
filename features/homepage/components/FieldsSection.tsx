@@ -6,7 +6,8 @@
 
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { Field } from '@/lib/types/domain';
 import { fieldHref } from '@/lib/utils/routes';
 
@@ -23,6 +24,7 @@ export interface FieldsSectionProps {
  * - Click navigates to field page
  */
 export function FieldsSection({ fields }: FieldsSectionProps) {
+  const t = useTranslations('home');
   if (fields.length === 0) {
     return null;
   }
@@ -56,8 +58,8 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Section Header */}
         <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Lĩnh vực</h2>
-          <p className="text-muted-foreground mt-2">Khám phá các chủ đề tự động hóa công nghiệp</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t('fieldsHeading')}</h2>
+          <p className="text-muted-foreground mt-2">{t('fieldsSub')}</p>
         </div>
 
         {/* Fields Grid */}
@@ -103,7 +105,7 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  <span>{field.postCount} danh mục</span>
+                  <span>{t('categoriesCount', { count: field.postCount })}</span>
                 </div>
               </Link>
             );

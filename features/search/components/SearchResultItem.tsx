@@ -6,7 +6,7 @@
 
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { Post, Book } from '@/lib/types/domain';
 import { bookHref, postHref } from '@/lib/utils/routes';
 

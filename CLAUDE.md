@@ -9,3 +9,5 @@ For actual engineering policy and implementation standards, use:
 - `docs/senior-md/agent-strict-rules.md`
 
 If guidance conflicts, follow `docs/senior-md` and keep updates there.
+
+For a concise snapshot of current auth, rate limits, and security behavior, see `docs/senior-md/current-system-state.md`.

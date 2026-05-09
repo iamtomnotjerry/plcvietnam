@@ -7,7 +7,8 @@
 'use client';
 
 import { useRef, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 import type { Post, Book } from '@/lib/types/domain';
 import { useSearch } from '@/features/search/hooks/useSearch';
 import { SearchResults } from './SearchResults';
@@ -38,6 +39,7 @@ export function SearchInput({
   onResultClick,
   debounceMs = 300,
 }: SearchInputProps) {
+  const t = useTranslations('search');
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -169,8 +171,8 @@ export function SearchInput({
               aria-expanded={isOpen}
               aria-controls={listboxId}
               aria-autocomplete="list"
-              aria-label="Tìm kiếm"
-              placeholder="Tìm kiếm bài viết, sách..."
+              aria-label={t('ariaLabel')}
+              placeholder={t('placeholderExpanded')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -247,8 +249,8 @@ export function SearchInput({
           aria-expanded={isOpen}
           aria-controls={listboxId}
           aria-autocomplete="list"
-          aria-label="Tìm kiếm"
-          placeholder="Tìm kiếm..."
+          aria-label={t('ariaLabel')}
+          placeholder={t('placeholderShort')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}

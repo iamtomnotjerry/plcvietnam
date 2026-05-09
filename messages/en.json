@@ -1,0 +1,316 @@
+{
+  "LocaleLayout": {
+    "title": "PLC Vietnam - PLC, SCADA, Siemens",
+    "description": "Vietnam industrial automation community — PLC, SCADA, Siemens TIA Portal, and industrial automation solutions"
+  },
+  "nav": {
+    "mainLabel": "Main navigation",
+    "home": "Home",
+    "tags": "Tags",
+    "posts": "Posts",
+    "books": "Books",
+    "about": "About",
+    "search": "Search",
+    "drawerAriaLabel": "Navigation menu",
+    "drawerTitle": "Navigation",
+    "drawerClose": "Close navigation menu"
+  },
+  "site": {
+    "brand": "PLC Vietnam",
+    "logoAlt": "PLC Vietnam"
+  },
+  "rss": {
+    "title": "PLC Vietnam",
+    "description": "Industrial automation knowledge and technical articles",
+    "language": "en"
+  },
+  "sidebar": {
+    "topicTree": "Topics"
+  },
+  "footer": {
+    "tagline": "In-depth knowledge on PLC, SCADA, Siemens Automation, and modern industrial automation.",
+    "linksTitle": "Links",
+    "resourcesTitle": "Resources",
+    "rss": "RSS Feed",
+    "sitemap": "Sitemap",
+    "admin": "Admin",
+    "copyright": "© {year} PLC Vietnam. All rights reserved.",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "backToTop": "Back to top"
+  },
+  "home": {
+    "title": "PLC Vietnam",
+    "tagline": "Vietnam industrial automation engineers community",
+    "description": "Explore in-depth PLC, SCADA, Siemens TIA Portal, and modern industrial automation. Practical experience from projects in Vietnam.",
+    "heroEyebrow": "PLC · SCADA · Siemens",
+    "readPosts": "Read posts",
+    "library": "Book library",
+    "emptyTitle": "No content yet",
+    "emptyBody": "The blog is being set up. Check back soon for new posts!",
+    "loadErrorTitle": "Could not load the homepage",
+    "loadErrorUnknown": "An unknown error occurred",
+    "recentHeading": "Latest posts",
+    "recentSub": "Recently updated from the blog.",
+    "fieldsHeading": "Fields",
+    "fieldsSub": "Explore industrial automation topics",
+    "categoriesCount": "{count} categories",
+    "featuredBooks": "Featured books",
+    "seeAllBooks": "See all books",
+    "seeAllPosts": "See all posts"
+  },
+  "errors": {
+    "serverTitle": "Something went wrong",
+    "serverFallback": "The server ran into a problem. Please try again later.",
+    "errorCode": "Error code: {digest}",
+    "retry": "Try again",
+    "backHome": "Back to home",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you are looking for does not exist or has been moved.",
+    "searchPrompt": "Or search the site:",
+    "searchPlaceholder": "Search posts...",
+    "searchSubmit": "Search",
+    "postNotFoundTitle": "Post not found",
+    "fieldNotFoundTitle": "Field not found",
+    "bookNotFoundTitle": "Book not found",
+    "tagNotFoundTitle": "Tag not found",
+    "categoryNotFoundTitle": "Category not found"
+  },
+  "language": {
+    "switchLabel": "Language",
+    "vietnamese": "Tiếng Việt",
+    "english": "English"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgot": "Forgot password?",
+      "noAccount": "No account?",
+      "signUp": "Sign up",
+      "failDefault": "Sign-in failed. Please try again.",
+      "registered": "Registration successful! Check your email and confirm before signing in.",
+      "resetOk": "Password reset successful. Please sign in."
+    },
+    "signUp": {
+      "title": "Sign up",
+      "displayName": "Display name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Sign up",
+      "submitting": "Creating account…",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "failDefault": "Sign-up failed",
+      "passwordPolicy": "Password does not meet all requirements.",
+      "checkEmailTitle": "Check your email",
+      "checkEmailBody": "We sent a confirmation email to {email}. Open the link to activate your account, then sign in.",
+      "toSignIn": "Go to sign in"
+    },
+    "callback": {
+      "processing": "Finishing verification…"
+    },
+    "passwordChecklist": {
+      "title": "Password requirements",
+      "minLength": "At least 8 characters",
+      "upperCase": "At least one uppercase letter",
+      "lowerCase": "At least one lowercase letter",
+      "digit": "At least one number",
+      "special": "At least one special character",
+      "confirmMatch": "Confirmation matches password"
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "email": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "resendIn": "Resend in {seconds}s",
+      "backSignIn": "Back to sign in",
+      "failDefault": "Something went wrong",
+      "successMessage": "If that email exists, we sent a password reset link. Please check your inbox."
+    },
+    "reset": {
+      "title": "Reset password",
+      "password": "New password",
+      "confirmNew": "Confirm new password",
+      "submit": "Reset password",
+      "saving": "Saving…",
+      "verifying": "Verifying session…",
+      "sessionInvalid": "The reset session is invalid or has expired",
+      "sessionWait": "Verifying reset session. Please try again in a few seconds.",
+      "mismatch": "Passwords do not match",
+      "tokenInvalid": "The reset link is invalid or has expired.",
+      "signInCta": "Sign in",
+      "failDefault": "Something went wrong"
+    },
+    "error": {
+      "title": "Authentication error",
+      "backSignIn": "Back to sign in",
+      "srOnlyFail": "Sign-in failed",
+      "configIntro": "Server configuration error (common on Vercel when Supabase environment variables are missing).",
+      "configHeading": "Set these in Vercel → Project → Settings → Environment Variables:",
+      "configUrlKey": "NEXT_PUBLIC_SUPABASE_URL",
+      "configUrlDesc": "— your Supabase project URL.",
+      "configAnonKey": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "configAnonDesc": "— publishable key for client-side auth.",
+      "configServiceKey": "SUPABASE_SERVICE_ROLE_KEY",
+      "configServiceDesc": "— server-only, for admin/privileged routes.",
+      "configRedeploy": "After adding variables, redeploy the project.",
+      "withCode": "Error code: {error}. Try signing in again or check Vercel Runtime Logs.",
+      "generic": "Something went wrong. Please try again later."
+    },
+    "confirmed": {
+      "title": "Email confirmed",
+      "body": "Your account is confirmed. You can sign in.",
+      "cta": "Sign in"
+    },
+    "session": {
+      "signOut": "Sign out",
+      "signingOut": "Signing out..."
+    },
+    "shell": {
+      "defaultDescription": "Sign in to comment, follow automation content, and use an interface built for engineers.",
+      "confirmedDescription": "Your account is ready. Sign in to continue on PLC Vietnam."
+    },
+    "shellHero": {
+      "brandEyebrow": "PLC Vietnam",
+      "signIn": {
+        "prefix": "Welcome ",
+        "highlight": "back",
+        "description": "Sign in to comment, follow automation content, and use an interface built for engineers."
+      },
+      "signUp": {
+        "prefix": "Start your ",
+        "highlight": "journey",
+        "description": "Create an account to read posts, comment, and join Vietnam’s industrial automation community."
+      },
+      "forgotPassword": {
+        "prefix": "Restore ",
+        "highlight": "access",
+        "description": "Enter your email to receive a secure reset link — standard Supabase Auth flow."
+      },
+      "resetPassword": {
+        "prefix": "Set a ",
+        "highlight": "new password",
+        "description": "Choose a strong password to protect your account. We show requirements as you type."
+      },
+      "authError": {
+        "prefix": "Sign-in ",
+        "highlight": "interrupted",
+        "description": "OAuth or magic link hit an issue. Check Supabase configuration on Vercel or try again."
+      },
+      "emailConfirmed": {
+        "prefix": "Email ",
+        "highlight": "confirmed",
+        "description": "Your account is ready. Sign in to continue on PLC Vietnam."
+      },
+      "emailConfirmFailed": {
+        "prefix": "Invalid ",
+        "highlight": "link",
+        "description": "The confirmation link may have expired or already been used. You can sign up again or contact support."
+      }
+    }
+  },
+  "search": {
+    "emptyState": "No results for \"{query}\"",
+    "sectionPosts": "Posts",
+    "sectionBooks": "Books",
+    "ariaLabel": "Search",
+    "placeholderExpanded": "Search posts, books...",
+    "placeholderShort": "Search...",
+    "pageSubmit": "Search",
+    "promptTitle": "Search content",
+    "promptBody": "Enter keywords to find posts and books about industrial automation.",
+    "searching": "Searching...",
+    "resultsSummary": "Found {count} results for \"{query}\""
+  },
+  "books": {
+    "otherBooks": "Other books",
+    "emptyTitle": "No books yet",
+    "emptyBody": "There are no books in the library yet. Please check back later.",
+    "detailCta": "View details →",
+    "seriesBooksCount": "{count} books",
+    "otherBooksCount": "{count} books"
+  },
+  "posts": {
+    "relatedHeading": "Related posts",
+    "readingMinutes": "{count} min read",
+    "emptyTitle": "No posts yet",
+    "emptyBody": "There are no posts yet. Check back soon!",
+    "breadcrumbAria": "Breadcrumb",
+    "tagsHeading": "Tags:",
+    "deleteConfirm": "Are you sure you want to delete this post?",
+    "deleteFail": "Could not delete the post. Please try again.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "viewsCount": "{count} views",
+    "tocTitle": "On this page",
+    "tocNavAria": "Table of contents",
+    "shareLabel": "Share:",
+    "shareFacebook": "Share on Facebook",
+    "shareLinkedIn": "Share on LinkedIn",
+    "shareTwitter": "Share on X (Twitter)",
+    "copyLink": "Copy link",
+    "copiedToast": "Copied!"
+  },
+  "comments": {
+    "signInCta": "Sign in to comment",
+    "signInPromptTitle": "Sign in to comment",
+    "socialPromptBody": "Sign in with Google to leave a comment.",
+    "googleSignIn": "Sign in with Google",
+    "googleSigningIn": "Signing in...",
+    "loading": "Loading...",
+    "signOut": "Sign out",
+    "signOutAria": "Sign out of account",
+    "commentHeading": "Comments ({count})",
+    "anonymous": "Anonymous",
+    "listAriaLabel": "Comment list",
+    "emptyList": "No comments yet. Be the first to comment!",
+    "formLabel": "Your comment",
+    "formPlaceholder": "Write a comment...",
+    "formSubmit": "Post comment",
+    "formSubmitting": "Sending...",
+    "reply": "Reply",
+    "cancel": "Cancel",
+    "replySubmit": "Post reply",
+    "replyPlaceholder": "Reply to {name}...",
+    "repliesAriaLabel": "Replies",
+    "optimisticSending": "Sending...",
+    "validationEmpty": "Comment cannot be empty",
+    "validationTooLong": "Comment cannot exceed 2000 characters",
+    "fetchCommentsFailed": "Could not load comments",
+    "submitCommentFailed": "Could not post comment"
+  },
+  "navigationTree": {
+    "noResults": "No results for \"{query}\"",
+    "loadError": "Could not load navigation tree",
+    "emptyTree": "No content yet",
+    "searchPlaceholder": "Search...",
+    "clearSearch": "Clear search",
+    "navAriaLabel": "Content navigation tree",
+    "fieldNoCategories": "No categories yet"
+  },
+  "common": {
+    "loadingPage": "Loading page",
+    "email": "Email",
+    "linkedIn": "LinkedIn",
+    "gitHub": "GitHub",
+    "twitter": "Twitter",
+    "paginationPrevious": "Previous page",
+    "paginationNext": "Next page",
+    "paginationPage": "Page {page}",
+    "breadcrumbAria": "Breadcrumb",
+    "navLoadingAria": "Loading page",
+    "postCount": "{count} posts",
+    "fieldFallback": "Field",
+    "categoryFallback": "Category"
+  },
+  "tags": {
+    "chipAriaLabel": "View posts tagged {name}"
+  }
+}

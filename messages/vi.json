@@ -1,0 +1,316 @@
+{
+  "LocaleLayout": {
+    "title": "PLC Việt Nam - PLC, SCADA, Siemens",
+    "description": "Cộng đồng kỹ sư tự động hóa Việt Nam - Chia sẻ kiến thức PLC, SCADA, Siemens TIA Portal và các giải pháp tự động hóa công nghiệp"
+  },
+  "nav": {
+    "mainLabel": "Điều hướng chính",
+    "home": "Trang chủ",
+    "tags": "Thẻ",
+    "posts": "Bài viết",
+    "books": "Sách",
+    "about": "Giới thiệu",
+    "search": "Tìm kiếm",
+    "drawerAriaLabel": "Menu điều hướng",
+    "drawerTitle": "Điều hướng",
+    "drawerClose": "Đóng menu điều hướng"
+  },
+  "site": {
+    "brand": "PLC Việt Nam",
+    "logoAlt": "PLC Việt Nam"
+  },
+  "rss": {
+    "title": "PLC Việt Nam",
+    "description": "Chia sẻ kiến thức tự động hóa công nghiệp",
+    "language": "vi"
+  },
+  "sidebar": {
+    "topicTree": "Cây chủ đề"
+  },
+  "footer": {
+    "tagline": "Chia sẻ kiến thức chuyên sâu về PLC, SCADA, Siemens Automation và các công nghệ tự động hóa công nghiệp hiện đại.",
+    "linksTitle": "Liên kết",
+    "resourcesTitle": "Tài nguyên",
+    "rss": "RSS Feed",
+    "sitemap": "Sitemap",
+    "admin": "Quản trị",
+    "copyright": "© {year} PLC Việt Nam. Tất cả quyền được bảo lưu.",
+    "privacy": "Chính sách bảo mật",
+    "terms": "Điều khoản sử dụng",
+    "backToTop": "Về đầu trang"
+  },
+  "home": {
+    "title": "PLC Việt Nam",
+    "tagline": "Cộng đồng kỹ sư tự động hóa Việt Nam",
+    "description": "Khám phá kiến thức chuyên sâu về PLC, SCADA, Siemens TIA Portal và các công nghệ tự động hóa công nghiệp hiện đại. Chia sẻ kinh nghiệm thực tế từ các dự án triển khai tại Việt Nam.",
+    "heroEyebrow": "PLC · SCADA · Siemens",
+    "readPosts": "Đọc bài viết",
+    "library": "Thư viện sách",
+    "emptyTitle": "Chưa có nội dung",
+    "emptyBody": "Blog đang được xây dựng. Hãy quay lại sau để xem các bài viết mới nhất!",
+    "loadErrorTitle": "Không thể tải trang chủ",
+    "loadErrorUnknown": "Đã xảy ra lỗi không xác định",
+    "recentHeading": "Bài viết mới nhất",
+    "recentSub": "Cập nhật gần đây từ blog.",
+    "fieldsHeading": "Lĩnh vực",
+    "fieldsSub": "Khám phá các chủ đề tự động hóa công nghiệp",
+    "categoriesCount": "{count} danh mục",
+    "featuredBooks": "Sách nổi bật",
+    "seeAllBooks": "Xem tất cả sách",
+    "seeAllPosts": "Xem tất cả bài viết"
+  },
+  "errors": {
+    "serverTitle": "Đã xảy ra lỗi",
+    "serverFallback": "Máy chủ gặp sự cố. Vui lòng thử lại sau.",
+    "errorCode": "Mã lỗi: {digest}",
+    "retry": "Thử lại",
+    "backHome": "Về trang chủ",
+    "notFoundTitle": "Trang không tìm thấy",
+    "notFoundBody": "Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.",
+    "searchPrompt": "Hoặc tìm kiếm nội dung:",
+    "searchPlaceholder": "Tìm kiếm bài viết...",
+    "searchSubmit": "Tìm",
+    "postNotFoundTitle": "Không tìm thấy bài viết",
+    "fieldNotFoundTitle": "Không tìm thấy lĩnh vực",
+    "bookNotFoundTitle": "Không tìm thấy sách",
+    "tagNotFoundTitle": "Không tìm thấy thẻ",
+    "categoryNotFoundTitle": "Không tìm thấy danh mục"
+  },
+  "language": {
+    "switchLabel": "Ngôn ngữ",
+    "vietnamese": "Tiếng Việt",
+    "english": "English"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Đăng nhập",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "submit": "Đăng nhập",
+      "submitting": "Đang đăng nhập…",
+      "forgot": "Quên mật khẩu?",
+      "noAccount": "Chưa có tài khoản?",
+      "signUp": "Đăng ký",
+      "failDefault": "Đăng nhập thất bại. Vui lòng thử lại.",
+      "registered": "Đăng ký thành công! Vui lòng kiểm tra email và click link xác nhận trước khi đăng nhập.",
+      "resetOk": "Đặt lại mật khẩu thành công. Vui lòng đăng nhập."
+    },
+    "signUp": {
+      "title": "Đăng ký",
+      "displayName": "Tên hiển thị",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "submit": "Đăng ký",
+      "submitting": "Đang tạo tài khoản…",
+      "hasAccount": "Đã có tài khoản?",
+      "signIn": "Đăng nhập",
+      "failDefault": "Đăng ký thất bại",
+      "passwordPolicy": "Mật khẩu chưa đáp ứng đủ tiêu chí.",
+      "checkEmailTitle": "Kiểm tra email của bạn",
+      "checkEmailBody": "Chúng tôi đã gửi email xác nhận đến {email}. Vui lòng click vào link trong email để kích hoạt tài khoản, sau đó đăng nhập.",
+      "toSignIn": "Đến trang đăng nhập"
+    },
+    "callback": {
+      "processing": "Đang hoàn tất xác thực…"
+    },
+    "passwordChecklist": {
+      "title": "Yêu cầu mật khẩu",
+      "minLength": "Ít nhất 8 ký tự",
+      "upperCase": "Có ít nhất 1 chữ hoa",
+      "lowerCase": "Có ít nhất 1 chữ thường",
+      "digit": "Có ít nhất 1 số",
+      "special": "Có ít nhất 1 ký tự đặc biệt",
+      "confirmMatch": "Mật khẩu xác nhận khớp"
+    },
+    "forgot": {
+      "title": "Quên mật khẩu",
+      "email": "Email",
+      "submit": "Gửi liên kết đặt lại",
+      "submitting": "Đang gửi…",
+      "resendIn": "Gửi lại sau {seconds} giây",
+      "backSignIn": "Quay lại đăng nhập",
+      "failDefault": "Có lỗi xảy ra",
+      "successMessage": "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi link đặt lại mật khẩu. Vui lòng kiểm tra hộp thư của bạn."
+    },
+    "reset": {
+      "title": "Đặt lại mật khẩu",
+      "password": "Mật khẩu mới",
+      "confirmNew": "Xác nhận mật khẩu mới",
+      "submit": "Đặt lại mật khẩu",
+      "saving": "Đang lưu…",
+      "verifying": "Đang xác thực phiên…",
+      "sessionInvalid": "Phiên đặt lại mật khẩu không hợp lệ hoặc đã hết hạn",
+      "sessionWait": "Đang xác thực phiên đặt lại mật khẩu. Vui lòng thử lại sau vài giây.",
+      "mismatch": "Mật khẩu xác nhận không khớp",
+      "tokenInvalid": "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+      "signInCta": "Đăng nhập",
+      "failDefault": "Có lỗi xảy ra"
+    },
+    "error": {
+      "title": "Lỗi xác thực",
+      "backSignIn": "Quay lại đăng nhập",
+      "srOnlyFail": "Đăng nhập thất bại",
+      "configIntro": "Lỗi cấu hình máy chủ (thường gặp trên Vercel khi thiếu biến môi trường Supabase).",
+      "configHeading": "Cần thiết lập trên Vercel → Project → Settings → Environment Variables:",
+      "configUrlKey": "NEXT_PUBLIC_SUPABASE_URL",
+      "configUrlDesc": "— URL project Supabase.",
+      "configAnonKey": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "configAnonDesc": "— publishable key dùng cho client-side auth.",
+      "configServiceKey": "SUPABASE_SERVICE_ROLE_KEY",
+      "configServiceDesc": "— chỉ dùng server-side cho admin/privileged routes.",
+      "configRedeploy": "Sau khi thêm biến, hãy Redeploy project.",
+      "withCode": "Mã lỗi: {error}. Thử đăng nhập lại hoặc kiểm tra log trên Vercel (Runtime Logs).",
+      "generic": "Đã xảy ra lỗi. Thử lại sau."
+    },
+    "confirmed": {
+      "title": "Xác nhận email",
+      "body": "Tài khoản của bạn đã được xác nhận. Bạn có thể đăng nhập.",
+      "cta": "Đăng nhập"
+    },
+    "session": {
+      "signOut": "Đăng xuất",
+      "signingOut": "Đang đăng xuất..."
+    },
+    "shell": {
+      "defaultDescription": "Đăng nhập để bình luận, theo dõi nội dung tự động hóa và trải nghiệm trên một giao diện được thiết kế cho kỹ sư.",
+      "confirmedDescription": "Tài khoản của bạn đã sẵn sàng. Đăng nhập để tiếp tục trải nghiệm PLC Việt Nam."
+    },
+    "shellHero": {
+      "brandEyebrow": "PLC Việt Nam",
+      "signIn": {
+        "prefix": "Chào mừng ",
+        "highlight": "trở lại",
+        "description": "Đăng nhập để bình luận, theo dõi nội dung tự động hóa và trải nghiệm trên một giao diện được thiết kế cho kỹ sư."
+      },
+      "signUp": {
+        "prefix": "Bắt đầu ",
+        "highlight": "hành trình",
+        "description": "Tạo tài khoản để đọc bài, bình luận và tham gia cộng đồng kỹ sư tự động hóa Việt Nam."
+      },
+      "forgotPassword": {
+        "prefix": "Khôi phục ",
+        "highlight": "quyền truy cập",
+        "description": "Nhập email để nhận liên kết đặt lại mật khẩu an toàn — quy trình chuẩn Supabase Auth."
+      },
+      "resetPassword": {
+        "prefix": "Đặt ",
+        "highlight": "mật khẩu mới",
+        "description": "Chọn mật khẩu mạnh để bảo vệ tài khoản. Chúng tôi hiển thị tiêu chí ngay khi bạn gõ."
+      },
+      "authError": {
+        "prefix": "Đăng nhập ",
+        "highlight": "gián đoạn",
+        "description": "Luồng OAuth hoặc magic link gặp sự cố. Kiểm tra cấu hình Supabase trên Vercel hoặc thử lại."
+      },
+      "emailConfirmed": {
+        "prefix": "Email ",
+        "highlight": "đã xác nhận",
+        "description": "Tài khoản của bạn đã sẵn sàng. Đăng nhập để tiếp tục trải nghiệm PLC Việt Nam."
+      },
+      "emailConfirmFailed": {
+        "prefix": "Link ",
+        "highlight": "không hợp lệ",
+        "description": "Liên kết xác nhận có thể đã hết hạn hoặc đã được dùng. Bạn có thể đăng ký lại hoặc liên hệ hỗ trợ."
+      }
+    }
+  },
+  "search": {
+    "emptyState": "Không tìm thấy kết quả cho \"{query}\"",
+    "sectionPosts": "Bài viết",
+    "sectionBooks": "Sách",
+    "ariaLabel": "Tìm kiếm",
+    "placeholderExpanded": "Tìm kiếm bài viết, sách...",
+    "placeholderShort": "Tìm kiếm...",
+    "pageSubmit": "Tìm kiếm",
+    "promptTitle": "Tìm kiếm nội dung",
+    "promptBody": "Nhập từ khóa để tìm kiếm bài viết và sách về tự động hóa công nghiệp.",
+    "searching": "Đang tìm kiếm...",
+    "resultsSummary": "Tìm thấy {count} kết quả cho \"{query}\""
+  },
+  "books": {
+    "otherBooks": "Sách khác",
+    "emptyTitle": "Chưa có sách nào",
+    "emptyBody": "Hiện tại chưa có sách nào trong thư viện. Vui lòng quay lại sau.",
+    "detailCta": "Xem chi tiết →",
+    "seriesBooksCount": "{count} sách",
+    "otherBooksCount": "{count} sách"
+  },
+  "posts": {
+    "relatedHeading": "Bài viết liên quan",
+    "readingMinutes": "{count} phút đọc",
+    "emptyTitle": "Chưa có bài viết nào",
+    "emptyBody": "Hiện tại chưa có bài viết nào. Hãy quay lại sau nhé!",
+    "breadcrumbAria": "Thanh điều hướng",
+    "tagsHeading": "Thẻ:",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa bài viết này?",
+    "deleteFail": "Xóa bài viết thất bại. Vui lòng thử lại.",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "deleting": "Đang xóa...",
+    "viewsCount": "{count} lượt xem",
+    "tocTitle": "Mục lục",
+    "tocNavAria": "Mục lục nội dung",
+    "shareLabel": "Chia sẻ:",
+    "shareFacebook": "Chia sẻ lên Facebook",
+    "shareLinkedIn": "Chia sẻ lên LinkedIn",
+    "shareTwitter": "Chia sẻ lên Twitter/X",
+    "copyLink": "Sao chép liên kết",
+    "copiedToast": "Đã sao chép!"
+  },
+  "comments": {
+    "signInCta": "Đăng nhập để bình luận",
+    "signInPromptTitle": "Đăng nhập để bình luận",
+    "socialPromptBody": "Bạn cần đăng nhập bằng Google để có thể để lại bình luận",
+    "googleSignIn": "Đăng nhập với Google",
+    "googleSigningIn": "Đang đăng nhập...",
+    "loading": "Đang tải...",
+    "signOut": "Đăng xuất",
+    "signOutAria": "Đăng xuất khỏi tài khoản",
+    "commentHeading": "Bình luận ({count})",
+    "anonymous": "Ẩn danh",
+    "listAriaLabel": "Danh sách bình luận",
+    "emptyList": "Chưa có bình luận nào. Hãy là người đầu tiên bình luận!",
+    "formLabel": "Bình luận của bạn",
+    "formPlaceholder": "Nhập bình luận...",
+    "formSubmit": "Gửi bình luận",
+    "formSubmitting": "Đang gửi...",
+    "reply": "Trả lời",
+    "cancel": "Hủy",
+    "replySubmit": "Gửi trả lời",
+    "replyPlaceholder": "Trả lời {name}...",
+    "repliesAriaLabel": "Trả lời",
+    "optimisticSending": "Đang gửi...",
+    "validationEmpty": "Bình luận không được để trống",
+    "validationTooLong": "Bình luận không được vượt quá 2000 ký tự",
+    "fetchCommentsFailed": "Không thể tải bình luận",
+    "submitCommentFailed": "Không thể gửi bình luận"
+  },
+  "navigationTree": {
+    "noResults": "Không tìm thấy kết quả cho \"{query}\"",
+    "loadError": "Không thể tải cây điều hướng",
+    "emptyTree": "Chưa có nội dung",
+    "searchPlaceholder": "Tìm kiếm...",
+    "clearSearch": "Xóa tìm kiếm",
+    "navAriaLabel": "Cây điều hướng nội dung",
+    "fieldNoCategories": "Chưa có danh mục nào cả"
+  },
+  "common": {
+    "loadingPage": "Đang tải trang",
+    "email": "Email",
+    "linkedIn": "LinkedIn",
+    "gitHub": "GitHub",
+    "twitter": "Twitter",
+    "paginationPrevious": "Trang trước",
+    "paginationNext": "Trang sau",
+    "paginationPage": "Trang {page}",
+    "breadcrumbAria": "Thanh điều hướng",
+    "navLoadingAria": "Đang tải trang",
+    "postCount": "{count} bài viết",
+    "fieldFallback": "Lĩnh vực",
+    "categoryFallback": "Danh mục"
+  },
+  "tags": {
+    "chipAriaLabel": "Xem bài viết với tag {name}"
+  }
+}

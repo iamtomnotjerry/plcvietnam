@@ -1,12 +1,14 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useSupabaseAuth } from '@/features/comments/hooks/useSupabaseAuth';
+import { useTranslations } from 'next-intl';
 
 export function AuthButton() {
+  const t = useTranslations('auth');
   const { user, status } = useSupabaseAuth();
   const [signingOut, setSigningOut] = useState(false);
 
@@ -31,7 +33,7 @@ export function AuthButton() {
           }}
           className="cursor-pointer rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {signingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
+          {signingOut ? t('session.signingOut') : t('session.signOut')}
         </button>
       </div>
     );
@@ -42,7 +44,7 @@ export function AuthButton() {
       href={'/auth/sign-in' as Route}
       className="cursor-pointer rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
     >
-      Đăng nhập
+      {t('signIn.submit')}
     </Link>
   );
 }

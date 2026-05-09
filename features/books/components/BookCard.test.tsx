@@ -13,14 +13,6 @@ vi.mock('next/image', () => ({
   },
 }));
 
-vi.mock('next/link', () => ({
-  default: ({ href, children, className }: any) => (
-    <a href={href} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
 describe('BookCard', () => {
   const mockBook: Book = {
     id: 'book-1',
@@ -69,7 +61,7 @@ describe('BookCard', () => {
 
     it('should show detail CTA text', () => {
       render(<BookCard book={mockBook} variant="grid" />);
-      expect(screen.getByText(/Xem chi tiết sách/)).toBeInTheDocument();
+      expect(screen.getByText(/Xem chi tiết/)).toBeInTheDocument();
     });
 
     it('should truncate description to 300 characters', () => {

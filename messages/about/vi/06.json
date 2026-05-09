@@ -1,0 +1,64 @@
+{
+  "communityTitle": "Đóng góp cho cộng đồng PLC Việt Nam",
+  "communityLead": "Admin diễn đàn, chia sẻ kiến thức và kết nối kỹ sư tự động hóa",
+  "communityRoleCardTitle": "Vai trò cộng đồng",
+  "communityRoleCardSub": "Admin diễn đàn PLC Việt Nam",
+  "communityRoleItems": [
+    {
+      "title": "Admin diễn đàn",
+      "desc": "Quản trị và định hướng nội dung cho cộng đồng PLC Việt Nam"
+    },
+    {
+      "title": "Kết nối kỹ sư",
+      "desc": "Kết nối kỹ sư tự động hóa trong cộng đồng chuyên môn"
+    },
+    {
+      "title": "Hỗ trợ chuyên môn",
+      "desc": "Tư vấn kỹ thuật và giải đáp thắc mắc cho thành viên"
+    }
+  ],
+  "communityMetricMembers": "Thành viên",
+  "communityMetricPosts": "Bài viết",
+  "communityMetricMembersValue": "5K+",
+  "communityMetricPostsValue": "100+",
+  "shareContentCardTitle": "Nội dung chia sẻ",
+  "shareContentCardSub": "Kiến thức chuyên sâu về tự động hóa",
+  "shareContentItems": [
+    {
+      "title": "PLC & SCADA",
+      "desc": "Kiến thức về lập trình PLC và hệ thống SCADA"
+    },
+    {
+      "title": "Mạng công nghiệp",
+      "desc": "DCS và mạng truyền thông công nghiệp"
+    },
+    {
+      "title": "Giải pháp kỹ thuật",
+      "desc": "Hướng dẫn triển khai và xử lý sự cố"
+    }
+  ],
+  "shareMetricTutorials": "Bài hướng dẫn",
+  "shareMetricVideos": "Video tutorial",
+  "shareMetricTutorialsValue": "200+",
+  "shareMetricVideosValue": "50+",
+  "impactCardTitle": "Tác động tạo ra",
+  "impactCardSub": "Phát triển năng lực kỹ sư",
+  "impactItems": [
+    {
+      "title": "Hỗ trợ kỹ sư trẻ",
+      "desc": "Đào tạo và hướng dẫn kỹ sư mới vào nghề"
+    },
+    {
+      "title": "Văn hóa học tập",
+      "desc": "Thúc đẩy tinh thần học tập liên tục"
+    },
+    {
+      "title": "Kết nối doanh nghiệp",
+      "desc": "Liên kết đào tạo với nhu cầu thực tế"
+    }
+  ],
+  "impactMetricLearners": "Người học",
+  "impactMetricSatisfaction": "Hài lòng",
+  "impactMetricLearnersValue": "500+",
+  "impactMetricSatisfactionValue": "90%"
+}

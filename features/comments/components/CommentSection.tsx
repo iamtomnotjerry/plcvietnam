@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { SignInButton } from './SignInButton';
 import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
@@ -20,6 +21,7 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({ postId, postSlug, comments, onSubmit }: CommentSectionProps) {
+  const t = useTranslations('comments');
   const { status } = useSupabaseAuth();
 
   // Count total including replies
@@ -35,7 +37,7 @@ export function CommentSection({ postId, postSlug, comments, onSubmit }: Comment
       data-post-slug={postSlug}
     >
       <h2 id="comments-heading" className="text-xl font-semibold text-card-foreground">
-        Bình luận ({total})
+        {t('commentHeading', { count: total })}
       </h2>
 
       {/* Auth area — top-level comment form */}
@@ -45,7 +47,7 @@ export function CommentSection({ postId, postSlug, comments, onSubmit }: Comment
         {status === 'loading' && (
           <div
             className="animate-pulse rounded-lg border border-border bg-muted/30 p-4 h-16"
-            aria-label="Đang tải..."
+            aria-label={t('loading')}
           />
         )}
 

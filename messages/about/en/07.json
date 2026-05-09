@@ -1,0 +1,26 @@
+{
+  "eduWorkTitle": "Education & experience",
+  "timeline": [
+    {
+      "period": "06/2015 — Present",
+      "role": "Junior Technical Consultant / SITRAIN Manager",
+      "org": "Siemens Vietnam — RC-VN DI FA",
+      "desc": "Bid preparation and technical proposals. Software development for utility systems (chilling, wastewater). Professional training programs for customers and partners. Deep technical consulting on hydropower automation and DCS/SCADA solutions.",
+      "type": "work"
+    },
+    {
+      "period": "09/2011 — 06/2015",
+      "role": "Automation teacher / trainer & programmer",
+      "org": "Teaching & automation programming",
+      "desc": "Teaching automation, training engineers, and PLC programming for real projects.",
+      "type": "work"
+    },
+    {
+      "period": "09/2005 — 06/2010",
+      "role": "B.Sc. Electrical — Electronics (Automation)",
+      "org": "Ho Chi Minh City University of Technology",
+      "desc": "Automation major, Faculty of Electrical — Electronics.",
+      "type": "edu"
+    }
+  ]
+}

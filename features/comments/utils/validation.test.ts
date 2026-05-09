@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   validateComment,
   commentSchema,
-  COMMENT_VALIDATION_MESSAGES,
+  COMMENT_VALIDATION_MESSAGE_KEYS,
   COMMENT_MIN_LENGTH,
   COMMENT_MAX_LENGTH,
 } from './validation';
@@ -12,7 +12,7 @@ describe('validateComment', () => {
     it('accepts a single character', () => {
       const result = validateComment('a');
       expect(result.valid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect(result.errorKey).toBeUndefined();
     });
 
     it('accepts a typical comment', () => {
@@ -36,12 +36,12 @@ describe('validateComment', () => {
     it('rejects an empty string', () => {
       const result = validateComment('');
       expect(result.valid).toBe(false);
-      expect(result.error).toBe(COMMENT_VALIDATION_MESSAGES.empty);
+      expect(result.errorKey).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.empty);
     });
 
-    it('returns the Vietnamese empty error message', () => {
+    it('returns the validation message key for empty comment', () => {
       const result = validateComment('');
-      expect(result.error).toBe('Bình luận không được để trống');
+      expect(result.errorKey).toBe('validationEmpty');
     });
   });
 
@@ -50,14 +50,14 @@ describe('validateComment', () => {
       const content = 'a'.repeat(COMMENT_MAX_LENGTH + 1);
       const result = validateComment(content);
       expect(result.valid).toBe(false);
-      expect(result.error).toBe(COMMENT_VALIDATION_MESSAGES.tooLong);
+      expect(result.errorKey).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.tooLong);
     });
 
     it('rejects a very long comment', () => {
       const content = 'a'.repeat(5000);
       const result = validateComment(content);
       expect(result.valid).toBe(false);
-      expect(result.error).toBe('Bình luận không được vượt quá 2000 ký tự');
+      expect(result.errorKey).toBe('validationTooLong');
     });
   });
 
@@ -89,14 +89,14 @@ describe('commentSchema', () => {
 
     it('throws for empty comment', () => {
       expect(() => commentSchema.parse({ content: '' })).toThrow(
-        COMMENT_VALIDATION_MESSAGES.empty
+        COMMENT_VALIDATION_MESSAGE_KEYS.empty
       );
     });
 
     it('throws for too-long comment', () => {
-      expect(() =>
-        commentSchema.parse({ content: 'a'.repeat(2001) })
-      ).toThrow(COMMENT_VALIDATION_MESSAGES.tooLong);
+      expect(() => commentSchema.parse({ content: 'a'.repeat(2001) })).toThrow(
+        COMMENT_VALIDATION_MESSAGE_KEYS.tooLong
+      );
     });
   });
 
@@ -110,19 +110,19 @@ describe('commentSchema', () => {
       }
     });
 
-    it('returns success:false with error message for empty comment', () => {
+    it('returns success:false with error message key for empty comment', () => {
       const result = commentSchema.safeParse({ content: '' });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.message).toBe(COMMENT_VALIDATION_MESSAGES.empty);
+        expect(result.error.message).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.empty);
       }
     });
 
-    it('returns success:false with error message for too-long comment', () => {
+    it('returns success:false with error message key for too-long comment', () => {
       const result = commentSchema.safeParse({ content: 'a'.repeat(2001) });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.message).toBe(COMMENT_VALIDATION_MESSAGES.tooLong);
+        expect(result.error.message).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.tooLong);
       }
     });
   });

@@ -21,7 +21,7 @@ const redis = env.UPSTASH_REDIS_REST_URL
 // ⚠️ WARNING: Not suitable for multi-instance production deployments
 const memoryLimiters = {
   auth: new RateLimiterMemory({
-    points: 5, // 5 requests
+    points: 10, // 10 requests
     duration: 900, // per 15 minutes
     blockDuration: 900,
   }),
@@ -33,6 +33,12 @@ const memoryLimiters = {
   comments: new RateLimiterMemory({
     points: 10, // 10 requests
     duration: 60, // per 60 seconds
+    blockDuration: 60,
+  }),
+  /** Forgot-password: one resend per email+IP every 60s */
+  forgotResend: new RateLimiterMemory({
+    points: 1,
+    duration: 60,
     blockDuration: 60,
   }),
 };
@@ -48,11 +54,11 @@ if (!redis) {
 
 // Create Redis-based rate limiters
 export const rateLimiters = {
-  // Strict rate limit for auth endpoints (5 requests per 15 minutes)
+  // Strict rate limit for auth endpoints (10 requests per 15 minutes)
   auth: redis
     ? new Ratelimit({
         redis,
-        limiter: Ratelimit.slidingWindow(5, '15 m'),
+        limiter: Ratelimit.slidingWindow(10, '15 m'),
         analytics: true,
         prefix: '@upstash/ratelimit:auth',
       })
@@ -77,18 +83,27 @@ export const rateLimiters = {
         prefix: '@upstash/ratelimit:comments',
       })
     : null,
+
+  forgotResend: redis
+    ? new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(1, '60 s'),
+        analytics: true,
+        prefix: '@upstash/ratelimit:forgot-resend',
+      })
+    : null,
 };
 
 /**
  * Check rate limit for a request
  * Falls back to in-memory limiter if Redis is not configured
  * @param identifier - Unique identifier (IP address, user ID, etc.)
- * @param limiterType - Type of rate limiter to use ('auth', 'api', 'comments')
+ * @param limiterType - Type of rate limiter to use ('auth', 'api', 'comments', 'forgotResend')
  * @returns Whether the request is allowed
  */
 export async function checkRateLimit(
   identifier: string,
-  limiterType: 'auth' | 'api' | 'comments' = 'api'
+  limiterType: 'auth' | 'api' | 'comments' | 'forgotResend' = 'api'
 ): Promise<{ success: boolean; limit?: number; remaining?: number; reset?: number }> {
   const limiter = rateLimiters[limiterType];
 

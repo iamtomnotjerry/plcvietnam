@@ -3,6 +3,7 @@
 import type { Route } from 'next';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { PostCard } from '@/features/posts/components/PostCard';
 import { BookCard } from '@/features/books/components/BookCard';
 import type { Post, Book } from '@/lib/types/domain';
@@ -23,6 +24,7 @@ interface SearchResults {
 export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('search');
 
   const [inputValue, setInputValue] = useState(initialQuery);
   const [query, setQuery] = useState(initialQuery);
@@ -172,7 +174,7 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
               type="search"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Tìm kiếm bài viết, sách..."
+              placeholder={t('placeholderExpanded')}
               className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
             />
           </div>
@@ -180,7 +182,7 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
             type="submit"
             className="px-6 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer whitespace-nowrap"
           >
-            Tìm kiếm
+            {t('pageSubmit')}
           </button>
         </div>
       </form>
@@ -203,10 +205,8 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">Tìm kiếm nội dung</h2>
-          <p className="text-muted-foreground max-w-md">
-            Nhập từ khóa để tìm kiếm bài viết và sách về tự động hóa công nghiệp.
-          </p>
+          <h2 className="text-xl font-semibold text-foreground mb-2">{t('promptTitle')}</h2>
+          <p className="text-muted-foreground max-w-md">{t('promptBody')}</p>
         </div>
       )}
 
@@ -228,7 +228,7 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
             />
           </svg>
-          <span className="ml-3 text-muted-foreground">Đang tìm kiếm...</span>
+          <span className="ml-3 text-muted-foreground">{t('searching')}</span>
         </div>
       )}
 
@@ -250,9 +250,7 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
               />
             </svg>
           </div>
-          <p className="text-lg text-muted-foreground">
-            Không tìm thấy kết quả cho &ldquo;{query}&rdquo;
-          </p>
+          <p className="text-lg text-muted-foreground">{t('emptyState', { query })}</p>
         </div>
       )}
 
@@ -260,14 +258,13 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
       {hasQuery && !isLoading && hasResults && (
         <div className="space-y-12">
           <p className="text-sm text-muted-foreground">
-            Tìm thấy <span className="font-semibold text-foreground">{results.totalResults}</span>{' '}
-            kết quả cho &ldquo;{query}&rdquo;
+            {t('resultsSummary', { count: results.totalResults, query })}
           </p>
 
           {results.posts.length > 0 && (
             <section>
               <div className="flex items-center gap-3 mb-6">
-                <h2 className="text-xl font-bold text-foreground">Bài viết</h2>
+                <h2 className="text-xl font-bold text-foreground">{t('sectionPosts')}</h2>
                 <span className="text-sm text-muted-foreground">({results.posts.length})</span>
               </div>
               <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -285,7 +282,7 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
           {results.books.length > 0 && (
             <section>
               <div className="flex items-center gap-3 mb-6">
-                <h2 className="text-xl font-bold text-foreground">Sách</h2>
+                <h2 className="text-xl font-bold text-foreground">{t('sectionBooks')}</h2>
                 <span className="text-sm text-muted-foreground">({results.books.length})</span>
               </div>
               <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

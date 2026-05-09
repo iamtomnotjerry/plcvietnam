@@ -6,8 +6,9 @@
 
 'use client';
 
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { usePathname } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import type { MouseEvent } from 'react';
 import type { NavigationNode as NavigationNodeType } from '@/lib/types/domain';
 
@@ -59,6 +60,7 @@ export function NavigationNode({
   onNodeClick,
   level = 0,
 }: NavigationNodeProps) {
+  const t = useTranslations('navigationTree');
   const pathname = usePathname();
   const hasChildren = node.children && node.children.length > 0;
   const isExpanded = expandedIds.has(node.id);
@@ -284,7 +286,7 @@ export function NavigationNode({
                 className="text-sm text-muted-foreground italic py-2 px-3"
                 style={{ paddingLeft: `${getPaddingLeft() + 28}px` }}
               >
-                Chưa có danh mục nào cả
+                {t('fieldNoCategories')}
               </div>
             )}
           </div>

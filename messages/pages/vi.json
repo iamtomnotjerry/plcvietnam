@@ -1,0 +1,94 @@
+{
+  "pages": {
+    "books": {
+      "metaTitle": "Sách - {brand}",
+      "metaDescription": "Khám phá các sách và tài liệu kỹ thuật về tự động hóa công nghiệp",
+      "heroTitle": "Sách & Tài liệu",
+      "heroSubtitle": "Khám phá các sách và tài liệu kỹ thuật về tự động hóa công nghiệp",
+      "loadErrorTitle": "Không thể tải sách",
+      "loadErrorUnknown": "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau."
+    },
+    "posts": {
+      "metaTitle": "Tất cả bài viết | {brand}",
+      "metaDescription": "Danh sách bài viết về PLC, SCADA, Siemens và tự động hóa công nghiệp",
+      "heroTitle": "Tất cả bài viết",
+      "heroSubtitle": "Khám phá toàn bộ nội dung về tự động hóa, PLC, SCADA và hệ thống công nghiệp.",
+      "loadErrorTitle": "Không thể tải bài viết",
+      "loadErrorUnknown": "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau."
+    },
+    "tag": {
+      "metaTitle": "{name} - {brand}",
+      "metaDescription": "Xem tất cả {count} bài viết về {name}"
+    },
+    "field": {
+      "metaTitle": "{name} | {brand}",
+      "metaDescriptionFallback": "Danh mục và bài viết về {name}",
+      "categoriesHeading": "Danh mục ({count})",
+      "emptyTitle": "Chưa có danh mục",
+      "emptyBody": "Lĩnh vực này chưa có danh mục nào. Vui lòng quay lại sau."
+    },
+    "category": {
+      "metaTitle": "{name} - {fieldName} | {brand}",
+      "metaDescriptionFallback": "Bài viết trong danh mục {name}"
+    },
+    "search": {
+      "metaTitleWithQuery": "Kết quả tìm kiếm \"{query}\" - {brand}",
+      "metaTitle": "Tìm kiếm - {brand}",
+      "metaDescriptionWithQuery": "Kết quả tìm kiếm cho \"{query}\" trên {brand}",
+      "metaDescription": "Tìm kiếm bài viết và sách về tự động hóa công nghiệp",
+      "heroTitle": "Tìm kiếm",
+      "heroSubtitle": "Tìm kiếm bài viết và sách về tự động hóa công nghiệp"
+    },
+    "bookDetail": {
+      "metaTitle": "{title} | Sách",
+      "downloadPdf": "Tải PDF",
+      "externalSource": "Xem nguồn bên ngoài",
+      "noDownload": "Chưa có liên kết tải cho sách này.",
+      "backToList": "← Quay lại danh sách sách"
+    },
+    "postJsonLd": {
+      "authorName": "Trần Văn Hiếu"
+    }
+  },
+  "authRoutes": {
+    "signIn": {
+      "metaTitle": "Đăng nhập | {brand}",
+      "metaDescription": "Đăng nhập để bình luận và quản lý nội dung.",
+      "heroTitle": "Đăng nhập",
+      "heroHint": "Nhập email và mật khẩu để tiếp tục.",
+      "dividerOr": "Hoặc",
+      "backHome": "← Về trang chủ"
+    },
+    "signUp": {
+      "metaTitle": "Đăng ký | {brand}",
+      "metaDescription": "Tạo tài khoản để tham gia cộng đồng.",
+      "heroTitle": "Đăng ký",
+      "heroBody": "Đăng ký bằng email để bắt đầu trải nghiệm PLC Việt Nam.",
+      "backHome": "← Về trang chủ"
+    },
+    "confirmed": {
+      "metaTitle": "Xác nhận email | {brand}",
+      "invalidTitle": "Link không hợp lệ",
+      "invalidBody": "Link xác nhận đã hết hạn hoặc không hợp lệ. Vui lòng đăng ký lại hoặc liên hệ hỗ trợ.",
+      "signUpAgain": "Đăng ký lại",
+      "backHome": "Về trang chủ",
+      "successTitle": "Email đã xác nhận!",
+      "successBody": "Tài khoản của bạn đã được kích hoạt thành công. Bạn có thể đăng nhập ngay bây giờ.",
+      "signIn": "Đăng nhập"
+    },
+    "error": {
+      "metaTitle": "Lỗi đăng nhập | {brand}",
+      "backHome": "Về trang chủ"
+    },
+    "forgotPassword": {
+      "metaTitle": "Quên mật khẩu | {brand}",
+      "heroTitle": "Quên mật khẩu",
+      "heroHint": "Nhập email để nhận liên kết đặt lại mật khẩu qua Supabase."
+    },
+    "resetPassword": {
+      "metaTitle": "Đặt lại mật khẩu | {brand}",
+      "heroTitle": "Đặt lại mật khẩu",
+      "heroHint": "Nhập mật khẩu mới (tối thiểu 8 ký tự) sau khi mở link từ email."
+    }
+  }
+}

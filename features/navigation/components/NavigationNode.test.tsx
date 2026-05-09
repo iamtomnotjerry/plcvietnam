@@ -7,13 +7,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NavigationNode } from './NavigationNode';
 import type { NavigationNode as NavigationNodeType } from '@/lib/types/domain';
-
-// Mock Next.js navigation
-const mockUsePathname = vi.fn(() => '/fields/plc/basics/intro-plc');
-
-vi.mock('next/navigation', () => ({
-  usePathname: () => mockUsePathname(),
-}));
+import { i18nNavMocks } from '@/test/i18n-navigation-mock';
 
 // Sample navigation nodes
 const fieldNode: NavigationNodeType = {
@@ -76,6 +70,7 @@ describe('NavigationNode', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    i18nNavMocks.usePathname.mockReturnValue('/fields/plc/basics/intro-plc');
   });
 
   describe('Rendering', () => {
@@ -155,7 +150,7 @@ describe('NavigationNode', () => {
 
   describe('Active State', () => {
     it('should highlight active node based on current pathname', () => {
-      mockUsePathname.mockReturnValue('/fields/plc/basics/intro-plc');
+      i18nNavMocks.usePathname.mockReturnValue('/fields/plc/basics/intro-plc');
 
       render(<NavigationNode node={postNode} expandedIds={new Set()} onToggle={mockOnToggle} />);
 
@@ -165,7 +160,7 @@ describe('NavigationNode', () => {
     });
 
     it('should not highlight inactive nodes', () => {
-      mockUsePathname.mockReturnValue('/fields/scada');
+      i18nNavMocks.usePathname.mockReturnValue('/fields/scada');
 
       render(<NavigationNode node={postNode} expandedIds={new Set()} onToggle={mockOnToggle} />);
 

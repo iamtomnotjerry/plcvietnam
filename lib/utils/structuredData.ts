@@ -91,16 +91,20 @@ export interface BookSchema {
 /**
  * Generate WebSite schema for homepage
  */
-export function generateWebSiteSchema(baseUrl: string): WebSiteSchema {
+export function generateWebSiteSchema(
+  baseUrl: string,
+  site: { name: string; description: string },
+  searchTarget: string
+): WebSiteSchema {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'PLC Việt Nam',
-    description: 'Blog chuyên về tự động hóa công nghiệp, PLC, SCADA, và Siemens Automation',
+    name: site.name,
+    description: site.description,
     url: baseUrl,
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${baseUrl}/search?q={search_term_string}`,
+      target: searchTarget,
       'query-input': 'required name=search_term_string',
     },
   };
@@ -112,10 +116,12 @@ export function generateWebSiteSchema(baseUrl: string): WebSiteSchema {
 export function generateArticleSchema(
   post: Post,
   author: Author,
-  baseUrl: string,
-  postUrl: string
+  postUrl: string,
+  publisherName: string,
+  authorProfileUrl: string
 ): ArticleSchema {
   const wordCount = post.content.split(/\s+/).length;
+  const siteOrigin = new URL(postUrl).origin;
 
   return {
     '@context': 'https://schema.org',
@@ -128,14 +134,14 @@ export function generateArticleSchema(
     author: {
       '@type': 'Person',
       name: author.name,
-      url: `${baseUrl}/about`,
+      url: authorProfileUrl,
     },
     publisher: {
       '@type': 'Organization',
-      name: 'PLC Việt Nam',
+      name: publisherName,
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/logo.png`,
+        url: `${siteOrigin}/logo.png`,
       },
     },
     mainEntityOfPage: {
@@ -169,7 +175,11 @@ export function generateBreadcrumbSchema(
 /**
  * Generate Person schema for author page
  */
-export function generatePersonSchema(author: Author, baseUrl: string): PersonSchema {
+export function generatePersonSchema(
+  author: Author,
+  profileUrl: string,
+  jobTitle: string
+): PersonSchema {
   const sameAs: string[] = [];
   if (author.socialLinks.linkedin) sameAs.push(author.socialLinks.linkedin);
   if (author.socialLinks.github) sameAs.push(author.socialLinks.github);
@@ -181,16 +191,16 @@ export function generatePersonSchema(author: Author, baseUrl: string): PersonSch
     name: author.name,
     description: author.bio,
     image: author.avatarUrl,
-    url: `${baseUrl}/about`,
+    url: profileUrl,
     sameAs: sameAs.length > 0 ? sameAs : undefined,
-    jobTitle: 'Chuyên gia Tự động hóa Công nghiệp',
+    jobTitle,
   };
 }
 
 /**
  * Generate Book schema
  */
-export function generateBookSchema(book: Book): BookSchema {
+export function generateBookSchema(book: Book, inLanguage: string): BookSchema {
   return {
     '@context': 'https://schema.org',
     '@type': 'Book',
@@ -202,7 +212,7 @@ export function generateBookSchema(book: Book): BookSchema {
       name: book.authorName,
     },
     datePublished: book.publishedYear?.toString(),
-    inLanguage: 'vi',
+    inLanguage,
     bookFormat: 'EBook',
   };
 }

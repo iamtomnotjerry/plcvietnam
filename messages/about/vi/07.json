@@ -1,0 +1,26 @@
+{
+  "eduWorkTitle": "Học vấn & Kinh nghiệm",
+  "timeline": [
+    {
+      "period": "06/2015 — Nay",
+      "role": "Junior Technical Consultant / SITRAIN Manager",
+      "org": "Siemens Vietnam — RC-VN DI FA",
+      "desc": "Chuẩn bị hồ sơ thầu và đề xuất kỹ thuật. Phát triển phần mềm cho hệ thống tiện ích (làm lạnh, xử lý nước thải). Triển khai chương trình đào tạo chuyên nghiệp cho khách hàng và đối tác. Tư vấn kỹ thuật chuyên sâu về tự động hóa thủy điện, giải pháp DCS/SCADA.",
+      "type": "work"
+    },
+    {
+      "period": "09/2011 — 06/2015",
+      "role": "Automation Teacher / Trainer & Programmer",
+      "org": "Giảng dạy & Lập trình tự động hóa",
+      "desc": "Giảng dạy tự động hóa, đào tạo kỹ sư và lập trình PLC cho các dự án thực tế.",
+      "type": "work"
+    },
+    {
+      "period": "09/2005 — 06/2010",
+      "role": "Kỹ sư Điện — Điện tử (Tự động hóa)",
+      "org": "Đại học Bách Khoa TP.HCM",
+      "desc": "Chuyên ngành Tự động hóa, Khoa Điện — Điện tử.",
+      "type": "edu"
+    }
+  ]
+}

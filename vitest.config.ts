@@ -4,6 +4,9 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  ssr: {
+    noExternal: ['next-intl'],
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
@@ -37,6 +40,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './'),
+      // next-intl imports `next/navigation`; Vitest needs the explicit .js target (Next 16).
+      'next/navigation': path.resolve(__dirname, 'node_modules/next/navigation.js'),
     },
   },
 });

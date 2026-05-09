@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { NavigationTree } from '@/features/navigation/components/NavigationTree';
 import { MobileNavDrawer } from '@/components/ui/MobileNavDrawer';
 import { SiteHeader } from '@/components/layout/SiteHeader';
@@ -14,6 +15,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const toggleDrawer = useCallback(() => setDrawerOpen((o) => !o), []);
+  const t = useTranslations('sidebar');
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -24,7 +26,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="sticky top-16 h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
             <div className="p-4 border-b border-border/80 bg-background/95 backdrop-blur-sm shrink-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Cây chủ đề
+                {t('topicTree')}
               </p>
             </div>
             <div className="flex-1 overflow-y-auto">

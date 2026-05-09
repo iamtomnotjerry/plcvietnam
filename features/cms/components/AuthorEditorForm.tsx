@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { Author } from '@/lib/types/domain';
 
 interface AuthorEditorFormProps {
@@ -9,6 +10,8 @@ interface AuthorEditorFormProps {
 }
 
 export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
+  const t = useTranslations('admin.cms.authorEditor');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,13 +66,13 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Không thể cập nhật thông tin');
+        throw new Error(data.error || t('updateFailed'));
       }
 
       router.push('/about');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi');
+      setError(err instanceof Error ? err.message : t('genericError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -86,7 +89,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
       {/* Name */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-          Tên <span className="text-destructive">*</span>
+          {t('labelName')} <span className="text-destructive">*</span>
         </label>
         <input
           type="text"
@@ -101,7 +104,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
       {/* Email */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-          Email <span className="text-destructive">*</span>
+          {tCommon('email')} <span className="text-destructive">*</span>
         </label>
         <input
           type="email"
@@ -116,7 +119,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
       {/* Avatar URL */}
       <div>
         <label htmlFor="avatarUrl" className="block text-sm font-medium text-foreground mb-2">
-          URL ảnh đại diện
+          {t('labelAvatar')}
         </label>
         <input
           type="url"
@@ -131,7 +134,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
       {/* Bio */}
       <div>
         <label htmlFor="bio" className="block text-sm font-medium text-foreground mb-2">
-          Giới thiệu <span className="text-destructive">*</span>
+          {t('labelBio')} <span className="text-destructive">*</span>
         </label>
         <textarea
           id="bio"
@@ -146,8 +149,8 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
       {/* Expertise */}
       <div>
         <label htmlFor="expertise" className="block text-sm font-medium text-foreground mb-2">
-          Chuyên môn{' '}
-          <span className="text-muted-foreground text-xs">(phân cách bằng dấu phẩy)</span>
+          {t('expertiseLabel')}{' '}
+          <span className="text-muted-foreground text-xs">{t('expertiseHint')}</span>
         </label>
         <input
           type="text"
@@ -162,7 +165,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
       {/* Certifications */}
       <div>
         <label htmlFor="certifications" className="block text-sm font-medium text-foreground mb-2">
-          Chứng chỉ <span className="text-muted-foreground text-xs">(mỗi dòng một chứng chỉ)</span>
+          {t('certsLabel')} <span className="text-muted-foreground text-xs">{t('certsHint')}</span>
         </label>
         <textarea
           id="certifications"
@@ -176,11 +179,11 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
 
       {/* Social Links */}
       <div className="space-y-4 rounded-lg border border-border p-4">
-        <h3 className="font-semibold text-foreground">Liên kết mạng xã hội</h3>
+        <h3 className="font-semibold text-foreground">{t('socialHeading')}</h3>
 
         <div>
           <label htmlFor="social-email" className="block text-sm font-medium text-foreground mb-2">
-            Email liên hệ
+            {t('labelEmail')}
           </label>
           <input
             type="email"
@@ -202,7 +205,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
             htmlFor="social-linkedin"
             className="block text-sm font-medium text-foreground mb-2"
           >
-            LinkedIn
+            {t('socialLinkedIn')}
           </label>
           <input
             type="url"
@@ -221,7 +224,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
 
         <div>
           <label htmlFor="social-github" className="block text-sm font-medium text-foreground mb-2">
-            GitHub
+            {t('socialGitHub')}
           </label>
           <input
             type="url"
@@ -243,7 +246,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
             htmlFor="social-twitter"
             className="block text-sm font-medium text-foreground mb-2"
           >
-            Twitter / X
+            {t('socialTwitter')}
           </label>
           <input
             type="url"
@@ -268,7 +271,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
           disabled={isSubmitting}
           className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {isSubmitting ? 'Đang lưu...' : 'Lưu thay đổi'}
+          {isSubmitting ? t('saving') : t('save')}
         </button>
         <button
           type="button"
@@ -276,7 +279,7 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
           disabled={isSubmitting}
           className="rounded-lg border border-border bg-background px-6 py-2.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          Hủy
+          {t('cancel')}
         </button>
       </div>
     </form>

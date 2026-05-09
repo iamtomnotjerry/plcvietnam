@@ -13,20 +13,6 @@ vi.mock('@/features/search/hooks/useSearch', () => ({
   useSearch: vi.fn(),
 }));
 
-// Mock next/navigation
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
-// Mock next/link
-vi.mock('next/link', () => ({
-  default: ({ href, children, onClick, className }: any) => (
-    <a href={href} onClick={onClick} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
 import { useSearch } from '@/features/search/hooks/useSearch';
 import type { Post, Book } from '@/lib/types/domain';
 
@@ -43,7 +29,15 @@ const mockPost: Post = {
     name: 'Ladder Logic',
     description: '',
     fieldId: 'field-1',
-    field: { id: 'field-1', slug: 'plc', name: 'PLC', description: '', postCount: 1, createdAt: new Date(), updatedAt: new Date() },
+    field: {
+      id: 'field-1',
+      slug: 'plc',
+      name: 'PLC',
+      description: '',
+      postCount: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
     postCount: 1,
     order: 1,
     createdAt: new Date(),

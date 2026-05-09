@@ -1,0 +1,74 @@
+{
+  "trainingTableTitle": "Selected training experience",
+  "skillsSectionTitle": "Technical skills",
+  "skillIndustrialNetTitle": "Industrial networks",
+  "skillIndustrialNetItems": [
+    "Modbus RTU / Modbus TCP/IP",
+    "AS-i, PROFIBUS / PROFINET",
+    "CANopen",
+    "IEC 61850, IEC 104"
+  ],
+  "skillPlcTitle": "PLC control",
+  "skillPlcItems": [
+    "TIA Portal, SIMATIC Manager, SIMATIC Net",
+    "S7-200/300/400, S7-1200/1500",
+    "Remote I/Os, Distributed I/Os",
+    "Twido Suite, RSLogix (Basic)",
+    "Mitsubishi PLC (FX)"
+  ],
+  "skillScadaTitle": "SCADA / HMI",
+  "skillScadaItems": [
+    "SIMATIC WinCC V7",
+    "WinCC Professional (TIA Portal)",
+    "SIMATIC WinCC Unified"
+  ],
+  "trainingRows": [
+    {
+      "year": "2012",
+      "client": "Southern Steel Company",
+      "content": "SIMATIC S7-300 & Profibus Network"
+    },
+    { "year": "2012", "client": "SABECO", "content": "SIMATIC S7-300 & SCADA WinCC V7" },
+    { "year": "2012", "client": "VietSov Petro", "content": "SIMATIC S7-300 & SCADA" },
+    { "year": "2013", "client": "Pepsi Suntory", "content": "SIMATIC S7-300 & SIMATIC Net" },
+    { "year": "2014", "client": "Unilever", "content": "SIMATIC S7-300 Basic & Advanced" },
+    {
+      "year": "2017",
+      "client": "Tetrapak",
+      "content": "TIA Portal, S7-1500, WinCC V7, HMI & SIMATIC Net"
+    },
+    { "year": "2018", "client": "Vinfast", "content": "TIA Portal, S7-1500 & HMI" },
+    {
+      "year": "2019/2021",
+      "client": "Coca-Cola",
+      "content": "SIMATIC S7-300 Advanced & SIMATIC Net"
+    },
+    { "year": "2019/2021", "client": "Heineken", "content": "TIA Portal, S7-1500 & SIMATIC Net" },
+    { "year": "2019/2022", "client": "SABECO", "content": "SIMATIC S7-300/400 & SIMATIC Net" },
+    { "year": "2021", "client": "Nike", "content": "TIA Portal & S7-1500" },
+    { "year": "2021", "client": "Saint Gobain", "content": "TIA Portal, S7-1500 & WinCC V7" },
+    {
+      "year": "2022",
+      "client": "SHP Da Dang Hydro Power",
+      "content": "TIA Portal SIMATIC Programming"
+    },
+    {
+      "year": "2022",
+      "client": "EDH JSC",
+      "content": "Industrial Communication SIMATIC NET in TIA Portal"
+    },
+    { "year": "2023", "client": "Friesland Campina Vietnam", "content": "PROFIBUS System" },
+    { "year": "2023", "client": "SMS Group", "content": "TIA Portal SIMATIC Programming 1" },
+    { "year": "2024", "client": "Heineken", "content": "TIA Portal Tailor Service 01" },
+    {
+      "year": "2024",
+      "client": "A Luoi Hydro Power Plant",
+      "content": "TIA Portal Programming 1 Customized"
+    },
+    {
+      "year": "2025",
+      "client": "Heineken",
+      "content": "PROFINET with Industrial Ethernet in TIA Portal"
+    }
+  ]
+}

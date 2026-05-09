@@ -7,18 +7,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { Post } from '@/lib/types/domain';
 import { PostContent } from './PostContent';
 import { TableOfContents } from './TableOfContents';
 import { RelatedPosts } from './RelatedPosts';
 import { SocialShare } from './SocialShare';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { categoryHref, fieldHref, tagHref } from '@/lib/utils/routes';
 import { PostComments } from '@/features/comments/components/PostComments';
 import { useAdminRole } from '@/features/auth/hooks/useAdminRole';
+import { useLocale, useTranslations } from 'next-intl';
 
 export interface PostDetailProps {
   /**
@@ -65,8 +66,13 @@ export interface PostDetailProps {
 export function PostDetail({ post, relatedPosts, className = '' }: PostDetailProps) {
   const { isEditor } = useAdminRole();
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations('posts');
+  const tNav = useTranslations('nav');
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const intlLocale = locale === 'vi' ? 'vi-VN' : 'en-US';
 
   // Check if user can edit/delete (admin or author)
   const canEdit = isEditor;
@@ -75,7 +81,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
    * Handle delete post
    */
   const handleDelete = async () => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
+    if (!window.confirm(t('deleteConfirm'))) return;
 
     setDeleteError(null);
     setIsDeleting(true);
@@ -87,9 +93,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         const message =
-          typeof data?.error?.message === 'string'
-            ? data.error.message
-            : 'Xóa bài viết thất bại. Vui lòng thử lại.';
+          typeof data?.error?.message === 'string' ? data.error.message : t('deleteFail');
         setDeleteError(message);
         return;
       }
@@ -104,7 +108,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
       router.refresh();
     } catch (error) {
       console.error('Delete error:', error);
-      setDeleteError('Xóa bài viết thất bại. Vui lòng thử lại.');
+      setDeleteError(t('deleteFail'));
     } finally {
       setIsDeleting(false);
     }
@@ -136,7 +140,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
    * Format date to Vietnamese locale
    */
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('vi-VN', {
+    return new Intl.DateTimeFormat(intlLocale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -156,11 +160,11 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
   return (
     <article className={`${className}`}>
       {/* Breadcrumb */}
-      <nav className="mb-6" aria-label="Breadcrumb">
+      <nav className="mb-6" aria-label={t('breadcrumbAria')}>
         <ol className="flex items-center gap-2 text-sm text-muted-foreground">
           <li>
             <Link href={'/' as Route} className="hover:text-primary transition-colors duration-200">
-              Trang chủ
+              {tNav('home')}
             </Link>
           </li>
           <li>
@@ -240,14 +244,14 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
                 href={`/admin/posts/${post.id}/edit` as Route}
                 className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
-                Sửa
+                {t('edit')}
               </Link>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
                 className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isDeleting ? 'Đang xóa...' : 'Xóa'}
+                {isDeleting ? t('deleting') : t('delete')}
               </button>
             </div>
           )}
@@ -308,7 +312,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span>{post.readingTimeMinutes} phút đọc</span>
+            <span>{t('readingMinutes', { count: post.readingTimeMinutes })}</span>
           </div>
 
           {/* View count */}
@@ -333,7 +337,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
               />
             </svg>
-            <span>{post.viewCount.toLocaleString('vi-VN')} lượt xem</span>
+            <span>{t('viewsCount', { count: post.viewCount.toLocaleString(intlLocale) })}</span>
           </div>
         </div>
 
@@ -351,7 +355,9 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <div className="mt-8 pt-8 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3">Thẻ:</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                {t('tagsHeading')}
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
                   <Link

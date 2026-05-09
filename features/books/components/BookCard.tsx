@@ -5,7 +5,8 @@
 
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import type { Book } from '@/lib/types/domain';
 import { bookHref } from '@/lib/utils/routes';
@@ -39,6 +40,7 @@ export interface BookCardProps {
 }
 
 export function BookCard({ book, variant = 'grid' }: BookCardProps) {
+  const t = useTranslations('books');
   const truncateDescription = (text: string, maxLength: number = 300) => {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength).trim() + '...';
@@ -109,7 +111,7 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
           </p>
 
           <span className="inline-flex items-center text-sm font-medium text-primary">
-            Xem chi tiết sách
+            {t('detailCta')}
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
@@ -156,7 +158,7 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
           {truncateDescription(book.description)}
         </p>
 
-        <span className="text-sm font-medium text-primary">Xem chi tiết →</span>
+        <span className="text-sm font-medium text-primary">{t('detailCta')}</span>
       </div>
     </Link>
   );

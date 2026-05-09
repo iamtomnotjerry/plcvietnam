@@ -6,7 +6,8 @@
 
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { BookCard } from '@/features/books/components';
 import type { Book } from '@/lib/types/domain';
 
@@ -23,6 +24,7 @@ export interface FeaturedBooksSectionProps {
  * - "Xem tất cả sách" link to books page
  */
 export function FeaturedBooksSection({ books }: FeaturedBooksSectionProps) {
+  const t = useTranslations('home');
   // Limit to 3 books
   const displayBooks = books.slice(0, 3);
 
@@ -35,13 +37,13 @@ export function FeaturedBooksSection({ books }: FeaturedBooksSectionProps) {
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Section Header */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Sách nổi bật</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t('featuredBooks')}</h2>
 
           <Link
             href="/books"
             className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors duration-200 font-medium cursor-pointer"
           >
-            <span>Xem tất cả sách</span>
+            <span>{t('seeAllBooks')}</span>
             <svg
               className="w-5 h-5"
               fill="none"

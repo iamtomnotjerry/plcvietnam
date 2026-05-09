@@ -7,7 +7,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 /**
  * NavigationProgress
@@ -20,6 +21,7 @@ import { usePathname } from 'next/navigation';
  * Requirement 17.5: Initial render with Skeleton_UI within 100ms
  */
 export function NavigationProgress() {
+  const t = useTranslations('common');
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [width, setWidth] = useState(0);
@@ -81,7 +83,7 @@ export function NavigationProgress() {
   return (
     <div
       role="progressbar"
-      aria-label="Đang tải trang"
+      aria-label={t('navLoadingAria')}
       aria-valuenow={width}
       aria-valuemin={0}
       aria-valuemax={100}

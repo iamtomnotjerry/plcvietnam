@@ -1,0 +1,30 @@
+{
+  "implementationSectionTitle": "Kinh nghiệm triển khai",
+  "processTitle": "Quy trình triển khai dự án",
+  "processSteps": [
+    {
+      "title": "Khảo sát hiện trạng",
+      "desc": "Đánh giá tình hình thực tế, thu thập yêu cầu từ khách hàng"
+    },
+    {
+      "title": "Phân tích kỹ thuật",
+      "desc": "Phân tích yêu cầu kỹ thuật, đánh giá khả thi giải pháp"
+    },
+    {
+      "title": "Thiết kế giải pháp",
+      "desc": "Thiết kế hệ thống, lập kế hoạch triển khai"
+    },
+    {
+      "title": "Lập trình & tích hợp",
+      "desc": "Lập trình PLC, SCADA, tích hợp hệ thống"
+    },
+    {
+      "title": "Kiểm thử",
+      "desc": "Kiểm tra, hiệu chỉnh, tối ưu hóa hệ thống"
+    },
+    {
+      "title": "Nghiệm thu & bàn giao",
+      "desc": "Đánh giá chất lượng, bàn giao cho khách hàng"
+    }
+  ]
+}

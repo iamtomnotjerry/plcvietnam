@@ -3,6 +3,7 @@
 ## System Shape
 
 - Next.js App Router serves both UI routes and API routes.
+- Locale-first UI lives under `app/[locale]/` with **`next-intl`** (`i18n/routing.ts`, `i18n/request.ts`, message catalogs in `messages/`).
 - `features/*` holds feature-specific UI, hooks, and local logic.
 - `components/*` holds cross-feature reusable UI components.
 - `app/api/*` holds HTTP transport handlers and boundary validation.

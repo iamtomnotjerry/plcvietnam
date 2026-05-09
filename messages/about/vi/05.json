@@ -1,0 +1,25 @@
+{
+  "booksTitle": "Tác giả bộ sách",
+  "booksLead": "\"Thiết kế hệ thống tự động hóa với TIA Portal\" — Hệ thống hóa kiến thức PLC/HMI/SCADA cho kỹ sư tự động hóa",
+  "publishedBooks": [
+    { "title": "Automation PLC S7-300 with TIA Portal", "sub": "2014 — Ed. 2016, 2019" },
+    { "title": "Automation PLC S7-1200 with TIA Portal", "sub": "2015 — Ed. 2019, 2021" },
+    { "title": "Designing HMI/SCADA System with TIA Portal", "sub": "2017 — Ed. 2019" },
+    { "title": "Designing Industrial Network System with TIA Portal", "sub": "2018" },
+    { "title": "Automation PLC S7-1500 with TIA Portal", "sub": "2021" }
+  ],
+  "bookValueProps": [
+    {
+      "title": "Hệ thống hóa kiến thức",
+      "desc": "Nội dung chuyên sâu về PLC, HMI, SCADA"
+    },
+    {
+      "title": "Lý thuyết + Thực tiễn",
+      "desc": "Kết hợp nền tảng lý thuyết với kinh nghiệm thực tế"
+    },
+    {
+      "title": "Ứng dụng rộng rãi",
+      "desc": "Sử dụng trong đào tạo và triển khai dự án"
+    }
+  ]
+}

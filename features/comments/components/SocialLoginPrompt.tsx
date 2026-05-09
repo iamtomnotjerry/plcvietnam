@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { resolveSafeCallbackPath } from '@/lib/auth/safe-callback';
 import { supabase } from '@/lib/supabase/client';
 
 export function SocialLoginPrompt() {
+  const t = useTranslations('comments');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
@@ -39,10 +41,8 @@ export function SocialLoginPrompt() {
           />
         </svg>
       </div>
-      <h3 className="mb-2 text-lg font-semibold text-foreground">Đăng nhập để bình luận</h3>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Bạn cần đăng nhập bằng Google để có thể để lại bình luận
-      </p>
+      <h3 className="mb-2 text-lg font-semibold text-foreground">{t('signInPromptTitle')}</h3>
+      <p className="mb-6 text-sm text-muted-foreground">{t('socialPromptBody')}</p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <button
           type="button"
@@ -67,7 +67,7 @@ export function SocialLoginPrompt() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Đang đăng nhập...
+              {t('googleSigningIn')}
             </>
           ) : (
             <>
@@ -89,7 +89,7 @@ export function SocialLoginPrompt() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Đăng nhập với Google
+              {t('googleSignIn')}
             </>
           )}
         </button>

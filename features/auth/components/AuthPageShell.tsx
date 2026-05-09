@@ -9,6 +9,7 @@ import {
 } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { useId, useLayoutEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 
 export type AuthHeroVariant =
   | 'sign-in'
@@ -19,51 +20,14 @@ export type AuthHeroVariant =
   | 'email-confirmed'
   | 'email-confirm-failed';
 
-const HERO_COPY: Record<
-  AuthHeroVariant,
-  { prefix: string; highlight: string; suffix?: string; description: string }
-> = {
-  'sign-in': {
-    prefix: 'Chào mừng ',
-    highlight: 'trở lại',
-    description:
-      'Đăng nhập để bình luận, theo dõi nội dung tự động hóa và trải nghiệm trên một giao diện được thiết kế cho kỹ sư.',
-  },
-  'sign-up': {
-    prefix: 'Bắt đầu ',
-    highlight: 'hành trình',
-    description:
-      'Tạo tài khoản để đọc bài, bình luận và tham gia cộng đồng kỹ sư tự động hóa Việt Nam.',
-  },
-  'forgot-password': {
-    prefix: 'Khôi phục ',
-    highlight: 'quyền truy cập',
-    description:
-      'Nhập email để nhận liên kết đặt lại mật khẩu an toàn — quy trình chuẩn Supabase Auth.',
-  },
-  'reset-password': {
-    prefix: 'Đặt ',
-    highlight: 'mật khẩu mới',
-    description:
-      'Chọn mật khẩu mạnh để bảo vệ tài khoản. Chúng tôi hiển thị tiêu chí ngay khi bạn gõ.',
-  },
-  'auth-error': {
-    prefix: 'Đăng nhập ',
-    highlight: 'gián đoạn',
-    description:
-      'Luồng OAuth hoặc magic link gặp sự cố. Kiểm tra cấu hình Supabase trên Vercel hoặc thử lại.',
-  },
-  'email-confirmed': {
-    prefix: 'Email ',
-    highlight: 'đã xác nhận',
-    description: 'Tài khoản của bạn đã sẵn sàng. Đăng nhập để tiếp tục trải nghiệm PLC Việt Nam.',
-  },
-  'email-confirm-failed': {
-    prefix: 'Link ',
-    highlight: 'không hợp lệ',
-    description:
-      'Liên kết xác nhận có thể đã hết hạn hoặc đã được dùng. Bạn có thể đăng ký lại hoặc liên hệ hỗ trợ.',
-  },
+const SHELL_HERO_KEY: Record<AuthHeroVariant, string> = {
+  'sign-in': 'signIn',
+  'sign-up': 'signUp',
+  'forgot-password': 'forgotPassword',
+  'reset-password': 'resetPassword',
+  'auth-error': 'authError',
+  'email-confirmed': 'emailConfirmed',
+  'email-confirm-failed': 'emailConfirmFailed',
 };
 
 function AuroraBackdrop() {
@@ -215,7 +179,9 @@ function HeroPanel({ variant }: { variant: AuthHeroVariant }) {
   const idShield = `${useId()}-shield`;
   const idCpu = `${useId()}-cpu`;
   const idPulse = `${useId()}-pulse`;
-  const copy = HERO_COPY[variant];
+  const t = useTranslations('auth.shellHero');
+  const sk = SHELL_HERO_KEY[variant];
+  const th = t as (key: string) => string;
 
   return (
     <div className="relative flex flex-col justify-center space-y-8 lg:pr-8">
@@ -225,16 +191,17 @@ function HeroPanel({ variant }: { variant: AuthHeroVariant }) {
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         className="space-y-4"
       >
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">PLC Việt Nam</p>
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+          {t('brandEyebrow')}
+        </p>
         <h2 className="font-serif text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          {copy.prefix}
+          {th(`${sk}.prefix`)}
           <span className="bg-gradient-to-r from-primary via-teal-500 to-emerald-600 bg-clip-text text-transparent dark:from-teal-300 dark:via-primary dark:to-emerald-400">
-            {copy.highlight}
+            {th(`${sk}.highlight`)}
           </span>
-          {copy.suffix ?? ''}
         </h2>
         <p className="max-w-md text-base leading-relaxed text-muted-foreground">
-          {copy.description}
+          {th(`${sk}.description`)}
         </p>
       </motion.div>
 

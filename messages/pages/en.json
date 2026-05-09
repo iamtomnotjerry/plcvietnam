@@ -1,0 +1,94 @@
+{
+  "pages": {
+    "books": {
+      "metaTitle": "Books - {brand}",
+      "metaDescription": "Explore technical books and materials on industrial automation",
+      "heroTitle": "Books & resources",
+      "heroSubtitle": "Explore technical books and materials on industrial automation",
+      "loadErrorTitle": "Could not load books",
+      "loadErrorUnknown": "An unknown error occurred. Please try again later."
+    },
+    "posts": {
+      "metaTitle": "All posts | {brand}",
+      "metaDescription": "Posts on PLC, SCADA, Siemens, and industrial automation",
+      "heroTitle": "All posts",
+      "heroSubtitle": "Explore content on automation, PLC, SCADA, and industrial systems.",
+      "loadErrorTitle": "Could not load posts",
+      "loadErrorUnknown": "An unknown error occurred. Please try again later."
+    },
+    "tag": {
+      "metaTitle": "{name} - {brand}",
+      "metaDescription": "View all {count} posts about {name}"
+    },
+    "field": {
+      "metaTitle": "{name} | {brand}",
+      "metaDescriptionFallback": "Categories and posts about {name}",
+      "categoriesHeading": "Categories ({count})",
+      "emptyTitle": "No categories yet",
+      "emptyBody": "This field has no categories yet. Please check back later."
+    },
+    "category": {
+      "metaTitle": "{name} - {fieldName} | {brand}",
+      "metaDescriptionFallback": "Posts in category {name}"
+    },
+    "search": {
+      "metaTitleWithQuery": "Search results for \"{query}\" - {brand}",
+      "metaTitle": "Search - {brand}",
+      "metaDescriptionWithQuery": "Search results for \"{query}\" on {brand}",
+      "metaDescription": "Search posts and books on industrial automation",
+      "heroTitle": "Search",
+      "heroSubtitle": "Search posts and books on industrial automation"
+    },
+    "bookDetail": {
+      "metaTitle": "{title} | Books",
+      "downloadPdf": "Download PDF",
+      "externalSource": "View external source",
+      "noDownload": "No download link is available for this book.",
+      "backToList": "← Back to book list"
+    },
+    "postJsonLd": {
+      "authorName": "Tran Van Hieu"
+    }
+  },
+  "authRoutes": {
+    "signIn": {
+      "metaTitle": "Sign in | {brand}",
+      "metaDescription": "Sign in to comment and manage content.",
+      "heroTitle": "Sign in",
+      "heroHint": "Enter your email and password to continue.",
+      "dividerOr": "Or",
+      "backHome": "← Back to home"
+    },
+    "signUp": {
+      "metaTitle": "Sign up | {brand}",
+      "metaDescription": "Create an account to join the community.",
+      "heroTitle": "Sign up",
+      "heroBody": "Sign up with email to start using PLC Vietnam.",
+      "backHome": "← Back to home"
+    },
+    "confirmed": {
+      "metaTitle": "Email confirmed | {brand}",
+      "invalidTitle": "Invalid link",
+      "invalidBody": "The confirmation link has expired or is invalid. Please sign up again or contact support.",
+      "signUpAgain": "Sign up again",
+      "backHome": "Back to home",
+      "successTitle": "Email confirmed!",
+      "successBody": "Your account is active. You can sign in now.",
+      "signIn": "Sign in"
+    },
+    "error": {
+      "metaTitle": "Sign-in error | {brand}",
+      "backHome": "Back to home"
+    },
+    "forgotPassword": {
+      "metaTitle": "Forgot password | {brand}",
+      "heroTitle": "Forgot password",
+      "heroHint": "Enter your email to receive a password reset link via Supabase."
+    },
+    "resetPassword": {
+      "metaTitle": "Reset password | {brand}",
+      "heroTitle": "Reset password",
+      "heroHint": "Enter a new password (at least 8 characters) after opening the link from email."
+    }
+  }
+}

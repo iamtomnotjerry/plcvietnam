@@ -69,18 +69,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  const identityRateLimit = await checkRateLimit(`forgot:${ip}:${emailHash}`, 'auth');
-  if (!identityRateLimit.success) {
+  const resendCooldown = await checkRateLimit(`forgot-resend:${ip}:${emailHash}`, 'forgotResend');
+  if (!resendCooldown.success) {
     logAuthAudit('auth.forgot_password.rate_limited', {
       ip,
       emailHash,
-      reason: 'identity_limit',
+      reason: 'resend_cooldown',
       requestId,
     });
-    return apiTooManyRequests('Quá nhiều yêu cầu. Vui lòng thử lại sau.', {
-      limit: identityRateLimit.limit,
-      remaining: identityRateLimit.remaining,
-      reset: identityRateLimit.reset,
+    return apiTooManyRequests('Vui lòng đợi 60 giây trước khi gửi lại yêu cầu.', {
+      limit: resendCooldown.limit,
+      remaining: resendCooldown.remaining,
+      reset: resendCooldown.reset,
     });
   }
 

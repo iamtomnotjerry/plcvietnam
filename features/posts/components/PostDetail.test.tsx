@@ -32,21 +32,8 @@ vi.mock('./SocialShare', () => ({
   SocialShare: () => <div data-testid="social-share">Share</div>,
 }));
 
-vi.mock('next/link', () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
-}));
-
 vi.mock('next/image', () => ({
   default: ({ alt }: { alt: string }) => <img alt={alt} />,
-}));
-
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: vi.fn(),
-    refresh: vi.fn(),
-  }),
 }));
 
 describe('PostDetail', () => {

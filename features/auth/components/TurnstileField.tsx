@@ -21,14 +21,20 @@ type TurnstileWindow = Window & {
       }
     ) => string;
     remove: (widgetId: string) => void;
+    reset: (widgetId: string) => void;
   };
 };
 
 interface TurnstileFieldProps {
   onTokenChange: (token: string | null) => void;
+  /**
+   * Increment after a failed auth request. Turnstile response tokens are single-use;
+   * reusing the same token on the next submit always fails server verification.
+   */
+  resetNonce?: number;
 }
 
-export function TurnstileField({ onTokenChange }: TurnstileFieldProps) {
+export function TurnstileField({ onTokenChange, resetNonce = 0 }: TurnstileFieldProps) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? '';
   const enabled = siteKey.length > 0;
   const { theme } = useThemeContext();
@@ -41,6 +47,20 @@ export function TurnstileField({ onTokenChange }: TurnstileFieldProps) {
   useEffect(() => {
     onTokenChangeRef.current = onTokenChange;
   }, [onTokenChange]);
+
+  useEffect(() => {
+    if (!enabled || !scriptReady || resetNonce === 0) return;
+    const id = widgetIdRef.current;
+    const w = window as TurnstileWindow;
+    if (id && w.turnstile?.reset) {
+      try {
+        w.turnstile.reset(id);
+      } catch {
+        // ignore
+      }
+    }
+    onTokenChangeRef.current(null);
+  }, [resetNonce, enabled, scriptReady]);
 
   useEffect(() => {
     if (!enabled || !scriptReady || !containerRef.current) return;

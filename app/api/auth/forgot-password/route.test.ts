@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST as forgotPost } from './route';
 
@@ -7,12 +7,29 @@ vi.mock('@/lib/auth/supabase-auth', () => ({
   requestPasswordReset: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock('@/lib/rate-limit', () => ({
+  checkRateLimit: vi.fn(),
+  getClientIdentifier: vi.fn(),
+}));
+
 vi.mock('@/lib/auth/captcha', () => ({
   isCaptchaEnabled: vi.fn(() => false),
   verifyCaptchaToken: vi.fn(async () => true),
 }));
 
 describe('forgot-password', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const { checkRateLimit, getClientIdentifier } = await import('@/lib/rate-limit');
+    vi.mocked(getClientIdentifier).mockReturnValue('127.0.0.1');
+    vi.mocked(checkRateLimit).mockResolvedValue({
+      success: true,
+      limit: 10,
+      remaining: 9,
+      reset: Date.now() + 60000,
+    });
+  });
+
   it('returns ok for any email (no account enumeration)', async () => {
     const res = await forgotPost(
       new NextRequest('http://localhost/api/auth/forgot-password', {
@@ -88,5 +105,27 @@ describe('forgot-password', () => {
     expect(res.status).toBe(400);
     const json = await res.json();
     expect(json.error?.message).toContain('Xác minh bảo mật thất bại');
+  });
+
+  it('returns 429 when resend cooldown is active', async () => {
+    const { checkRateLimit } = await import('@/lib/rate-limit');
+    vi.mocked(checkRateLimit).mockImplementation(async (_id, type) => {
+      if (type === 'forgotResend') {
+        return { success: false, limit: 1, remaining: 0, reset: Date.now() + 60000 };
+      }
+      return { success: true, limit: 10, remaining: 9, reset: Date.now() + 60000 };
+    });
+
+    const res = await forgotPost(
+      new NextRequest('http://localhost/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'user@example.com' }),
+      })
+    );
+
+    expect(res.status).toBe(429);
+    const json = await res.json();
+    expect(json.error?.message).toContain('60 giây');
   });
 });

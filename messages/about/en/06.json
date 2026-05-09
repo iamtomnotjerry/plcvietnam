@@ -1,0 +1,64 @@
+{
+  "communityTitle": "Contributions to PLC Vietnam community",
+  "communityLead": "Forum admin, knowledge sharing, and connecting automation engineers",
+  "communityRoleCardTitle": "Community role",
+  "communityRoleCardSub": "PLC Vietnam forum admin",
+  "communityRoleItems": [
+    {
+      "title": "Forum administration",
+      "desc": "Managing and guiding content for the PLC Vietnam community"
+    },
+    {
+      "title": "Engineer network",
+      "desc": "Connecting automation engineers in a professional community"
+    },
+    {
+      "title": "Expert support",
+      "desc": "Technical Q&A and guidance for members"
+    }
+  ],
+  "communityMetricMembers": "Members",
+  "communityMetricPosts": "Posts",
+  "communityMetricMembersValue": "5K+",
+  "communityMetricPostsValue": "100+",
+  "shareContentCardTitle": "Shared content",
+  "shareContentCardSub": "Deep-dive automation knowledge",
+  "shareContentItems": [
+    {
+      "title": "PLC & SCADA",
+      "desc": "PLC programming and SCADA systems"
+    },
+    {
+      "title": "Industrial networks",
+      "desc": "DCS and industrial communication"
+    },
+    {
+      "title": "Technical solutions",
+      "desc": "Deployment guides and troubleshooting"
+    }
+  ],
+  "shareMetricTutorials": "Tutorials",
+  "shareMetricVideos": "Video tutorials",
+  "shareMetricTutorialsValue": "200+",
+  "shareMetricVideosValue": "50+",
+  "impactCardTitle": "Impact",
+  "impactCardSub": "Engineer capability growth",
+  "impactItems": [
+    {
+      "title": "Supporting junior engineers",
+      "desc": "Training and mentoring newcomers"
+    },
+    {
+      "title": "Learning culture",
+      "desc": "Encouraging continuous learning"
+    },
+    {
+      "title": "Industry links",
+      "desc": "Aligning training with real business needs"
+    }
+  ],
+  "impactMetricLearners": "Learners",
+  "impactMetricSatisfaction": "Satisfaction",
+  "impactMetricLearnersValue": "500+",
+  "impactMetricSatisfactionValue": "90%"
+}

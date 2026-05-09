@@ -1,0 +1,30 @@
+{
+  "implementationSectionTitle": "Implementation experience",
+  "processTitle": "Project delivery process",
+  "processSteps": [
+    {
+      "title": "Site survey",
+      "desc": "Assess the current situation and gather customer requirements"
+    },
+    {
+      "title": "Technical analysis",
+      "desc": "Analyze technical requirements and solution feasibility"
+    },
+    {
+      "title": "Solution design",
+      "desc": "Design the system and plan implementation"
+    },
+    {
+      "title": "Programming & integration",
+      "desc": "PLC/SCADA programming and system integration"
+    },
+    {
+      "title": "Testing",
+      "desc": "Test, tune, and optimize the system"
+    },
+    {
+      "title": "Acceptance & handover",
+      "desc": "Quality assessment and handover to the customer"
+    }
+  ]
+}

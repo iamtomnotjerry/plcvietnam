@@ -6,6 +6,7 @@
 
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { BookCard } from './BookCard';
 import type { Book } from '@/lib/types/domain';
 
@@ -21,7 +22,7 @@ export interface BookListProps {
 
 /**
  * BookList Component
- * 
+ *
  * Displays a grid of book cards with optional pagination and series grouping
  * - Grid layout: 3 columns on desktop, 2 on tablet, 1 on mobile
  * - Series grouping: Group books by series field when enabled
@@ -29,6 +30,9 @@ export interface BookListProps {
  * - Empty state: "Chưa có sách nào" when no books available
  */
 export function BookList({ books, groupBySeries = false, pagination }: BookListProps) {
+  const t = useTranslations('books');
+  const tCommon = useTranslations('common');
+
   /**
    * Group books by series
    */
@@ -105,7 +109,7 @@ export function BookList({ books, groupBySeries = false, pagination }: BookListP
                 : 'bg-card border border-border text-foreground hover:bg-muted cursor-pointer'
             }
           `}
-          aria-label="Trang trước"
+          aria-label={tCommon('paginationPrevious')}
         >
           <svg
             className="w-5 h-5"
@@ -149,7 +153,7 @@ export function BookList({ books, groupBySeries = false, pagination }: BookListP
                     : 'bg-card border border-border text-foreground hover:bg-muted'
                 }
               `}
-              aria-label={`Trang ${pageNum}`}
+              aria-label={tCommon('paginationPage', { page: pageNum })}
               aria-current={isActive ? 'page' : undefined}
             >
               {pageNum}
@@ -170,7 +174,7 @@ export function BookList({ books, groupBySeries = false, pagination }: BookListP
                 : 'bg-card border border-border text-foreground hover:bg-muted cursor-pointer'
             }
           `}
-          aria-label="Trang sau"
+          aria-label={tCommon('paginationNext')}
         >
           <svg
             className="w-5 h-5"
@@ -179,12 +183,7 @@ export function BookList({ books, groupBySeries = false, pagination }: BookListP
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
@@ -211,10 +210,8 @@ export function BookList({ books, groupBySeries = false, pagination }: BookListP
             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
           />
         </svg>
-        <h3 className="text-lg font-semibold text-foreground mb-2">Chưa có sách nào</h3>
-        <p className="text-sm text-muted-foreground text-center max-w-md">
-          Hiện tại chưa có sách nào trong thư viện. Vui lòng quay lại sau.
-        </p>
+        <h3 className="text-lg font-semibold text-foreground mb-2">{t('emptyTitle')}</h3>
+        <p className="text-sm text-muted-foreground text-center max-w-md">{t('emptyBody')}</p>
       </div>
     );
   }
@@ -247,7 +244,9 @@ export function BookList({ books, groupBySeries = false, pagination }: BookListP
                 />
               </svg>
               <h2 className="text-2xl font-bold text-foreground">{seriesName}</h2>
-              <span className="text-sm text-muted-foreground">({seriesBooks.length} sách)</span>
+              <span className="text-sm text-muted-foreground">
+                ({t('seriesBooksCount', { count: seriesBooks.length })})
+              </span>
             </div>
 
             {/* Books grid */}
@@ -264,8 +263,10 @@ export function BookList({ books, groupBySeries = false, pagination }: BookListP
           <div>
             {/* Heading for books without series */}
             <h2 className="text-2xl font-bold text-foreground mb-6">
-              Sách khác
-              <span className="text-sm text-muted-foreground ml-3">({noSeries.length} sách)</span>
+              {t('otherBooks')}
+              <span className="text-sm text-muted-foreground ml-3">
+                ({t('otherBooksCount', { count: noSeries.length })})
+              </span>
             </h2>
 
             {/* Books grid */}

@@ -1,0 +1,53 @@
+{
+  "breadcrumbAriaLabel": "Breadcrumb",
+  "metaDescription": "Tran Van Hieu — Automation Consultant & SITRAIN Manager at Siemens Vietnam. 15+ years in industrial automation, author of TIA Portal books, PLC Vietnam community admin.",
+  "jsonLdJobTitle": "Industrial Automation Specialist",
+  "heroIntro": "Industrial automation consultant and training manager at Siemens Vietnam. Connecting field deployment, knowledge transfer, and growing the automation engineering community in Vietnam.",
+  "expertiseTagsHeading": "Expertise",
+  "certificationsHeading": "Certifications",
+  "contactHeading": "Contact",
+  "editCta": "Edit",
+  "roleAutomationConsultant": "Automation Consultant",
+  "roleSitrainManager": "SITRAIN Manager",
+  "badgeExperience": "15+ years experience",
+  "stats": [
+    {
+      "value": "15+",
+      "label": "Years of experience",
+      "icon": "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+    },
+    {
+      "value": "50+",
+      "label": "Deployed projects",
+      "icon": "M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
+    },
+    {
+      "value": "500+",
+      "label": "Trainees",
+      "icon": "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+    }
+  ],
+  "profileSectionTitle": "Professional profile",
+  "expertiseHighlights": [
+    {
+      "icon": "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+      "title": "15+ years of experience",
+      "desc": "Delivering industrial automation solutions for major projects in Vietnam"
+    },
+    {
+      "icon": "M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18",
+      "title": "Siemens stack",
+      "desc": "TIA Portal, SIMATIC PLC, WinCC, PCS 7, and industrial communication systems"
+    },
+    {
+      "icon": "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z",
+      "title": "Systems thinking",
+      "desc": "High engineering standards and effective multi-party coordination"
+    },
+    {
+      "icon": "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+      "title": "Training capability",
+      "desc": "Knowledge transfer, team development, and effective technology handover"
+    }
+  ]
+}

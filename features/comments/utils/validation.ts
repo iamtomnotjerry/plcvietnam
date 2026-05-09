@@ -6,14 +6,18 @@
 export const COMMENT_MIN_LENGTH = 1;
 export const COMMENT_MAX_LENGTH = 2000;
 
-export const COMMENT_VALIDATION_MESSAGES = {
-  empty: 'Bình luận không được để trống',
-  tooLong: 'Bình luận không được vượt quá 2000 ký tự',
+/** Message keys under next-intl namespace `comments` */
+export const COMMENT_VALIDATION_MESSAGE_KEYS = {
+  empty: 'validationEmpty',
+  tooLong: 'validationTooLong',
 } as const;
+
+export type CommentValidationMessageKey =
+  (typeof COMMENT_VALIDATION_MESSAGE_KEYS)[keyof typeof COMMENT_VALIDATION_MESSAGE_KEYS];
 
 export interface CommentValidationResult {
   valid: boolean;
-  error?: string;
+  errorKey?: CommentValidationMessageKey;
 }
 
 export interface CommentSchema {
@@ -26,20 +30,20 @@ export interface CommentSchema {
  * - Must not exceed 2000 characters
  *
  * @param content - The comment text to validate
- * @returns A validation result with `valid` flag and optional `error` message
+ * @returns A validation result with `valid` flag and optional `errorKey` for `useTranslations('comments')`
  */
 export function validateComment(content: string): CommentValidationResult {
   if (content.length < COMMENT_MIN_LENGTH) {
     return {
       valid: false,
-      error: COMMENT_VALIDATION_MESSAGES.empty,
+      errorKey: COMMENT_VALIDATION_MESSAGE_KEYS.empty,
     };
   }
 
   if (content.length > COMMENT_MAX_LENGTH) {
     return {
       valid: false,
-      error: COMMENT_VALIDATION_MESSAGES.tooLong,
+      errorKey: COMMENT_VALIDATION_MESSAGE_KEYS.tooLong,
     };
   }
 
@@ -58,7 +62,7 @@ export const commentSchema = {
   parse(data: CommentSchema): CommentSchema {
     const result = validateComment(data.content);
     if (!result.valid) {
-      throw new Error(result.error);
+      throw new Error(result.errorKey);
     }
     return data;
   },
@@ -71,7 +75,7 @@ export const commentSchema = {
   ): { success: true; data: CommentSchema } | { success: false; error: { message: string } } {
     const result = validateComment(data.content);
     if (!result.valid) {
-      return { success: false, error: { message: result.error! } };
+      return { success: false, error: { message: result.errorKey! } };
     }
     return { success: true, data };
   },

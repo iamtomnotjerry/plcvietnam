@@ -7,7 +7,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { NavigationTree } from '@/features/navigation/components/NavigationTree';
 
@@ -26,6 +27,7 @@ interface MobileNavDrawerProps {
  * - Closes on backdrop click or Escape key
  */
 export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
+  const tNav = useTranslations('nav');
   const drawerRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -105,7 +107,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Menu điều hướng"
+        aria-label={tNav('drawerAriaLabel')}
         className={`
           fixed top-0 left-0 z-50
           h-full w-72 max-w-[85vw]
@@ -119,12 +121,12 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
       >
         {/* Drawer header with close button */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <span className="text-sm font-semibold text-foreground">Điều hướng</span>
+          <span className="text-sm font-semibold text-foreground">{tNav('drawerTitle')}</span>
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            aria-label="Đóng menu điều hướng"
+            aria-label={tNav('drawerClose')}
             className="
               inline-flex items-center justify-center
               w-11 h-11
@@ -158,11 +160,11 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
           <div className="grid grid-cols-2 gap-2 border-b border-border p-3">
             {(
               [
-                ['/', 'Trang chủ'],
-                ['/posts', 'Bài viết'],
-                ['/books', 'Sách'],
-                ['/about', 'Giới thiệu'],
-                ['/search', 'Tìm kiếm'],
+                ['/', tNav('home')],
+                ['/posts', tNav('posts')],
+                ['/books', tNav('books')],
+                ['/about', tNav('about')],
+                ['/search', tNav('search')],
               ] as const
             ).map(([href, label]) => (
               <Link

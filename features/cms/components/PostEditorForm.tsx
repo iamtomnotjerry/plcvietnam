@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { Route } from 'next';
 import type { PostPublicationStatus, SEOMetadata } from '@/lib/types/domain';
 
@@ -59,6 +60,8 @@ function toSlug(text: string): string {
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken';
 
 export function PostEditorForm({ mode, initial, fields, categories, tags }: PostEditorFormProps) {
+  const t = useTranslations('admin.cms.postEditor');
+  const tCrud = useTranslations('admin.crud');
   const router = useRouter();
   const [slug, setSlug] = useState(initial.slug);
   const [title, setTitle] = useState(initial.title);
@@ -142,11 +145,11 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryId.trim()) {
-      setError('Vui lòng chọn danh mục');
+      setError(t('errorCategoryRequired'));
       return;
     }
     if (slugStatus === 'taken') {
-      setError('Slug đã tồn tại. Vui lòng chọn slug khác.');
+      setError(t('slugTaken'));
       return;
     }
     setLoading(true);
@@ -183,7 +186,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Lưu thất bại');
+        setError(typeof data.error === 'string' ? data.error : t('saveFailed'));
         return;
       }
 
@@ -227,14 +230,14 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
 
   const onDelete = async () => {
     if (mode !== 'edit' || !initial.id) return;
-    if (!window.confirm('Xóa bài viết này?')) return;
+    if (!window.confirm(t('deleteConfirm'))) return;
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(`/api/admin/posts/${initial.id}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(typeof data.error === 'string' ? data.error : 'Xóa thất bại');
+        setError(typeof data.error === 'string' ? data.error : t('deleteFailed'));
         return;
       }
       router.push('/admin/posts' as Route);
@@ -265,7 +268,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
             />
           </svg>
-          Đang kiểm tra...
+          {t('slugChecking')}
         </span>
       );
     }
@@ -275,7 +278,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          Slug có thể dùng
+          {t('slugAvailable')}
         </span>
       );
     }
@@ -290,7 +293,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
               d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-          Slug đã tồn tại
+          {t('slugTakenShort')}
         </span>
       );
     }
@@ -307,7 +310,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">Tiêu đề</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelTitle')}</label>
           <input
             required
             value={title}
@@ -318,7 +321,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
 
         {/* Slug field with live check */}
         <div>
-          <label className="mb-1 block text-sm font-medium">Slug</label>
+          <label className="mb-1 block text-sm font-medium">{tCrud('labelSlug')}</label>
           <input
             required
             value={slug}
@@ -333,33 +336,31 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           />
           <div className="mt-1 h-4">{slugIndicator()}</div>
           {mode === 'create' && !slugEdited && (
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Tự động tạo từ tiêu đề. Chỉnh sửa để tuỳ chỉnh.
-            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t('slugHint')}</p>
           )}
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">Trạng thái</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelStatus')}</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as PostPublicationStatus)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           >
-            <option value="published">Xuất bản</option>
-            <option value="draft">Bản nháp</option>
+            <option value="published">{t('statusPublished')}</option>
+            <option value="draft">{t('statusDraft')}</option>
           </select>
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">Lĩnh vực</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelField')}</label>
           <select
             required
             value={fieldId}
             onChange={(e) => handleFieldChange(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           >
-            <option value="">— Chọn lĩnh vực —</option>
+            <option value="">{t('selectField')}</option>
             {fields.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
@@ -369,7 +370,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">Danh mục</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelCategory')}</label>
           <select
             required
             value={categoryId}
@@ -377,7 +378,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
             disabled={!fieldId || filteredCategories.length === 0}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
           >
-            <option value="">— Chọn danh mục —</option>
+            <option value="">{t('selectCategory')}</option>
             {filteredCategories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label}
@@ -385,11 +386,11 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
             ))}
           </select>
           {fieldId && filteredCategories.length === 0 && (
-            <p className="mt-1 text-xs text-muted-foreground">Lĩnh vực này chưa có danh mục nào.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t('noCategoriesInField')}</p>
           )}
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">Tóm tắt</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelExcerpt')}</label>
           <textarea
             required
             rows={3}
@@ -399,7 +400,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">Nội dung (HTML)</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelContent')}</label>
           <textarea
             required
             rows={14}
@@ -409,26 +410,29 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">Ảnh thumbnail</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelThumbnail')}</label>
           <ThumbnailUploader value={thumbnailUrl} onChange={setThumbnailUrl} postSlug={slug} />
         </div>
         <div className="sm:col-span-2">
-          <p className="mb-2 text-sm font-medium">Thẻ</p>
+          <p className="mb-2 text-sm font-medium">{t('tagsHeading')}</p>
           <div className="flex flex-wrap gap-2">
-            {tags.map((t) => (
-              <label key={t.id} className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
+            {tags.map((tag) => (
+              <label
+                key={tag.id}
+                className="inline-flex items-center gap-1.5 text-sm cursor-pointer"
+              >
                 <input
                   type="checkbox"
-                  checked={tagIds.includes(t.id)}
-                  onChange={() => toggleTag(t.id)}
+                  checked={tagIds.includes(tag.id)}
+                  onChange={() => toggleTag(tag.id)}
                 />
-                {t.name}
+                {tag.name}
               </label>
             ))}
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">SEO title</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelSeoTitle')}</label>
           <input
             value={seoTitle}
             onChange={(e) => setSeoTitle(e.target.value)}
@@ -436,7 +440,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">SEO description</label>
+          <label className="mb-1 block text-sm font-medium">{t('labelSeoDescription')}</label>
           <input
             value={seoDescription}
             onChange={(e) => setSeoDescription(e.target.value)}
@@ -444,9 +448,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">
-            SEO keywords (phân tách bằng dấu phẩy)
-          </label>
+          <label className="mb-1 block text-sm font-medium">{t('seoKeywords')}</label>
           <input
             value={seoKeywords}
             onChange={(e) => setSeoKeywords(e.target.value)}
@@ -461,7 +463,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           disabled={loading || slugStatus === 'taken' || slugStatus === 'checking'}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60 cursor-pointer"
         >
-          {loading ? 'Đang lưu…' : 'Lưu'}
+          {loading ? t('saving') : t('save')}
         </button>
         {mode === 'edit' && (
           <button
@@ -470,7 +472,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
             onClick={onDelete}
             className="rounded-lg border border-destructive px-4 py-2 text-sm font-medium text-destructive disabled:opacity-60 cursor-pointer"
           >
-            Xóa bài
+            {t('deletePost')}
           </button>
         )}
       </div>
@@ -487,6 +489,7 @@ interface ThumbnailUploaderProps {
 }
 
 function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps) {
+  const t = useTranslations('admin.cms.postEditor');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -508,10 +511,10 @@ function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps
 
       const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Upload thất bại');
+      if (!res.ok) throw new Error(data.error ?? t('uploadFailed'));
       onChange(data.url);
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : 'Upload thất bại');
+      setUploadError(err instanceof Error ? err.message : t('uploadFailed'));
     } finally {
       setUploading(false);
       // Reset input so same file can be re-selected
@@ -536,7 +539,7 @@ function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps
             type="button"
             onClick={() => onChange('')}
             className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 transition-colors cursor-pointer"
-            aria-label="Xóa ảnh"
+            aria-label={t('removeImageAria')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -573,7 +576,7 @@ function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                 />
               </svg>
-              Đang tải...
+              {t('uploadLoading')}
             </>
           ) : (
             <>
@@ -585,7 +588,7 @@ function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                 />
               </svg>
-              Tải ảnh lên
+              {t('uploadCta')}
             </>
           )}
           <input
@@ -603,13 +606,13 @@ function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps
           type="url"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Hoặc dán URL ảnh..."
+          placeholder={t('urlPlaceholder')}
           className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm"
         />
       </div>
 
       {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
-      <p className="text-xs text-muted-foreground">JPEG, PNG, WebP, GIF · Tối đa 5MB</p>
+      <p className="text-xs text-muted-foreground">{t('uploadHint')}</p>
     </div>
   );
 }

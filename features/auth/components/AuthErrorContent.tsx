@@ -1,65 +1,53 @@
 'use client';
 
-import Link from 'next/link';
-import type { Route } from 'next';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 import { authPrimaryButtonClassName } from '@/features/auth/form-classes';
 
 export function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
+  const t = useTranslations('auth.error');
 
   const isConfiguration = error === 'Configuration';
 
   return (
     <div className="space-y-6">
-      <h1 className="sr-only">Đăng nhập thất bại</h1>
+      <h1 className="sr-only">{t('srOnlyFail')}</h1>
       {isConfiguration ? (
         <div className="space-y-4 text-sm text-muted-foreground">
-          <p>
-            Lỗi cấu hình máy chủ (thường gặp trên{' '}
-            <strong className="text-foreground">Vercel</strong> khi thiếu biến môi trường Supabase).
-          </p>
-          <p className="font-medium text-foreground">
-            Cần thiết lập trên Vercel → Project → Settings → Environment Variables:
-          </p>
+          <p>{t('configIntro')}</p>
+          <p className="font-medium text-foreground">{t('configHeading')}</p>
           <ul className="list-inside list-disc space-y-2 pl-1">
             <li>
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
-                NEXT_PUBLIC_SUPABASE_URL
-              </code>{' '}
-              — URL project Supabase.
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{t('configUrlKey')}</code>{' '}
+              {t('configUrlDesc')}
+            </li>
+            <li>
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{t('configAnonKey')}</code>{' '}
+              {t('configAnonDesc')}
             </li>
             <li>
               <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
-                NEXT_PUBLIC_SUPABASE_ANON_KEY
+                {t('configServiceKey')}
               </code>{' '}
-              — publishable key dùng cho client-side auth.
-            </li>
-            <li>
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
-                SUPABASE_SERVICE_ROLE_KEY
-              </code>{' '}
-              — chỉ dùng server-side cho admin/privileged routes.
+              {t('configServiceDesc')}
             </li>
           </ul>
-          <p>
-            Sau khi thêm biến, hãy <strong className="text-foreground">Redeploy</strong> project.
-          </p>
+          <p>{t('configRedeploy')}</p>
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          {error
-            ? `Mã lỗi: ${error}. Thử đăng nhập lại hoặc kiểm tra log trên Vercel (Runtime Logs).`
-            : 'Đã xảy ra lỗi. Thử lại sau.'}
+          {error ? t('withCode', { error }) : t('generic')}
         </p>
       )}
       <div>
         <Link
-          href={'/auth/sign-in' as Route}
+          href="/auth/sign-in"
           className={`inline-flex w-full justify-center ${authPrimaryButtonClassName}`}
         >
-          Quay lại đăng nhập
+          {t('backSignIn')}
         </Link>
       </div>
     </div>

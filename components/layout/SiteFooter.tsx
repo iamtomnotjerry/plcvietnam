@@ -1,12 +1,15 @@
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import type { Route } from 'next';
+import { Link } from '@/i18n/navigation';
 
 export function SiteFooter() {
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const t = useTranslations('footer');
+  const tSite = useTranslations('site');
+  const tNav = useTranslations('nav');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,28 +24,26 @@ export function SiteFooter() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const year = new Date().getFullYear();
+
   return (
     <footer className="border-t border-border bg-muted/30 mt-auto">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* About Section */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <span className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden bg-primary">
                 <Image
                   src="/logo.jpg"
-                  alt="PLC Việt Nam"
+                  alt={tSite('logoAlt')}
                   width={40}
                   height={40}
                   className="w-full h-full object-cover"
                 />
               </span>
-              <span className="font-serif text-xl font-semibold">PLC Việt Nam</span>
+              <span className="font-serif text-xl font-semibold">{tSite('brand')}</span>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Chia sẻ kiến thức chuyên sâu về PLC, SCADA, Siemens Automation và các công nghệ tự
-              động hóa công nghiệp hiện đại.
-            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t('tagline')}</p>
             <div className="flex gap-3">
               <a
                 href="mailto:contact@automationblog.vn"
@@ -96,16 +97,15 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Liên kết</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t('linksTitle')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Trang chủ
+                  {tNav('home')}
                 </Link>
               </li>
               <li>
@@ -113,7 +113,7 @@ export function SiteFooter() {
                   href="/posts"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Bài viết
+                  {tNav('posts')}
                 </Link>
               </li>
               <li>
@@ -121,7 +121,7 @@ export function SiteFooter() {
                   href="/books"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Sách
+                  {tNav('books')}
                 </Link>
               </li>
               <li>
@@ -129,7 +129,7 @@ export function SiteFooter() {
                   href="/about"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Giới thiệu
+                  {tNav('about')}
                 </Link>
               </li>
               <li>
@@ -137,15 +137,14 @@ export function SiteFooter() {
                   href="/search"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Tìm kiếm
+                  {tNav('search')}
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Tài nguyên</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t('resourcesTitle')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <a
@@ -154,7 +153,7 @@ export function SiteFooter() {
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  RSS Feed
+                  {t('rss')}
                 </a>
               </li>
               <li>
@@ -164,7 +163,7 @@ export function SiteFooter() {
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Sitemap
+                  {t('sitemap')}
                 </a>
               </li>
               <li>
@@ -172,41 +171,39 @@ export function SiteFooter() {
                   href="/admin"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Quản trị
+                  {t('admin')}
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground text-center sm:text-left">
-            © {new Date().getFullYear()} PLC Việt Nam. Tất cả quyền được bảo lưu.
+            {t('copyright', { year })}
           </p>
           <div className="flex gap-4 text-sm">
             <Link
-              href={'/privacy' as Route}
+              href="/privacy"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              Chính sách bảo mật
+              {t('privacy')}
             </Link>
             <Link
-              href={'/terms' as Route}
+              href="/terms"
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              Điều khoản sử dụng
+              {t('terms')}
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
           className="fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-200 cursor-pointer"
-          aria-label="Về đầu trang"
+          aria-label={t('backToTop')}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

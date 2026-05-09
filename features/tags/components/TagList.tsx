@@ -6,9 +6,10 @@
 
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { Tag } from '@/lib/types/domain';
 import { tagHref } from '@/lib/utils/routes';
+import { useTranslations } from 'next-intl';
 
 export interface TagListProps {
   tags: Tag[];
@@ -18,21 +19,18 @@ export interface TagListProps {
 
 /**
  * TagList Component
- * 
+ *
  * Displays a list of tags as clickable chips
  * - Responsive grid layout
  * - Optional post count display
  * - Hover effects for interactivity
  */
-export function TagList({
-  tags,
-  variant = 'default',
-  showCount = false,
-}: TagListProps) {
+export function TagList({ tags, variant = 'default', showCount = false }: TagListProps) {
+  const t = useTranslations('tags');
   if (tags.length === 0) {
     return null;
   }
-  
+
   /**
    * Get tag chip size based on variant
    */
@@ -42,7 +40,7 @@ export function TagList({
     }
     return 'px-3 py-1.5 text-sm';
   };
-  
+
   return (
     <div className="flex flex-wrap gap-2">
       {tags.map((tag) => (
@@ -61,7 +59,7 @@ export function TagList({
             cursor-pointer
             font-medium
           `}
-          aria-label={`Xem bài viết với tag ${tag.name}`}
+          aria-label={t('chipAriaLabel', { name: tag.name })}
         >
           <svg
             className="w-3.5 h-3.5"
@@ -78,11 +76,7 @@ export function TagList({
             />
           </svg>
           <span>{tag.name}</span>
-          {showCount && (
-            <span className="opacity-70">
-              ({tag.postCount})
-            </span>
-          )}
+          {showCount && <span className="opacity-70">({tag.postCount})</span>}
         </Link>
       ))}
     </div>

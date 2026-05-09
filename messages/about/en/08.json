@@ -1,0 +1,94 @@
+{
+  "projectsTableTitle": "Selected project experience",
+  "projectsColProject": "Project",
+  "projectsColYear": "Year",
+  "projectsColTech": "Technology",
+  "projectsColRole": "Role",
+  "projectRows": [
+    {
+      "name": "Sai Gon – Mien Trung Beer JSC",
+      "year": "2012",
+      "tech": "Modicon Schneider",
+      "role": "Design Software & Site Commissioning (Water Supply)"
+    },
+    {
+      "name": "San Miguel Hormel (VN)",
+      "year": "2012",
+      "tech": "WinCC V7",
+      "role": "Design SCADA & Site Commissioning"
+    },
+    {
+      "name": "Coca-Cola Da Nang",
+      "year": "2012",
+      "tech": "STEP 7, S7-300",
+      "role": "Design Software & Site Commissioning (Utilities)"
+    },
+    {
+      "name": "Pepsico Amatar",
+      "year": "2013",
+      "tech": "STEP 7, S7-300/400, SIMATIC Net",
+      "role": "Site Service & Commissioning"
+    },
+    {
+      "name": "Cong Thanh Cement",
+      "year": "2013",
+      "tech": "STEP 7, S7-300, ABB Inverter",
+      "role": "Design Software & Commissioning (Profibus)"
+    },
+    {
+      "name": "Henkel Vietnam",
+      "year": "2013",
+      "tech": "STEP 7, S7-300/400, SIMATIC HMI",
+      "role": "Chief of Software Division"
+    },
+    {
+      "name": "Sai Gon New Port",
+      "year": "2014",
+      "tech": "STEP 7, S5–S7-300",
+      "role": "Chief of Software Division — Migrate S5 to S7-300"
+    },
+    {
+      "name": "GODACO Tien Giang",
+      "year": "2014",
+      "tech": "TIA Portal, S7-1500, SIMATIC HMI",
+      "role": "Chief of Software Division"
+    },
+    {
+      "name": "Hydropower Sêrêpôk 4",
+      "year": "2015",
+      "tech": "PCS 7, S7-400H",
+      "role": "Site Service & Commissioning"
+    },
+    {
+      "name": "GODACO Long An",
+      "year": "2016",
+      "tech": "TIA Portal, S7-1500, SIMATIC HMI",
+      "role": "Chief of Software Division"
+    },
+    {
+      "name": "Tetrapak Binh Duong",
+      "year": "2018",
+      "tech": "TIA Portal, S7-1500, SINAMICS Drives",
+      "role": "Bidding, Programming, Training & Commissioning"
+    },
+    {
+      "name": "Coca-Cola Thu Duc",
+      "year": "2018",
+      "tech": "STEP 7, S7-300, SIMATIC HMI",
+      "role": "Site Service & Commissioning"
+    }
+  ],
+  "hydroSectionTitle": "Hydropower project experience",
+  "hydroSectionLead": "Technical consulting on automation and DCS/SCADA for hydropower plants using Siemens technology",
+  "hydroBullets": [
+    "Full project lifecycle — from site survey and technical design to field implementation.",
+    "Successful FAT and SAT to ensure quality before commissioning.",
+    "In-depth training for engineers and operators: TIA Portal, S7-1500H (high availability), WinCC SCADA, industrial communication (Modbus RTU/TCP, PROFINET, IEC 61850, IEC 104)."
+  ],
+  "hydroPlantCapacity": "{org} · {capacity}",
+  "hydroPlants": [
+    { "name": "Da Dang 2 Hydropower", "org": "SHP", "capacity": "34 MW" },
+    { "name": "A Luoi Hydropower", "org": "CHP", "capacity": "170 MW" },
+    { "name": "Da M'bri Hydropower", "org": "SHP", "capacity": "75 MW" }
+  ]
+}

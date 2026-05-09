@@ -5,8 +5,8 @@ Update this file whenever API contracts, security posture, or architecture behav
 
 ## Last Updated
 
-- Date: 2026-05-07
-- Scope: API/admin hardening, frontend a11y/fetch consistency, validation contract fixes, docs+ops expansion, Supabase OAuth migration, Supabase auth unification, auth contract consistency hardening, auth CSRF hardening + anti-enumeration + abuse controls
+- Date: 2026-05-09
+- Scope: forgot-password **60s resend cooldown** (`forgotResend` limiter + client countdown per email), docs/rules aligned to current auth rate limits; prior: API/admin hardening, i18n (`next-intl`, `app/[locale]`), Supabase auth unification, CSRF + anti-enumeration + Turnstile
 
 ## API Contract Status
 
@@ -34,14 +34,15 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Header/editor UI role checks (`UserMenu`, `AdminHeaderLink`, `PostDetail` edit actions) now read Supabase-backed auth state.
 - Legacy NextAuth runtime has been removed (`next-auth` package, API route, and ambient types), leaving Supabase as the single auth source.
 - Password sign-in now goes through server route `POST /api/auth/sign-in` with layered throttling (IP + IP/email hash) and structured auth audit logging.
-- Password recovery and email confirmation callbacks are unified through `/auth/callback` to reduce flow divergence.
+- Password recovery and email confirmation callbacks are unified through `/auth/callback` (and `/en/auth/callback`) on a client page under `[locale]`, so PKCE `code`, email `token_hash`, and hash-token redirects all establish a browser session before routing onward.
 - `POST /api/auth/register`, `POST /api/auth/forgot-password`, and `POST /api/auth/reset-password` now return standardized `429` errors via shared `apiTooManyRequests(...)`.
 - Reset-password now has explicit route-level rate limiting (`auth` limiter namespace with reset-password identifier suffix).
 - Registration now validates profile provisioning write result and fails closed if profile setup does not persist.
 - Auth POST routes (`sign-in`, `register`, `forgot-password`, `reset-password`) now apply same-origin guard (`sec-fetch-site` + `origin`/`referer` trust check) to reduce CSRF surface.
 - Registration now normalizes email before signup and returns indistinguishable success for existing email (`EMAIL_TAKEN`) to reduce account enumeration signal.
 - Forgot-password now normalizes email before requesting Supabase recovery email for consistent identity handling.
-- Register and forgot-password now apply layered abuse throttling (IP and `ip+emailHash`) to reduce targeted identity spraying.
+- Registration applies layered abuse throttling: per-IP `auth` bucket plus per-identity `signup:{ip}:{emailHash}` on the same `auth` bucket.
+- Forgot-password applies per-IP `auth` throttling plus a dedicated **`forgotResend`** bucket: **1 request per 60 seconds** per `forgot-resend:{ip}:{emailHash}` (Redis sliding window or in-memory equivalent). The forgot-password UI enforces a matching **60s cooldown** when the email field still matches the last successful submit.
 - Auth flow now records structured audit events for signup, forgot-password, and reset-password outcomes/rate-limits/input-validation failures.
 - Reset-password API now validates `{ password, confirmPassword }` server-side through `ResetPasswordSchema` to prevent mismatch bypass from direct API calls.
 - Reset-password client now bootstraps Supabase session from URL hash recovery tokens (`#access_token`, `#refresh_token`) before submitting API call, then clears hash from browser URL.
@@ -93,4 +94,4 @@ Core docs are present for senior-level onboarding and operations:
 - Expand API contract tests for additional admin routes (`reorder`, `upload`, `users`, `posts` PATCH/DELETE edge cases).
 - Add request correlation IDs and structured log schema in runtime code.
 - Move multi-step post/tag mutations to transactional DB flow (RPC/transaction).
-- Add focused API tests for `register` and `reset-password` rate-limit and error-contract paths.
+- Add focused API tests for `register` and `reset-password` rate-limit and error-contract paths (`forgot-password` resend cooldown is covered in route tests).

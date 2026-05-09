@@ -6,7 +6,8 @@
 
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import type { Post } from '@/lib/types/domain';
 import { postHref } from '@/lib/utils/routes';
@@ -72,6 +73,8 @@ export function PostCard({
   showCategory = true,
   showThumbnail = true,
 }: PostCardProps) {
+  const t = useTranslations('posts');
+
   // Validate post has required data - graceful fallback instead of null
   const fieldSlug = post.category?.field?.slug;
   const categorySlug = post.category?.slug;
@@ -157,7 +160,7 @@ export function PostCard({
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span>{post.readingTimeMinutes} phút đọc</span>
+            <span>{t('readingMinutes', { count: post.readingTimeMinutes })}</span>
           </div>
         </div>
       </div>

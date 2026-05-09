@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useNavigationTree } from '../hooks/useNavigationTree';
 import { NavigationNode } from './NavigationNode';
 import type { NavigationTreeProps } from '../types';
@@ -28,6 +29,7 @@ export function NavigationTree({
   onNodeClick,
   searchable = true,
 }: NavigationTreeProps) {
+  const t = useTranslations('navigationTree');
   const { tree, expandedIds, toggleNode, isLoading, error } = useNavigationTree(initialExpanded);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,7 +125,7 @@ export function NavigationTree({
     return (
       <div className="w-full p-4">
         <div className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
-          <p className="font-medium">Không thể tải cây điều hướng</p>
+          <p className="font-medium">{t('loadError')}</p>
           <p className="mt-1 text-xs">{error.message}</p>
         </div>
       </div>
@@ -136,7 +138,7 @@ export function NavigationTree({
   if (tree.length === 0) {
     return (
       <div className="w-full p-4">
-        <p className="text-sm text-muted-foreground">Chưa có nội dung</p>
+        <p className="text-sm text-muted-foreground">{t('emptyTree')}</p>
       </div>
     );
   }
@@ -154,14 +156,14 @@ export function NavigationTree({
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Tìm kiếm..."
+              placeholder={t('searchPlaceholder')}
               className="w-full px-3 py-2 pr-8 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
             />
             {searchQuery && (
               <button
                 onClick={handleClearSearch}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label="Xóa tìm kiếm"
+                aria-label={t('clearSearch')}
               >
                 <svg
                   className="w-4 h-4"
@@ -183,9 +185,7 @@ export function NavigationTree({
         )}
 
         {/* No results message */}
-        <p className="text-sm text-muted-foreground">
-          Không tìm thấy kết quả cho &quot;{searchQuery}&quot;
-        </p>
+        <p className="text-sm text-muted-foreground">{t('noResults', { query: searchQuery })}</p>
       </div>
     );
   }
@@ -217,14 +217,14 @@ export function NavigationTree({
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Tìm kiếm..."
+              placeholder={t('searchPlaceholder')}
               className="w-full pl-9 pr-8 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
             />
             {searchQuery && (
               <button
                 onClick={handleClearSearch}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Xóa tìm kiếm"
+                aria-label={t('clearSearch')}
               >
                 <svg
                   className="w-4 h-4"
@@ -247,7 +247,7 @@ export function NavigationTree({
       )}
 
       {/* Navigation tree */}
-      <nav className="p-2" aria-label="Cây điều hướng nội dung">
+      <nav className="p-2" aria-label={t('navAriaLabel')}>
         <div className="space-y-1">
           {filteredTree.map((node) => (
             <NavigationNode

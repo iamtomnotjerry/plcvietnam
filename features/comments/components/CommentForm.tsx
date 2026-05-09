@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { validateComment } from '../utils/validation';
 
 interface CommentFormProps {
@@ -12,10 +13,13 @@ interface CommentFormProps {
 
 export function CommentForm({
   onSubmit,
-  placeholder = 'Nhập bình luận...',
-  submitLabel = 'Gửi bình luận',
+  placeholder,
+  submitLabel,
   compact = false,
 }: CommentFormProps) {
+  const t = useTranslations('comments');
+  const resolvedPlaceholder = placeholder ?? t('formPlaceholder');
+  const resolvedSubmitLabel = submitLabel ?? t('formSubmit');
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,8 +28,8 @@ export function CommentForm({
     e.preventDefault();
 
     const validation = validateComment(content);
-    if (!validation.valid) {
-      setError(validation.error);
+    if (!validation.valid && validation.errorKey) {
+      setError(t(validation.errorKey));
       return;
     }
 
@@ -50,7 +54,7 @@ export function CommentForm({
       <div className="flex flex-col gap-2">
         {!compact && (
           <label htmlFor="comment-input" className="text-sm font-medium text-card-foreground">
-            Bình luận của bạn
+            {t('formLabel')}
           </label>
         )}
         <textarea
@@ -59,7 +63,7 @@ export function CommentForm({
           onChange={handleChange}
           disabled={isSubmitting}
           rows={compact ? 2 : 4}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           aria-describedby={error ? 'comment-error' : undefined}
           aria-invalid={!!error}
           className={`
@@ -95,7 +99,7 @@ export function CommentForm({
             focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2
             cursor-pointer
           "
-          aria-label={isSubmitting ? 'Đang gửi...' : submitLabel}
+          aria-label={isSubmitting ? t('formSubmitting') : resolvedSubmitLabel}
         >
           {isSubmitting && (
             <svg
@@ -120,7 +124,7 @@ export function CommentForm({
               />
             </svg>
           )}
-          {isSubmitting ? 'Đang gửi...' : submitLabel}
+          {isSubmitting ? t('formSubmitting') : resolvedSubmitLabel}
         </button>
       </div>
     </form>

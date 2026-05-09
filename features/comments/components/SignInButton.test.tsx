@@ -23,12 +23,6 @@ vi.mock('@/lib/supabase/client', () => ({
   },
 }));
 
-vi.mock('next/link', () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
-}));
-
 vi.mock('next/image', () => ({
   default: ({
     src,

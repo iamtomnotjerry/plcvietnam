@@ -5,17 +5,19 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { supabase } from '@/lib/supabase/client';
 import { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 
 export function SignInButton() {
+  const t = useTranslations('comments');
   const { user, status } = useSupabaseAuth();
 
   if (status === 'loading') {
     return (
-      <div className="flex items-center gap-3 animate-pulse" aria-label="Đang tải...">
+      <div className="flex items-center gap-3 animate-pulse" aria-label={t('loading')}>
         <div className="w-9 h-9 rounded-full bg-muted" />
         <div className="h-4 w-28 rounded bg-muted" />
       </div>
@@ -53,9 +55,9 @@ export function SignInButton() {
             void supabase.auth.signOut();
           }}
           className="cursor-pointer text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-destructive hover:underline"
-          aria-label="Đăng xuất khỏi tài khoản"
+          aria-label={t('signOutAria')}
         >
-          Đăng xuất
+          {t('signOut')}
         </button>
       </div>
     );
@@ -66,7 +68,7 @@ export function SignInButton() {
       href={'/auth/sign-in' as Route}
       className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-card-foreground shadow-sm transition-colors hover:bg-muted"
     >
-      Đăng nhập để bình luận
+      {t('signInCta')}
     </Link>
   );
 }

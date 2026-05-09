@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import type { Comment } from '@/lib/types/domain';
 import { subscribeToComments } from '@/lib/supabase/realtime';
 
@@ -96,6 +97,7 @@ function removeComment(comments: Comment[], targetId: string): Comment[] {
  * @param postId - The ID of the post to load/submit comments for
  */
 export function useComments(postId: string): UseCommentsReturn {
+  const t = useTranslations('comments');
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -113,7 +115,7 @@ export function useComments(postId: string): UseCommentsReturn {
         const res = await fetch(`/api/comments?postId=${encodeURIComponent(postId)}`);
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
-          throw new Error((body as { error?: string }).error ?? 'Không thể tải bình luận');
+          throw new Error((body as { error?: string }).error ?? t('fetchCommentsFailed'));
         }
         const json = await res.json();
         const result = reviveComments(json);
@@ -123,7 +125,7 @@ export function useComments(postId: string): UseCommentsReturn {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err instanceof Error ? err : new Error('Không thể tải bình luận'));
+          setError(err instanceof Error ? err : new Error(t('fetchCommentsFailed')));
         }
       } finally {
         if (isMounted) {
@@ -159,6 +161,7 @@ export function useComments(postId: string): UseCommentsReturn {
       isMounted = false;
       unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- next-intl `t` is not stable in tests; strings only depend on locale via messages
   }, [postId]);
 
   /**
@@ -205,7 +208,7 @@ export function useComments(postId: string): UseCommentsReturn {
 
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          throw new Error(data.error ?? 'Không thể gửi bình luận');
+          throw new Error(data.error ?? t('submitCommentFailed'));
         }
 
         const raw = await response.json();
@@ -216,11 +219,12 @@ export function useComments(postId: string): UseCommentsReturn {
       } catch (err) {
         // Roll back optimistic comment
         setComments((prev) => removeComment(prev, optimisticId));
-        throw err instanceof Error ? err : new Error('Không thể gửi bình luận');
+        throw err instanceof Error ? err : new Error(t('submitCommentFailed'));
       } finally {
         setIsSubmitting(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see useEffect above
     [postId]
   );
 

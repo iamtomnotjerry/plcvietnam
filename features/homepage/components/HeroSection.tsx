@@ -4,8 +4,9 @@
 
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { Link } from '@/i18n/navigation';
 
 export interface HeroSectionProps {
   title: string;
@@ -14,6 +15,7 @@ export interface HeroSectionProps {
 }
 
 export function HeroSection({ title, tagline, description }: HeroSectionProps) {
+  const t = useTranslations('home');
   return (
     <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/[0.07] via-background to-accent/[0.06] py-20 md:py-28">
       <div className="container relative z-[1] mx-auto max-w-6xl px-4">
@@ -24,7 +26,7 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
           className="mx-auto max-w-3xl space-y-6 text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-            PLC · SCADA · Siemens
+            {t('heroEyebrow')}
           </p>
           <h1
             className="text-[2.25rem] font-semibold leading-tight tracking-tight text-foreground sm:text-5xl md:text-6xl"
@@ -61,7 +63,7 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
               href="/posts"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              Đọc bài viết
+              {t('readPosts')}
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -75,7 +77,7 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
               href="/books"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-6 py-3 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-muted"
             >
-              Thư viện sách
+              {t('library')}
             </Link>
           </motion.div>
         </motion.div>

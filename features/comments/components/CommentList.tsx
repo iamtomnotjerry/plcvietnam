@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import type { Comment } from '@/lib/types/domain';
 import { CommentForm } from './CommentForm';
 
@@ -29,6 +30,7 @@ interface CommentItemProps {
 }
 
 function CommentItem({ comment, onReply, isAuthenticated, depth = 0 }: CommentItemProps) {
+  const t = useTranslations('comments');
   const [showReplyForm, setShowReplyForm] = useState(false);
 
   const handleReplySubmit = async (content: string) => {
@@ -72,7 +74,7 @@ function CommentItem({ comment, onReply, isAuthenticated, depth = 0 }: CommentIt
           >
             <div className="flex items-baseline gap-2 flex-wrap mb-1">
               <span className="text-sm font-semibold text-card-foreground">
-                {comment.userName || 'Ẩn danh'}
+                {comment.userName || t('anonymous')}
               </span>
               <time
                 dateTime={new Date(comment.createdAt).toISOString()}
@@ -81,7 +83,9 @@ function CommentItem({ comment, onReply, isAuthenticated, depth = 0 }: CommentIt
                 {formatDate(new Date(comment.createdAt))}
               </time>
               {isOptimistic && (
-                <span className="text-xs text-muted-foreground italic">Đang gửi...</span>
+                <span className="text-xs text-muted-foreground italic">
+                  {t('optimisticSending')}
+                </span>
               )}
             </div>
             <p className="text-sm text-card-foreground whitespace-pre-wrap break-words">
@@ -103,7 +107,7 @@ function CommentItem({ comment, onReply, isAuthenticated, depth = 0 }: CommentIt
                   d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
                 />
               </svg>
-              {showReplyForm ? 'Hủy' : 'Trả lời'}
+              {showReplyForm ? t('cancel') : t('reply')}
             </button>
           )}
 
@@ -112,8 +116,8 @@ function CommentItem({ comment, onReply, isAuthenticated, depth = 0 }: CommentIt
             <div className="mt-3 pl-1">
               <CommentForm
                 onSubmit={handleReplySubmit}
-                placeholder={`Trả lời ${comment.userName}...`}
-                submitLabel="Gửi trả lời"
+                placeholder={t('replyPlaceholder', { name: comment.userName || t('anonymous') })}
+                submitLabel={t('replySubmit')}
                 compact
               />
             </div>
@@ -125,7 +129,7 @@ function CommentItem({ comment, onReply, isAuthenticated, depth = 0 }: CommentIt
       {comment.replies && comment.replies.length > 0 && (
         <ul
           className={`flex flex-col gap-3 pl-10 border-l-2 border-border/50 ml-4`}
-          aria-label="Trả lời"
+          aria-label={t('repliesAriaLabel')}
         >
           {comment.replies.map((reply) => (
             <CommentItem
@@ -143,12 +147,10 @@ function CommentItem({ comment, onReply, isAuthenticated, depth = 0 }: CommentIt
 }
 
 export function CommentList({ comments, onReply, isAuthenticated }: CommentListProps) {
+  const t = useTranslations('comments');
+
   if (comments.length === 0) {
-    return (
-      <div className="py-8 text-center text-muted-foreground text-sm">
-        Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
-      </div>
-    );
+    return <div className="py-8 text-center text-muted-foreground text-sm">{t('emptyList')}</div>;
   }
 
   // Sort top-level ascending
@@ -157,7 +159,7 @@ export function CommentList({ comments, onReply, isAuthenticated }: CommentListP
   );
 
   return (
-    <ul className="flex flex-col gap-5" aria-label="Danh sách bình luận">
+    <ul className="flex flex-col gap-5" aria-label={t('listAriaLabel')}>
       {sorted.map((comment) => (
         <CommentItem
           key={comment.id}

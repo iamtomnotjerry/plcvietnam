@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import type { Route } from 'next';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { TurnstileField } from '@/features/auth/components/TurnstileField';
 import { AuthAlert } from '@/features/auth/components/AuthAlert';
 import {
@@ -14,11 +14,13 @@ import { useAuthSubmit } from '@/features/auth/hooks/useAuthSubmit';
 import { authInputClassName, authPrimaryButtonClassName } from '@/features/auth/form-classes';
 
 export function SignUpForm() {
+  const t = useTranslations('auth.signUp');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaResetNonce, setCaptchaResetNonce] = useState(0);
   const [registered, setRegistered] = useState(false);
   const passwordValid = isPasswordChecklistValid(password, confirmPassword);
 
@@ -27,15 +29,20 @@ export function SignUpForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordValid) {
-      setError('Mật khẩu chưa đáp ứng đủ tiêu chí.');
+      setError(t('passwordPolicy'));
       return;
     }
     const result = await submit({
       url: '/api/auth/register',
       body: { full_name: name, email, password, captchaToken },
-      defaultErrorMessage: 'Đăng ký thất bại',
+      defaultErrorMessage: t('failDefault'),
     });
-    if (result.ok) setRegistered(true);
+    if (result.ok) {
+      setRegistered(true);
+    } else if (isCaptchaConfigured) {
+      setCaptchaToken(null);
+      setCaptchaResetNonce((n) => n + 1);
+    }
   };
 
   if (registered) {
@@ -56,17 +63,15 @@ export function SignUpForm() {
             />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-foreground">Kiểm tra email của bạn</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t('checkEmailTitle')}</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Chúng tôi đã gửi email xác nhận đến{' '}
-          <span className="font-medium text-foreground">{email}</span>. Vui lòng click vào link
-          trong email để kích hoạt tài khoản, sau đó đăng nhập.
+          {t('checkEmailBody', { email })}
         </p>
         <Link
-          href={'/auth/sign-in' as Route}
+          href="/auth/sign-in"
           className={`inline-block w-full text-center ${authPrimaryButtonClassName}`}
         >
-          Đến trang đăng nhập
+          {t('toSignIn')}
         </Link>
       </div>
     );
@@ -77,7 +82,7 @@ export function SignUpForm() {
       {error && <AuthAlert variant="error">{error}</AuthAlert>}
       <div>
         <label htmlFor="signup-name" className="mb-1 block text-sm font-medium">
-          Tên hiển thị
+          {t('displayName')}
         </label>
         <input
           id="signup-name"
@@ -90,7 +95,7 @@ export function SignUpForm() {
       </div>
       <div>
         <label htmlFor="signup-email" className="mb-1 block text-sm font-medium">
-          Email
+          {t('email')}
         </label>
         <input
           id="signup-email"
@@ -104,7 +109,7 @@ export function SignUpForm() {
       </div>
       <div>
         <label htmlFor="signup-password" className="mb-1 block text-sm font-medium">
-          Mật khẩu
+          {t('password')}
         </label>
         <input
           id="signup-password"
@@ -120,7 +125,7 @@ export function SignUpForm() {
       <PasswordChecklist password={password} confirmPassword={confirmPassword} />
       <div>
         <label htmlFor="signup-confirm-password" className="mb-1 block text-sm font-medium">
-          Xác nhận mật khẩu
+          {t('confirmPassword')}
         </label>
         <input
           id="signup-confirm-password"
@@ -138,13 +143,13 @@ export function SignUpForm() {
         disabled={loading || !passwordValid || (isCaptchaConfigured && !captchaToken)}
         className={authPrimaryButtonClassName}
       >
-        {loading ? 'Đang tạo tài khoản…' : 'Đăng ký'}
+        {loading ? t('submitting') : t('submit')}
       </button>
-      <TurnstileField onTokenChange={setCaptchaToken} />
+      <TurnstileField onTokenChange={setCaptchaToken} resetNonce={captchaResetNonce} />
       <p className="text-center text-sm text-muted-foreground">
-        Đã có tài khoản?{' '}
-        <Link href={'/auth/sign-in' as Route} className="font-medium text-primary hover:underline">
-          Đăng nhập
+        {t('hasAccount')}{' '}
+        <Link href="/auth/sign-in" className="font-medium text-primary hover:underline">
+          {t('signIn')}
         </Link>
       </p>
     </form>

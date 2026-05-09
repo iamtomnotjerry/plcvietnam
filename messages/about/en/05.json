@@ -1,0 +1,25 @@
+{
+  "booksTitle": "Book series author",
+  "booksLead": "\"Designing automation systems with TIA Portal\" — structured PLC/HMI/SCADA knowledge for automation engineers",
+  "publishedBooks": [
+    { "title": "Automation PLC S7-300 with TIA Portal", "sub": "2014 — Ed. 2016, 2019" },
+    { "title": "Automation PLC S7-1200 with TIA Portal", "sub": "2015 — Ed. 2019, 2021" },
+    { "title": "Designing HMI/SCADA System with TIA Portal", "sub": "2017 — Ed. 2019" },
+    { "title": "Designing Industrial Network System with TIA Portal", "sub": "2018" },
+    { "title": "Automation PLC S7-1500 with TIA Portal", "sub": "2021" }
+  ],
+  "bookValueProps": [
+    {
+      "title": "Structured knowledge",
+      "desc": "In-depth PLC, HMI, and SCADA content"
+    },
+    {
+      "title": "Theory + practice",
+      "desc": "Combines fundamentals with field experience"
+    },
+    {
+      "title": "Broad applicability",
+      "desc": "Used in training and in project delivery"
+    }
+  ]
+}

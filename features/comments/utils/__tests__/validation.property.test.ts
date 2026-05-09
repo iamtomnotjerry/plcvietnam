@@ -5,15 +5,15 @@
  * **Validates: Requirements 4.5, 4.6, 4.7**
  *
  * For any string with length in [1, 2000]: validateComment returns valid=true
- * For any string with length 0: validateComment returns valid=false with "Bình luận không được để trống"
- * For any string with length > 2000: validateComment returns valid=false with "Bình luận không được vượt quá 2000 ký tự"
+ * For any string with length 0: validateComment returns valid=false with validationEmpty key
+ * For any string with length > 2000: validateComment returns valid=false with validationTooLong key
  */
 
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
 import {
   validateComment,
-  COMMENT_VALIDATION_MESSAGES,
+  COMMENT_VALIDATION_MESSAGE_KEYS,
   COMMENT_MIN_LENGTH,
   COMMENT_MAX_LENGTH,
 } from '../validation';
@@ -28,14 +28,14 @@ describe('Property: Comment Validation Boundaries', () => {
           const result = validateComment(content);
 
           expect(result.valid).toBe(true);
-          expect(result.error).toBeUndefined();
+          expect(result.errorKey).toBeUndefined();
         }
       ),
       { numRuns: 100 }
     );
   });
 
-  it('should reject empty string (length 0) with the correct Vietnamese error message', () => {
+  it('should reject empty string (length 0) with the correct error key', () => {
     fc.assert(
       fc.property(
         // Only the empty string has length 0
@@ -44,25 +44,25 @@ describe('Property: Comment Validation Boundaries', () => {
           const result = validateComment(content);
 
           expect(result.valid).toBe(false);
-          expect(result.error).toBe(COMMENT_VALIDATION_MESSAGES.empty);
+          expect(result.errorKey).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.empty);
         }
       ),
       { numRuns: 100 }
     );
   });
 
-  it('should reject any string with length > 2000 with the correct Vietnamese error message', () => {
+  it('should reject any string with length > 2000 with the correct error key', () => {
     fc.assert(
       fc.property(
         // Generate strings longer than 2000 characters (2001 to 5000)
-        fc.integer({ min: COMMENT_MAX_LENGTH + 1, max: 5000 }).chain((len) =>
-          fc.string({ minLength: len, maxLength: len })
-        ),
+        fc
+          .integer({ min: COMMENT_MAX_LENGTH + 1, max: 5000 })
+          .chain((len) => fc.string({ minLength: len, maxLength: len })),
         (content) => {
           const result = validateComment(content);
 
           expect(result.valid).toBe(false);
-          expect(result.error).toBe(COMMENT_VALIDATION_MESSAGES.tooLong);
+          expect(result.errorKey).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.tooLong);
         }
       ),
       { numRuns: 100 }
@@ -82,7 +82,7 @@ describe('Property: Comment Validation Boundaries', () => {
           const result2 = validateComment(content);
 
           expect(result1.valid).toBe(result2.valid);
-          expect(result1.error).toBe(result2.error);
+          expect(result1.errorKey).toBe(result2.errorKey);
         }
       ),
       { numRuns: 100 }
@@ -91,25 +91,22 @@ describe('Property: Comment Validation Boundaries', () => {
 
   it('should correctly classify strings at boundary lengths (0, 1, 2000, 2001)', () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom(0, 1, 1000, 2000, 2001, 5000),
-        (length) => {
-          const content = 'a'.repeat(length);
-          const result = validateComment(content);
+      fc.property(fc.constantFrom(0, 1, 1000, 2000, 2001, 5000), (length) => {
+        const content = 'a'.repeat(length);
+        const result = validateComment(content);
 
-          if (length === 0) {
-            expect(result.valid).toBe(false);
-            expect(result.error).toBe(COMMENT_VALIDATION_MESSAGES.empty);
-          } else if (length >= 1 && length <= 2000) {
-            expect(result.valid).toBe(true);
-            expect(result.error).toBeUndefined();
-          } else {
-            // length > 2000
-            expect(result.valid).toBe(false);
-            expect(result.error).toBe(COMMENT_VALIDATION_MESSAGES.tooLong);
-          }
+        if (length === 0) {
+          expect(result.valid).toBe(false);
+          expect(result.errorKey).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.empty);
+        } else if (length >= 1 && length <= 2000) {
+          expect(result.valid).toBe(true);
+          expect(result.errorKey).toBeUndefined();
+        } else {
+          // length > 2000
+          expect(result.valid).toBe(false);
+          expect(result.errorKey).toBe(COMMENT_VALIDATION_MESSAGE_KEYS.tooLong);
         }
-      ),
+      }),
       { numRuns: 100 }
     );
   });

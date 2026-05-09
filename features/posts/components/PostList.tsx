@@ -6,6 +6,7 @@
 
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { PostCard } from './PostCard';
 import type { Post } from '@/lib/types/domain';
 
@@ -36,6 +37,9 @@ export function PostList({
   showCategory = true,
   showThumbnail = true,
 }: PostListProps) {
+  const t = useTranslations('posts');
+  const tCommon = useTranslations('common');
+
   /**
    * Render pagination controls
    */
@@ -93,7 +97,7 @@ export function PostList({
                 : 'bg-card border border-border text-foreground hover:bg-muted cursor-pointer'
             }
           `}
-          aria-label="Trang trước"
+          aria-label={tCommon('paginationPrevious')}
         >
           <svg
             className="w-5 h-5"
@@ -137,7 +141,7 @@ export function PostList({
                     : 'bg-card border border-border text-foreground hover:bg-muted'
                 }
               `}
-              aria-label={`Trang ${pageNum}`}
+              aria-label={tCommon('paginationPage', { page: pageNum })}
               aria-current={isActive ? 'page' : undefined}
             >
               {pageNum}
@@ -158,7 +162,7 @@ export function PostList({
                 : 'bg-card border border-border text-foreground hover:bg-muted cursor-pointer'
             }
           `}
-          aria-label="Trang sau"
+          aria-label={tCommon('paginationNext')}
         >
           <svg
             className="w-5 h-5"
@@ -195,10 +199,8 @@ export function PostList({
             />
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">Chưa có bài viết nào</h3>
-        <p className="text-muted-foreground max-w-sm">
-          Hiện tại chưa có bài viết nào. Hãy quay lại sau nhé!
-        </p>
+        <h3 className="text-xl font-semibold text-foreground mb-2">{t('emptyTitle')}</h3>
+        <p className="text-muted-foreground max-w-sm">{t('emptyBody')}</p>
       </div>
     );
   }

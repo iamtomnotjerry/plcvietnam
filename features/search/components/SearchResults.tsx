@@ -6,6 +6,7 @@
 
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { SearchResults as SearchResultsType } from '@/lib/data/repository';
 import { SearchResultItem } from './SearchResultItem';
 
@@ -34,12 +35,13 @@ export function SearchResults({
   selectedIndex,
   onResultClick,
 }: SearchResultsProps) {
+  const t = useTranslations('search');
   const hasResults = results.totalResults > 0;
 
   if (!hasResults) {
     return (
       <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-        Không tìm thấy kết quả cho &ldquo;{query}&rdquo;
+        {t('emptyState', { query })}
       </div>
     );
   }
@@ -53,7 +55,7 @@ export function SearchResults({
       {results.posts.length > 0 && (
         <div>
           <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
-            Bài viết
+            {t('sectionPosts')}
           </div>
           {results.posts.map((post, idx) => (
             <SearchResultItem
@@ -71,7 +73,7 @@ export function SearchResults({
       {results.books.length > 0 && (
         <div>
           <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border">
-            Sách
+            {t('sectionBooks')}
           </div>
           {results.books.map((book, idx) => (
             <SearchResultItem
