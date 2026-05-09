@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { AuthPageShell } from '@/features/auth/components/AuthPageShell';
+import {
+  authOutlineButtonClassName,
+  authPrimaryButtonClassName,
+} from '@/features/auth/form-classes';
 
 export const metadata: Metadata = {
   title: 'Xác nhận email | PLC Việt Nam',
@@ -14,13 +19,13 @@ export default async function ConfirmedPage({ searchParams }: Props) {
   const isError = error === '1';
 
   return (
-    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-16">
-      <div className="rounded-2xl border border-border bg-card p-8 text-center space-y-6">
+    <AuthPageShell variant={isError ? 'email-confirm-failed' : 'email-confirmed'}>
+      <div className="space-y-6 text-center">
         {isError ? (
           <>
-            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
               <svg
-                className="w-8 h-8 text-destructive"
+                className="h-8 w-8 text-destructive"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -33,33 +38,29 @@ export default async function ConfirmedPage({ searchParams }: Props) {
                 />
               </svg>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Link không hợp lệ</h1>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+            <div className="space-y-2">
+              <h1 className="font-serif text-xl font-semibold text-foreground">
+                Link không hợp lệ
+              </h1>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Link xác nhận đã hết hạn hoặc không hợp lệ. Vui lòng đăng ký lại hoặc liên hệ hỗ
                 trợ.
               </p>
             </div>
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/auth/sign-up"
-                className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground text-center"
-              >
+            <div className="flex flex-col gap-3 pt-2">
+              <Link href="/auth/sign-up" className={authPrimaryButtonClassName}>
                 Đăng ký lại
               </Link>
-              <Link
-                href="/"
-                className="w-full rounded-lg border border-border py-2.5 text-sm font-medium text-foreground text-center hover:bg-muted transition-colors"
-              >
+              <Link href="/" className={authOutlineButtonClassName}>
                 Về trang chủ
               </Link>
             </div>
           </>
         ) : (
           <>
-            <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
               <svg
-                className="w-8 h-8 text-green-600 dark:text-green-400"
+                className="h-8 w-8 text-green-600 dark:text-green-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -72,29 +73,25 @@ export default async function ConfirmedPage({ searchParams }: Props) {
                 />
               </svg>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Email đã xác nhận!</h1>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+            <div className="space-y-2">
+              <h1 className="font-serif text-xl font-semibold text-foreground">
+                Email đã xác nhận!
+              </h1>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Tài khoản của bạn đã được kích hoạt thành công. Bạn có thể đăng nhập ngay bây giờ.
               </p>
             </div>
-            <div className="flex flex-col gap-3">
-              <Link
-                href="/auth/sign-in"
-                className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground text-center"
-              >
+            <div className="flex flex-col gap-3 pt-2">
+              <Link href="/auth/sign-in" className={authPrimaryButtonClassName}>
                 Đăng nhập
               </Link>
-              <Link
-                href="/"
-                className="w-full rounded-lg border border-border py-2.5 text-sm font-medium text-foreground text-center hover:bg-muted transition-colors"
-              >
+              <Link href="/" className={authOutlineButtonClassName}>
                 Về trang chủ
               </Link>
             </div>
           </>
         )}
       </div>
-    </main>
+    </AuthPageShell>
   );
 }

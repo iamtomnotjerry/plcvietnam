@@ -3,19 +3,17 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { authPrimaryButtonClassName } from '@/features/auth/form-classes';
 
-function AuthErrorInner() {
+export function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
   const isConfiguration = error === 'Configuration';
 
   return (
-    <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
-      <h1 className="mb-2 font-serif text-2xl font-semibold text-destructive">
-        Đăng nhập thất bại
-      </h1>
+    <div className="space-y-6">
+      <h1 className="sr-only">Đăng nhập thất bại</h1>
       {isConfiguration ? (
         <div className="space-y-4 text-sm text-muted-foreground">
           <p>
@@ -56,22 +54,14 @@ function AuthErrorInner() {
             : 'Đã xảy ra lỗi. Thử lại sau.'}
         </p>
       )}
-      <div className="mt-6">
+      <div>
         <Link
           href={'/auth/sign-in' as Route}
-          className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          className={`inline-flex w-full justify-center ${authPrimaryButtonClassName}`}
         >
           Quay lại đăng nhập
         </Link>
       </div>
     </div>
-  );
-}
-
-export function AuthErrorContent() {
-  return (
-    <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-muted" />}>
-      <AuthErrorInner />
-    </Suspense>
   );
 }

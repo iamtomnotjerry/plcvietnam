@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
+import { useThemeContext } from '@/lib/theme/ThemeProvider';
+
+type TurnstileTheme = 'light' | 'dark' | 'auto';
+type TurnstileSize = 'normal' | 'flexible' | 'compact';
 
 type TurnstileWindow = Window & {
   turnstile?: {
@@ -9,6 +13,8 @@ type TurnstileWindow = Window & {
       container: HTMLElement | string,
       options: {
         sitekey: string;
+        theme?: TurnstileTheme;
+        size?: TurnstileSize;
         callback?: (token: string) => void;
         'expired-callback'?: () => void;
         'error-callback'?: () => void;
@@ -25,6 +31,7 @@ interface TurnstileFieldProps {
 export function TurnstileField({ onTokenChange }: TurnstileFieldProps) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? '';
   const enabled = siteKey.length > 0;
+  const { theme } = useThemeContext();
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
@@ -38,10 +45,22 @@ export function TurnstileField({ onTokenChange }: TurnstileFieldProps) {
   useEffect(() => {
     if (!enabled || !scriptReady || !containerRef.current) return;
     const w = window as TurnstileWindow;
-    if (!w.turnstile?.render || widgetIdRef.current) return;
+    if (!w.turnstile?.render) return;
+
+    if (widgetIdRef.current && w.turnstile.remove) {
+      try {
+        w.turnstile.remove(widgetIdRef.current);
+      } catch {
+        // ignore
+      }
+      widgetIdRef.current = null;
+      onTokenChangeRef.current(null);
+    }
 
     widgetIdRef.current = w.turnstile.render(containerRef.current, {
       sitekey: siteKey,
+      theme,
+      size: 'flexible',
       callback: (token: string) => onTokenChangeRef.current(token),
       'expired-callback': () => onTokenChangeRef.current(null),
       'error-callback': () => onTokenChangeRef.current(null),
@@ -59,7 +78,7 @@ export function TurnstileField({ onTokenChange }: TurnstileFieldProps) {
       }
       widgetIdRef.current = null;
     };
-  }, [enabled, scriptReady, siteKey]);
+  }, [enabled, scriptReady, siteKey, theme]);
 
   if (!enabled) return null;
 
@@ -70,7 +89,7 @@ export function TurnstileField({ onTokenChange }: TurnstileFieldProps) {
         strategy="afterInteractive"
         onReady={() => setScriptReady(true)}
       />
-      <div ref={containerRef} />
+      <div ref={containerRef} className="w-full overflow-hidden [&>*]:!w-full" />
       <p className="text-xs text-muted-foreground">Xác minh bảo mật để tiếp tục.</p>
     </div>
   );

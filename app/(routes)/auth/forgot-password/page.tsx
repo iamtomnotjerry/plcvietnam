@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { AuthPageShell } from '@/features/auth/components/AuthPageShell';
 import { ForgotPasswordForm } from '@/features/auth/components/ForgotPasswordForm';
 
 export const metadata: Metadata = {
@@ -7,14 +8,16 @@ export const metadata: Metadata = {
 
 export default function ForgotPasswordPage() {
   return (
-    <main className="min-h-[60vh] px-4 py-16">
-      <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
-        <h1 className="mb-2 font-serif text-2xl font-semibold">Quên mật khẩu</h1>
-        <p className="mb-6 text-sm text-muted-foreground">
+    <AuthPageShell variant="forgot-password">
+      <div className="mb-6 space-y-1 text-center lg:text-left">
+        <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
+          Quên mật khẩu
+        </h1>
+        <p className="text-sm text-muted-foreground">
           Nhập email để nhận liên kết đặt lại mật khẩu qua Supabase.
         </p>
-        <ForgotPasswordForm />
       </div>
-    </main>
+      <ForgotPasswordForm />
+    </AuthPageShell>
   );
 }

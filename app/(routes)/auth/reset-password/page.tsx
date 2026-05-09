@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { AuthPageShell } from '@/features/auth/components/AuthPageShell';
 import { ResetPasswordForm } from '@/features/auth/components/ResetPasswordForm';
 
 export const metadata: Metadata = {
@@ -7,14 +8,16 @@ export const metadata: Metadata = {
 
 export default function ResetPasswordPage() {
   return (
-    <main className="min-h-[60vh] px-4 py-16">
-      <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
-        <h1 className="mb-2 font-serif text-2xl font-semibold">Đặt lại mật khẩu</h1>
-        <p className="mb-6 text-sm text-muted-foreground">
+    <AuthPageShell variant="reset-password">
+      <div className="mb-6 space-y-1 text-center lg:text-left">
+        <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
+          Đặt lại mật khẩu
+        </h1>
+        <p className="text-sm text-muted-foreground">
           Nhập mật khẩu mới (tối thiểu 8 ký tự) sau khi mở link từ email.
         </p>
-        <ResetPasswordForm />
       </div>
-    </main>
+      <ResetPasswordForm />
+    </AuthPageShell>
   );
 }

@@ -75,7 +75,20 @@
   * {
     @apply border-border;
   }
-  
+
+  /* Tailwind v4 không tự thêm cursor:pointer cho buttons như v3.
+     Khôi phục hành vi quen thuộc cho toàn project; disabled controls vẫn dùng default. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  summary:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;

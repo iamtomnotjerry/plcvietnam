@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { AuthPageShell } from '@/features/auth/components/AuthPageShell';
 import { SignUpForm } from '@/features/auth/components/SignUpForm';
 
 export const metadata: Metadata = {
@@ -9,21 +10,23 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
   return (
-    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-16">
-      <h1 className="mb-2 text-center text-2xl font-semibold tracking-tight text-foreground">
-        Đăng ký
-      </h1>
-      <p className="mb-8 text-center text-sm text-muted-foreground">
-        Tài khoản mới có quyền đọc (reader). Admin/Editor dùng tài khoản seed trong mock data.
-      </p>
+    <AuthPageShell variant="sign-up">
+      <div className="mb-6 space-y-1 text-center lg:text-left">
+        <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
+          Đăng ký
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Đăng ký bằng email để bắt đầu trải nghiệm PLC Việt Nam.
+        </p>
+      </div>
 
       <SignUpForm />
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
-        <Link href="/" className="text-primary hover:underline">
+        <Link href="/" className="text-primary transition-colors hover:underline">
           ← Về trang chủ
         </Link>
       </p>
-    </main>
+    </AuthPageShell>
   );
 }

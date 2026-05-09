@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { Route } from 'next';
+import { Suspense } from 'react';
+import { AuthPageShell } from '@/features/auth/components/AuthPageShell';
 import { AuthErrorContent } from '@/features/auth/components/AuthErrorContent';
 
 export const metadata: Metadata = {
@@ -9,13 +11,15 @@ export const metadata: Metadata = {
 
 export default function AuthErrorPage() {
   return (
-    <main className="mx-auto flex min-h-[60vh] max-w-lg flex-col justify-center px-4 py-16">
-      <AuthErrorContent />
+    <AuthPageShell variant="auth-error">
+      <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-muted/80" />}>
+        <AuthErrorContent />
+      </Suspense>
       <p className="mt-8 text-center text-sm text-muted-foreground">
-        <Link href={'/' as Route} className="text-primary hover:underline">
+        <Link href={'/' as Route} className="text-primary transition-colors hover:underline">
           Về trang chủ
         </Link>
       </p>
-    </main>
+    </AuthPageShell>
   );
 }

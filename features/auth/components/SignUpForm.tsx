@@ -4,50 +4,44 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
 import { TurnstileField } from '@/features/auth/components/TurnstileField';
+import { AuthAlert } from '@/features/auth/components/AuthAlert';
+import {
+  PasswordChecklist,
+  isPasswordChecklistValid,
+} from '@/features/auth/components/PasswordChecklist';
+import { isCaptchaConfigured } from '@/features/auth/captcha-config';
+import { useAuthSubmit } from '@/features/auth/hooks/useAuthSubmit';
+import { authInputClassName, authPrimaryButtonClassName } from '@/features/auth/form-classes';
 
 export function SignUpForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
-  const captchaEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
+  const passwordValid = isPasswordChecklistValid(password, confirmPassword);
+
+  const { submit, error, loading, setError } = useAuthSubmit();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: name, email, password, captchaToken }),
-      });
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: { message?: string } | string;
-      };
-      if (!res.ok) {
-        const message =
-          typeof data.error === 'string'
-            ? data.error
-            : typeof data.error?.message === 'string'
-              ? data.error.message
-              : 'Đăng ký thất bại';
-        setError(message);
-        return;
-      }
-      setRegistered(true);
-    } finally {
-      setLoading(false);
+    if (!passwordValid) {
+      setError('Mật khẩu chưa đáp ứng đủ tiêu chí.');
+      return;
     }
+    const result = await submit({
+      url: '/api/auth/register',
+      body: { full_name: name, email, password, captchaToken },
+      defaultErrorMessage: 'Đăng ký thất bại',
+    });
+    if (result.ok) setRegistered(true);
   };
 
   if (registered) {
     return (
-      <div className="rounded-xl border border-border bg-card p-6 text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+      <div className="space-y-4 rounded-2xl border border-primary/15 bg-primary/[0.06] p-6 text-center dark:bg-primary/[0.08]">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <svg
             className="w-6 h-6 text-primary"
             fill="none"
@@ -70,7 +64,7 @@ export function SignUpForm() {
         </p>
         <Link
           href={'/auth/sign-in' as Route}
-          className="inline-block w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground text-center"
+          className={`inline-block w-full text-center ${authPrimaryButtonClassName}`}
         >
           Đến trang đăng nhập
         </Link>
@@ -80,11 +74,7 @@ export function SignUpForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      {error && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <AuthAlert variant="error">{error}</AuthAlert>}
       <div>
         <label htmlFor="signup-name" className="mb-1 block text-sm font-medium">
           Tên hiển thị
@@ -95,7 +85,7 @@ export function SignUpForm() {
           autoComplete="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className={authInputClassName}
         />
       </div>
       <div>
@@ -109,12 +99,12 @@ export function SignUpForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className={authInputClassName}
         />
       </div>
       <div>
         <label htmlFor="signup-password" className="mb-1 block text-sm font-medium">
-          Mật khẩu (tối thiểu 8 ký tự)
+          Mật khẩu
         </label>
         <input
           id="signup-password"
@@ -124,13 +114,29 @@ export function SignUpForm() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className={authInputClassName}
+        />
+      </div>
+      <PasswordChecklist password={password} confirmPassword={confirmPassword} />
+      <div>
+        <label htmlFor="signup-confirm-password" className="mb-1 block text-sm font-medium">
+          Xác nhận mật khẩu
+        </label>
+        <input
+          id="signup-confirm-password"
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={8}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className={authInputClassName}
         />
       </div>
       <button
         type="submit"
-        disabled={loading || (captchaEnabled && !captchaToken)}
-        className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        disabled={loading || !passwordValid || (isCaptchaConfigured && !captchaToken)}
+        className={authPrimaryButtonClassName}
       >
         {loading ? 'Đang tạo tài khoản…' : 'Đăng ký'}
       </button>
