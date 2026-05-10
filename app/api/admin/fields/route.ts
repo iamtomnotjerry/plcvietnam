@@ -9,9 +9,24 @@ import type { Database } from '@/lib/supabase/database.types';
 import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireAdminAuth } from '@/lib/auth/server-auth';
 import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
+import { HOMEPAGE_FIELDS_LIMIT } from '@/lib/data/pick-homepage-fields';
 
 function unauthorized() {
   return apiUnauthorized();
+}
+
+async function countFeaturedOnHomeExcluding(
+  db: ReturnType<typeof getServiceClient>,
+  excludeId?: string
+): Promise<number> {
+  let q = db
+    .from('fields')
+    .select('id', { count: 'exact', head: true })
+    .eq('featured_on_home', true);
+  if (excludeId) q = q.neq('id', excludeId);
+  const { count, error } = await q;
+  if (error) throw error;
+  return count ?? 0;
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -31,7 +46,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const auth = await requireAdminAuth();
   if (!auth) return unauthorized();
 
-  let body: { slug?: string; name?: string; description?: string; icon?: string };
+  let body: {
+    slug?: string;
+    name?: string;
+    description?: string;
+    icon?: string;
+    featured_on_home?: boolean;
+  };
   try {
     body = await request.json();
   } catch {
@@ -42,10 +63,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const name = typeof body.name === 'string' ? body.name.trim() : '';
   if (!slug || !name) return apiBadRequest('Thiếu slug hoặc name');
 
+  const wantFeatured = body.featured_on_home === true;
   const db = getServiceClient();
+  if (wantFeatured) {
+    const n = await countFeaturedOnHomeExcluding(db);
+    if (n >= HOMEPAGE_FIELDS_LIMIT) {
+      return apiBadRequest(
+        `Đã đủ ${HOMEPAGE_FIELDS_LIMIT} lĩnh vực nổi bật trên trang chủ. Bỏ chọn một mục khác trước.`
+      );
+    }
+  }
+
   const { data, error } = await db
     .from('fields')
-    .insert({ slug, name, description: body.description ?? null, icon: body.icon ?? null })
+    .insert({
+      slug,
+      name,
+      description: body.description ?? null,
+      icon: body.icon ?? null,
+      featured_on_home: wantFeatured,
+    })
     .select()
     .single();
 
@@ -74,7 +111,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   const auth = await requireAdminAuth();
   if (!auth) return unauthorized();
 
-  let body: { id?: string; slug?: string; name?: string; description?: string; icon?: string };
+  let body: {
+    id?: string;
+    slug?: string;
+    name?: string;
+    description?: string;
+    icon?: string;
+    featured_on_home?: boolean;
+  };
   try {
     body = await request.json();
   } catch {
@@ -83,13 +127,32 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   if (!body.id) return apiBadRequest('Thiếu id');
 
+  const db = getServiceClient();
+
+  if (body.featured_on_home === true) {
+    const { data: current, error: curErr } = await db
+      .from('fields')
+      .select('featured_on_home')
+      .eq('id', body.id)
+      .single();
+    if (curErr || !current) return apiBadRequest('Không tìm thấy lĩnh vực');
+    if (!current.featured_on_home) {
+      const n = await countFeaturedOnHomeExcluding(db, body.id);
+      if (n >= HOMEPAGE_FIELDS_LIMIT) {
+        return apiBadRequest(
+          `Đã đủ ${HOMEPAGE_FIELDS_LIMIT} lĩnh vực nổi bật trên trang chủ. Bỏ chọn một mục khác trước.`
+        );
+      }
+    }
+  }
+
   const update: Database['public']['Tables']['fields']['Update'] = {};
   if (body.slug) update.slug = body.slug;
   if (body.name) update.name = body.name;
   if (body.description !== undefined) update.description = body.description ?? null;
   if (body.icon !== undefined) update.icon = body.icon ?? null;
+  if (body.featured_on_home !== undefined) update.featured_on_home = Boolean(body.featured_on_home);
 
-  const db = getServiceClient();
   const { data, error } = await db
     .from('fields')
     .update(update)

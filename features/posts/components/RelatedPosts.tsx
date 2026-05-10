@@ -56,13 +56,7 @@ export function RelatedPosts({ posts, className = '' }: RelatedPostsProps) {
       {/* Related posts grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            variant="compact"
-            showCategory={true}
-            showThumbnail={true}
-          />
+          <PostCard key={post.id} post={post} variant="compact" showTags showThumbnail={true} />
         ))}
       </div>
     </section>

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { NavigationTree } from '@/features/navigation/components/NavigationTree';
+import { NavigationSidebarModes } from '@/features/navigation/components/NavigationSidebarModes';
 import { NavigationTreeDataProvider } from '@/features/navigation/components/NavigationTreeDataProvider';
 import { MobileNavDrawer } from '@/components/ui/MobileNavDrawer';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
@@ -57,8 +57,8 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </div>
                 <div className="relative flex min-h-0 flex-1 flex-col px-2 pb-2 pt-1.5">
                   <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-b from-card/55 via-card/35 to-card/18 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.2),inset_0_1px_0_0_color-mix(in_oklab,white_45%,transparent)] backdrop-blur-md dark:from-card/30 dark:via-card/18 dark:to-card/10 dark:shadow-[0_12px_40px_-24px_rgba(0,0,0,0.55)] dark:shadow-[inset_0_1px_0_0_color-mix(in_oklab,white_8%,transparent)]">
-                    <div className="h-full max-h-full overflow-y-auto overflow-x-hidden">
-                      <NavigationTree />
+                    <div className="flex h-full max-h-full min-h-0 flex-col overflow-hidden">
+                      <NavigationSidebarModes />
                     </div>
                   </div>
                 </div>

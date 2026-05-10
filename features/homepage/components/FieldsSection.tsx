@@ -1,7 +1,6 @@
 /**
  * FieldsSection Component
- * Display all fields with post counts
- * Validates Requirements: 11.4
+ * Displays homepage "Lĩnh vực" cards (curated list from pickHomepageFields).
  */
 
 'use client';
@@ -22,7 +21,7 @@ export interface FieldsSectionProps {
  *
  * Displays:
  * - Section heading: "Lĩnh vực"
- * - Grid of field cards showing name, icon, and post count
+ * - Grid of field cards (name, description, category count)
  * - Click navigates to field page
  */
 export function FieldsSection({ fields }: FieldsSectionProps) {

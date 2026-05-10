@@ -317,7 +317,13 @@
     "searchPlaceholder": "Search...",
     "clearSearch": "Clear search",
     "navAriaLabel": "Content navigation tree",
-    "fieldNoCategories": "No categories yet"
+    "fieldNoCategories": "No categories yet",
+    "modeTopics": "Topics",
+    "modeTags": "Tags",
+    "modeSwitcherAriaLabel": "Switch between topic tree and tags",
+    "tagNavAriaLabel": "Tags — quick navigation",
+    "tagLoadError": "Could not load tags",
+    "tagEmpty": "No tags yet"
   },
   "common": {
     "loadingPage": "Loading page",

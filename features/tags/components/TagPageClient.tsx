@@ -25,17 +25,13 @@ export interface TagPageClientProps {
  * Client-side component for tag page
  * Handles pagination with Next.js router
  */
-export function TagPageClient({
-  tagSlug,
-  posts,
-  pagination,
-}: TagPageClientProps) {
+export function TagPageClient({ tagSlug, posts, pagination }: TagPageClientProps) {
   const router = useRouter();
-  
+
   const handlePageChange = (newPage: number) => {
     router.push(`/tags/${tagSlug}?page=${newPage}` as Route);
   };
-  
+
   return (
     <PostList
       posts={posts}
@@ -44,7 +40,7 @@ export function TagPageClient({
         totalPages: pagination.totalPages,
         onPageChange: handlePageChange,
       }}
-      showCategory={true}
+      showTags
       showThumbnail={true}
     />
   );

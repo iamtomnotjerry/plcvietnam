@@ -11,7 +11,7 @@ import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { X } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { NavigationTree } from '@/features/navigation/components/NavigationTree';
+import { NavigationSidebarModes } from '@/features/navigation/components/NavigationSidebarModes';
 import { HEADER_MAIN_NAV } from '@/features/layout/header/header-nav-config';
 import { headerSpringSnappy } from '@/features/layout/header/header-motion';
 
@@ -150,7 +150,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
               </Link>
             ))}
           </div>
-          <NavigationTree onNodeClick={onClose} />
+          <NavigationSidebarModes onNavigate={onClose} />
         </div>
       </div>
     </>

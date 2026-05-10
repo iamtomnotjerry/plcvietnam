@@ -72,6 +72,12 @@ Read-only operational snapshot for third-party connectivity (not part of Checklo
 
 **UI:** locale route `/integrations`, middleware-gated to admins (same pattern as `/checklog`). Client: `features/integrations/`; copy: `messages/integrations/*`; health logic: `lib/integrations/`.
 
+## Public content read (snapshot)
+
+| Route           | Notes                                                                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/tags` | JSON array of tag objects (`id`, `slug`, `name`, `postCount` per domain type). ISR ~1h (`revalidate` in route). Sidebar tag mode (`NavigationTagList`) and other clients may consume. |
+
 ## Versioning Rule
 
 - Non-backward-compatible API changes require:

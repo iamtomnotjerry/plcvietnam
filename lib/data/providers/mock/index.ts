@@ -444,8 +444,10 @@ export class MockProvider implements ContentRepository {
   }
 
   async getFeaturedBooks(limit: number): Promise<Book[]> {
-    // Return first N books as featured
-    return this.books.slice(0, limit);
+    return this.books
+      .filter((b) => b.featured === true)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
   }
 
   async getBookBySlug(slug: string): Promise<Book | null> {

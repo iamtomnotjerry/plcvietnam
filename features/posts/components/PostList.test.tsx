@@ -61,21 +61,21 @@ describe('PostList', () => {
       createMockPost('2', 'Post 2'),
       createMockPost('3', 'Post 3'),
     ];
-    
+
     render(<PostList posts={posts} />);
-    
+
     expect(screen.getByText('Post 1')).toBeInTheDocument();
     expect(screen.getByText('Post 2')).toBeInTheDocument();
     expect(screen.getByText('Post 3')).toBeInTheDocument();
   });
-  
+
   it('displays empty state when no posts', () => {
     render(<PostList posts={[]} />);
-    
+
     expect(screen.getByText('Chưa có bài viết nào')).toBeInTheDocument();
     expect(screen.getByText(/Hiện tại chưa có bài viết nào/)).toBeInTheDocument();
   });
-  
+
   it('renders pagination when provided', () => {
     const posts = [createMockPost('1', 'Post 1')];
     const pagination = {
@@ -83,14 +83,14 @@ describe('PostList', () => {
       totalPages: 5,
       onPageChange: vi.fn(),
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     // Check for page numbers
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
   });
-  
+
   it('does not render pagination when totalPages is 1', () => {
     const posts = [createMockPost('1', 'Post 1')];
     const pagination = {
@@ -98,13 +98,13 @@ describe('PostList', () => {
       totalPages: 1,
       onPageChange: vi.fn(),
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     // Pagination should not be visible
     expect(screen.queryByLabelText('Trang trước')).not.toBeInTheDocument();
   });
-  
+
   it('calls onPageChange when page number is clicked', async () => {
     const user = userEvent.setup();
     const posts = [createMockPost('1', 'Post 1')];
@@ -114,15 +114,15 @@ describe('PostList', () => {
       totalPages: 5,
       onPageChange,
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     const page3Button = screen.getByText('3');
     await user.click(page3Button);
-    
+
     expect(onPageChange).toHaveBeenCalledWith(3);
   });
-  
+
   it('calls onPageChange when next button is clicked', async () => {
     const user = userEvent.setup();
     const posts = [createMockPost('1', 'Post 1')];
@@ -132,15 +132,15 @@ describe('PostList', () => {
       totalPages: 5,
       onPageChange,
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     const nextButton = screen.getByLabelText('Trang sau');
     await user.click(nextButton);
-    
+
     expect(onPageChange).toHaveBeenCalledWith(3);
   });
-  
+
   it('calls onPageChange when previous button is clicked', async () => {
     const user = userEvent.setup();
     const posts = [createMockPost('1', 'Post 1')];
@@ -150,15 +150,15 @@ describe('PostList', () => {
       totalPages: 5,
       onPageChange,
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     const prevButton = screen.getByLabelText('Trang trước');
     await user.click(prevButton);
-    
+
     expect(onPageChange).toHaveBeenCalledWith(2);
   });
-  
+
   it('disables previous button on first page', () => {
     const posts = [createMockPost('1', 'Post 1')];
     const pagination = {
@@ -166,13 +166,13 @@ describe('PostList', () => {
       totalPages: 5,
       onPageChange: vi.fn(),
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     const prevButton = screen.getByLabelText('Trang trước');
     expect(prevButton).toBeDisabled();
   });
-  
+
   it('disables next button on last page', () => {
     const posts = [createMockPost('1', 'Post 1')];
     const pagination = {
@@ -180,13 +180,13 @@ describe('PostList', () => {
       totalPages: 5,
       onPageChange: vi.fn(),
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     const nextButton = screen.getByLabelText('Trang sau');
     expect(nextButton).toBeDisabled();
   });
-  
+
   it('highlights current page', () => {
     const posts = [createMockPost('1', 'Post 1')];
     const pagination = {
@@ -194,13 +194,13 @@ describe('PostList', () => {
       totalPages: 5,
       onPageChange: vi.fn(),
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     const page3Button = screen.getByText('3');
     expect(page3Button).toHaveClass('bg-primary');
   });
-  
+
   it('shows ellipsis for large page counts', () => {
     const posts = [createMockPost('1', 'Post 1')];
     const pagination = {
@@ -208,27 +208,30 @@ describe('PostList', () => {
       totalPages: 20,
       onPageChange: vi.fn(),
     };
-    
+
     render(<PostList posts={posts} pagination={pagination} />);
-    
+
     const ellipsis = screen.getAllByText('...');
     expect(ellipsis.length).toBeGreaterThan(0);
   });
-  
+
   it('applies compact variant to post cards', () => {
     const posts = [createMockPost('1', 'Post 1')];
     const { container } = render(<PostList posts={posts} variant="compact" />);
-    
+
     // Check grid has more columns for compact variant
     const grid = container.querySelector('.grid');
     expect(grid).toHaveClass('xl:grid-cols-4');
   });
-  
-  it('passes showCategory prop to PostCard', () => {
+
+  it('passes showTags prop to PostCard', () => {
     const posts = [createMockPost('1', 'Post 1')];
-    render(<PostList posts={posts} showCategory={false} />);
-    
-    // Category should not be visible
-    expect(screen.queryByText('Test Category')).not.toBeInTheDocument();
+    posts[0].tags = [{ id: 't1', slug: 'plc', name: 'PLC', postCount: 1 }];
+
+    const { rerender } = render(<PostList posts={posts} showTags={false} />);
+    expect(screen.queryByText('PLC')).not.toBeInTheDocument();
+
+    rerender(<PostList posts={posts} showTags />);
+    expect(screen.getByText('PLC')).toBeInTheDocument();
   });
 });

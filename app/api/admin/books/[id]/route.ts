@@ -10,7 +10,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
-import { CreateBookSchema } from '@/lib/validation/schemas';
+import { AdminBookPatchSchema } from '@/lib/validation/schemas';
+import {
+  countBooksFeaturedExcluding,
+  featuredBooksCapErrorMessage,
+} from '@/lib/api/admin-books-featured';
+import { HOMEPAGE_FEATURED_BOOKS_LIMIT } from '@/lib/data/homepage-featured-books';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { ZodError } from 'zod';
@@ -39,7 +44,7 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
   const supabase = getServiceClient();
   const { data, error } = await supabase.from('books').select('*').eq('id', id).single();
   if (error || !data) return apiNotFound('Not found');
-  return NextResponse.json(data);
+  return NextResponse.json({ ...data, featured: data.featured === true });
 }
 
 export async function PATCH(request: NextRequest, { params }: Params): Promise<NextResponse> {
@@ -59,10 +64,9 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
   const { id } = await params;
   const body = await request.json();
 
-  // Validate input
   let validated;
   try {
-    validated = CreateBookSchema.partial().parse(body);
+    validated = AdminBookPatchSchema.parse(body);
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
@@ -71,19 +75,50 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
     return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
-  // Build update payload — only map fields that exist in the books table schema
   type BookUpdate = Database['public']['Tables']['books']['Update'];
   const updateData: BookUpdate = {};
   if (validated.slug !== undefined) updateData.slug = validated.slug;
   if (validated.title !== undefined) updateData.title = validated.title;
   if (validated.description !== undefined)
     updateData.description = sanitizeHtml(validated.description ?? '');
-  if (validated.cover_url !== undefined) updateData.cover_image_url = validated.cover_url ?? null;
-  if (validated.download_url !== undefined)
-    updateData.download_url = validated.download_url ?? null;
+  if (validated.coverImageUrl !== undefined)
+    updateData.cover_image_url = validated.coverImageUrl?.trim() || null;
+  if (validated.authorName !== undefined)
+    updateData.author_name = validated.authorName?.trim() || null;
+  if (validated.series !== undefined) updateData.series = validated.series?.trim() || null;
+  if (validated.volume !== undefined) updateData.volume = validated.volume;
+  if (validated.publisher !== undefined) updateData.publisher = validated.publisher?.trim() || null;
+  if (validated.publishedYear !== undefined) updateData.published_year = validated.publishedYear;
+  if (validated.pages !== undefined) updateData.pages = validated.pages;
+  if (validated.isbn !== undefined) updateData.isbn = validated.isbn?.trim() || null;
+  if (validated.downloadUrl !== undefined)
+    updateData.download_url = validated.downloadUrl?.trim() || null;
+  if (validated.externalUrl !== undefined)
+    updateData.amazon_url = validated.externalUrl?.trim() || null;
+  if (validated.featured !== undefined) updateData.featured = validated.featured;
   updateData.updated_at = new Date().toISOString();
 
+  const keysToWrite = Object.keys(updateData).filter((k) => k !== 'updated_at');
+  if (keysToWrite.length === 0) {
+    return apiBadRequest('Không có dữ liệu cập nhật');
+  }
+
   const supabase = getServiceClient();
+
+  if (validated.featured === true) {
+    const { data: current, error: curErr } = await supabase
+      .from('books')
+      .select('featured')
+      .eq('id', id)
+      .single();
+    if (curErr || !current) return apiNotFound('Không tìm thấy sách');
+    if (!current.featured) {
+      const n = await countBooksFeaturedExcluding(id);
+      if (n >= HOMEPAGE_FEATURED_BOOKS_LIMIT) {
+        return apiBadRequest(featuredBooksCapErrorMessage());
+      }
+    }
+  }
   const { data, error } = await supabase
     .from('books')
     .update(updateData)

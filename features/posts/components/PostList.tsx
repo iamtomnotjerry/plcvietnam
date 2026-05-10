@@ -18,7 +18,7 @@ export interface PostListProps {
     onPageChange: (page: number) => void;
   };
   variant?: 'default' | 'compact' | 'featured';
-  showCategory?: boolean;
+  showTags?: boolean;
   showThumbnail?: boolean;
 }
 
@@ -34,7 +34,7 @@ export function PostList({
   posts,
   pagination,
   variant = 'default',
-  showCategory = true,
+  showTags = true,
   showThumbnail = true,
 }: PostListProps) {
   const t = useTranslations('posts');
@@ -223,7 +223,7 @@ export function PostList({
             key={post.id}
             post={post}
             variant={variant}
-            showCategory={showCategory}
+            showTags={showTags}
             showThumbnail={showThumbnail}
           />
         ))}

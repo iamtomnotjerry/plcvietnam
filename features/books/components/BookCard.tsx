@@ -80,18 +80,20 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
           href={detailHref}
           className="group block h-full bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/40 hover:-translate-y-0.5"
         >
-          <div className="relative w-full h-[280px] overflow-hidden bg-muted">
-            {isValidImageUrl(book.coverImageUrl) ? (
-              <Image
-                src={book.coverImageUrl}
-                alt={book.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-            ) : (
-              COVER_PLACEHOLDER
-            )}
+          <div className="w-full bg-muted px-5 py-4 sm:px-6 sm:py-5">
+            <div className="relative mx-auto aspect-[2/3] max-h-[340px] w-full max-w-[240px]">
+              {isValidImageUrl(book.coverImageUrl) ? (
+                <Image
+                  src={book.coverImageUrl}
+                  alt={book.title}
+                  fill
+                  className="object-contain object-center transition-transform duration-500 group-hover:scale-[1.02]"
+                  sizes="(max-width: 768px) 70vw, (max-width: 1024px) 40vw, 280px"
+                />
+              ) : (
+                COVER_PLACEHOLDER
+              )}
+            </div>
           </div>
 
           <div className="p-5">

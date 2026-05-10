@@ -119,6 +119,26 @@ export const CreateBookSchema = z.object({
   file_size: z.string().max(50).optional(),
 });
 
+/** Admin CMS — JSON body from `AdminBooksClient` (camelCase). */
+export const AdminBookBodySchema = z.object({
+  slug: SlugSchema,
+  title: z.string().min(1).max(500),
+  description: z.string().max(2000).nullable().optional(),
+  coverImageUrl: z.string().max(2000).nullable().optional(),
+  authorName: z.string().max(200).nullable().optional(),
+  series: z.string().max(500).nullable().optional(),
+  volume: z.number().int().positive().nullable().optional(),
+  publisher: z.string().max(200).nullable().optional(),
+  publishedYear: z.number().int().min(1900).max(2100).nullable().optional(),
+  pages: z.number().int().positive().nullable().optional(),
+  isbn: z.string().max(40).nullable().optional(),
+  downloadUrl: z.string().max(2000).nullable().optional(),
+  externalUrl: z.string().max(2000).nullable().optional(),
+  featured: z.boolean().optional(),
+});
+
+export const AdminBookPatchSchema = AdminBookBodySchema.partial();
+
 export const UpdateBookSchema = CreateBookSchema.partial().extend({
   id: UUIDSchema,
 });

@@ -41,7 +41,10 @@ function createMockPost(overrides?: Partial<Post>): Post {
       updatedAt: new Date('2024-01-01'),
     },
     authorId: 'author-1',
-    tags: [],
+    tags: [
+      { id: 'tag-1', slug: 'plc', name: 'PLC', postCount: 2 },
+      { id: 'tag-2', slug: 'tia-portal', name: 'TIA Portal', postCount: 1 },
+    ],
     publishedAt: new Date('2024-01-15T10:00:00Z'),
     updatedAt: new Date('2024-01-15T10:00:00Z'),
     viewCount: 0,
@@ -59,88 +62,96 @@ describe('PostCard', () => {
   it('renders post title, excerpt, and metadata', () => {
     const post = createMockPost();
     render(<PostCard post={post} />);
-    
+
     expect(screen.getByText(post.title)).toBeInTheDocument();
     expect(screen.getByText(post.excerpt)).toBeInTheDocument();
     expect(screen.getByText(/phút đọc/)).toBeInTheDocument();
   });
-  
-  it('displays category badge when showCategory is true', () => {
+
+  it('displays tag badges when showTags is true', () => {
     const post = createMockPost();
-    render(<PostCard post={post} showCategory={true} />);
-    
-    expect(screen.getByText('Test Category')).toBeInTheDocument();
+    render(<PostCard post={post} showTags />);
+
+    expect(screen.getByText('PLC')).toBeInTheDocument();
+    expect(screen.getByText('TIA Portal')).toBeInTheDocument();
   });
-  
-  it('hides category badge when showCategory is false', () => {
+
+  it('hides tag row when showTags is false', () => {
     const post = createMockPost();
-    render(<PostCard post={post} showCategory={false} />);
-    
-    expect(screen.queryByText('Test Category')).not.toBeInTheDocument();
+    render(<PostCard post={post} showTags={false} />);
+
+    expect(screen.queryByText('PLC')).not.toBeInTheDocument();
   });
-  
+
+  it('hides tag row when post has no tags', () => {
+    const post = createMockPost({ tags: [] });
+    render(<PostCard post={post} showTags />);
+
+    expect(screen.queryByText('PLC')).not.toBeInTheDocument();
+  });
+
   it('displays reading time in minutes', () => {
     const post = createMockPost({ readingTimeMinutes: 7 });
     render(<PostCard post={post} />);
-    
+
     expect(screen.getByText('7 phút đọc')).toBeInTheDocument();
   });
-  
+
   it('truncates long excerpts to 200 characters', () => {
     const longExcerpt = 'A'.repeat(250);
     const post = createMockPost({ excerpt: longExcerpt });
     render(<PostCard post={post} />);
-    
+
     const excerptElement = screen.getByText(/A+\.\.\./);
     expect(excerptElement.textContent?.length).toBeLessThanOrEqual(204); // 200 + '...'
   });
-  
+
   it('renders correct link URL', () => {
     const post = createMockPost();
     render(<PostCard post={post} />);
-    
+
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/fields/test-field/test-category/test-post');
   });
-  
+
   it('applies compact variant styles', () => {
     const post = createMockPost();
     const { container } = render(<PostCard post={post} variant="compact" />);
-    
+
     const title = screen.getByText(post.title);
     expect(title).toHaveClass('text-base');
   });
-  
+
   it('applies featured variant styles', () => {
     const post = createMockPost();
     const { container } = render(<PostCard post={post} variant="featured" />);
-    
+
     const title = screen.getByText(post.title);
     expect(title).toHaveClass('text-2xl');
   });
-  
+
   it('formats date in Vietnamese locale', () => {
     const post = createMockPost({
       publishedAt: new Date('2024-03-15T10:00:00Z'),
     });
     render(<PostCard post={post} />);
-    
+
     // Check for Vietnamese month name
     expect(screen.getByText(/tháng 3/i)).toBeInTheDocument();
   });
-  
+
   it('handles missing thumbnail gracefully', () => {
     const post = createMockPost({ thumbnailUrl: undefined });
     render(<PostCard post={post} showThumbnail={true} />);
-    
+
     // Should still render without errors
     expect(screen.getByText(post.title)).toBeInTheDocument();
   });
-  
+
   it('hides thumbnail when showThumbnail is false', () => {
     const post = createMockPost();
     const { container } = render(<PostCard post={post} showThumbnail={false} />);
-    
+
     const images = container.querySelectorAll('img');
     expect(images.length).toBe(0);
   });

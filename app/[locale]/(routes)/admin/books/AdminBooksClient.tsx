@@ -12,6 +12,7 @@ import {
   Link2,
   Pencil,
   Plus,
+  Star,
   Trash2,
   User,
   Wrench,
@@ -61,6 +62,8 @@ interface DeleteState {
 
 const bookColumnHelper = createColumnHelper<BookRow>();
 
+type BookFeaturedFilter = 'all' | 'featured' | 'not_featured';
+
 const EMPTY_FORM_BASE: Omit<BookRow, 'id'> = {
   slug: '',
   title: '',
@@ -90,6 +93,7 @@ export function AdminBooksClient() {
   const [saving, setSaving] = useState(false);
   const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [featuredFilter, setFeaturedFilter] = useState<BookFeaturedFilter>('all');
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
@@ -107,6 +111,33 @@ export function AdminBooksClient() {
   useEffect(() => {
     fetchBooks();
   }, [fetchBooks]);
+
+  const booksForTable = useMemo(() => {
+    if (featuredFilter === 'featured') return books.filter((b) => b.featured);
+    if (featuredFilter === 'not_featured') return books.filter((b) => !b.featured);
+    return books;
+  }, [books, featuredFilter]);
+
+  const featuredToolbar = (
+    <div className="flex flex-wrap items-center gap-2">
+      <label
+        className="shrink-0 text-sm font-medium text-foreground"
+        htmlFor="admin-books-featured-filter"
+      >
+        {t('filterFeaturedLabel')}
+      </label>
+      <select
+        id="admin-books-featured-filter"
+        value={featuredFilter}
+        onChange={(e) => setFeaturedFilter(e.target.value as BookFeaturedFilter)}
+        className="cursor-pointer rounded-lg border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="all">{tc('filterAll')}</option>
+        <option value="featured">{t('filterFeaturedOnly')}</option>
+        <option value="not_featured">{t('filterNotFeatured')}</option>
+      </select>
+    </div>
+  );
 
   function openCreate() {
     setForm({
@@ -174,7 +205,13 @@ export function AdminBooksClient() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? t('saveFailed'));
+        const msg =
+          data?.error && typeof data.error === 'object' && 'message' in data.error
+            ? String((data.error as { message: string }).message)
+            : typeof data.error === 'string'
+              ? data.error
+              : t('saveFailed');
+        throw new Error(msg);
       }
 
       setShowForm(false);
@@ -266,11 +303,6 @@ export function AdminBooksClient() {
                     {t('volume', { n: book.volume })}
                   </AdminTablePill>
                 ) : null}
-                {book.featured ? (
-                  <AdminTablePill variant="highlight" className="py-0.5 text-[10px] leading-tight">
-                    {t('featured')}
-                  </AdminTablePill>
-                ) : null}
               </div>
               {book.series ? (
                 <div className="mt-0.5">
@@ -304,6 +336,18 @@ export function AdminBooksClient() {
         ),
         cell: (info) => (
           <span className="text-sm text-muted-foreground">{info.getValue() ?? tc('dash')}</span>
+        ),
+      }),
+      bookColumnHelper.accessor('featured', {
+        header: () => (
+          <AdminTableColumnHeader icon={Star} align="right">
+            {t('colFeaturedHome')}
+          </AdminTableColumnHeader>
+        ),
+        cell: (info) => (
+          <span className="block text-center text-sm text-muted-foreground">
+            {info.getValue() ? '✓' : tc('dash')}
+          </span>
         ),
       }),
       bookColumnHelper.display({
@@ -356,25 +400,6 @@ export function AdminBooksClient() {
     [t, tc, isDeleting]
   );
 
-  if (error) {
-    return (
-      <div className="space-y-8">
-        <AdminCmsPageHero
-          title={t('title')}
-          subtitle={t('pageSubtitle')}
-          icon={<BookOpen className="h-6 w-6" aria-hidden />}
-          action={
-            <button type="button" onClick={openCreate} className={ADMIN_CMS_HERO_CTA_CLASS}>
-              <Plus className="h-4 w-4" aria-hidden />
-              {t('add')}
-            </button>
-          }
-        />
-        <div className="text-destructive p-4">{error}</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       <AdminCmsPageHero
@@ -388,18 +413,28 @@ export function AdminBooksClient() {
           </button>
         }
       />
-      <p className="text-sm text-muted-foreground">{t('count', { count: books.length })}</p>
+
+      {error && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       <AdminDataTable
         mode="client"
         columns={columns}
-        data={books}
+        data={booksForTable}
         getRowId={(row) => row.id}
         enableGlobalFilter
         enableSorting
         initialPageSize={10}
-        emptyLabel={t('empty')}
+        emptyLabel={
+          !loading && books.length > 0 && booksForTable.length === 0
+            ? t('emptyFiltered')
+            : t('empty')
+        }
         isLoading={loading}
+        toolbar={featuredToolbar}
         className={ADMIN_DATA_TABLE_SHELL_CLASS}
       />
 
@@ -626,16 +661,23 @@ export function AdminBooksClient() {
                 </div>
               </div>
 
-              {/* Featured */}
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.featured}
-                  onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))}
-                  className="w-4 h-4 rounded border-input accent-primary"
-                />
-                <span className="text-sm font-medium text-foreground">{t('featuredCheckbox')}</span>
-              </label>
+              {/* Featured (same pattern as admin Fields “Trang chủ”) */}
+              <div className="rounded-lg border border-border/80 bg-muted/30 p-3">
+                <label className="flex cursor-pointer items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={form.featured}
+                    onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))}
+                    className="mt-1 rounded border-input"
+                  />
+                  <span>
+                    <span className="text-sm font-medium text-foreground">
+                      {t('featuredCheckbox')}
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">{t('featuredHomeHint')}</p>
+                  </span>
+                </label>
+              </div>
             </div>
 
             <div className="flex gap-3 mt-6">

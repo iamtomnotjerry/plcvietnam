@@ -8,6 +8,7 @@
  * SkeletonPostCard
  *
  * Displays an animated pulse placeholder that mirrors the PostCard layout:
+ * - Tag row (pills)
  * - Title bar (2 lines)
  * - Excerpt lines (3 lines)
  * - Metadata row (date + reading time)
@@ -27,9 +28,11 @@ export function SkeletonPostCard() {
 
       {/* Content */}
       <div className="p-5">
-        {/* Category badge placeholder */}
-        <div className="mb-3">
-          <div className="h-5 w-20 bg-muted animate-pulse rounded-full" />
+        {/* Tag pills placeholder */}
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          <div className="h-5 w-14 bg-muted animate-pulse rounded-full" />
+          <div className="h-5 w-16 bg-muted animate-pulse rounded-full" />
+          <div className="h-5 w-12 bg-muted animate-pulse rounded-full" />
         </div>
 
         {/* Title - 2 lines */}

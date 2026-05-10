@@ -164,7 +164,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </header>
 
         {/* Post List */}
-        <PostList posts={postsResult.data} showCategory={false} showThumbnail={true} />
+        <PostList posts={postsResult.data} showTags={false} showThumbnail={true} />
       </div>
     </main>
   );

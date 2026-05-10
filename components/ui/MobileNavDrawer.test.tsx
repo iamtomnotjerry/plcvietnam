@@ -7,11 +7,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MobileNavDrawer } from './MobileNavDrawer';
 
-// Mock NavigationTree to keep tests focused on drawer behaviour
-vi.mock('@/features/navigation/components/NavigationTree', () => ({
-  NavigationTree: ({ onNodeClick }: { onNodeClick?: () => void }) => (
+// Mock sidebar modes to keep tests focused on drawer behaviour
+vi.mock('@/features/navigation/components/NavigationSidebarModes', () => ({
+  NavigationSidebarModes: ({ onNavigate }: { onNavigate?: () => void }) => (
     <nav data-testid="navigation-tree">
-      <button onClick={onNodeClick}>Nav item</button>
+      <button type="button" onClick={onNavigate}>
+        Nav item
+      </button>
     </nav>
   ),
 }));

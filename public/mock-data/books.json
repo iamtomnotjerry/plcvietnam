@@ -56,7 +56,7 @@
     "volume": 4,
     "publisher": "Khoa học và Kỹ thuật",
     "publishedYear": 2018,
-    "featured": true,
+    "featured": false,
     "createdAt": "2024-01-04T00:00:00Z"
   },
   {
@@ -71,7 +71,7 @@
     "publisher": "Khoa học và Kỹ thuật",
     "publishedYear": 2021,
     "pages": 670,
-    "featured": true,
+    "featured": false,
     "createdAt": "2024-01-05T00:00:00Z"
   }
 ]

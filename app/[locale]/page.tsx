@@ -5,6 +5,8 @@
  */
 
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { HOMEPAGE_FEATURED_BOOKS_LIMIT } from '@/lib/data/homepage-featured-books';
+import { pickHomepageFields } from '@/lib/data/pick-homepage-fields';
 import { contentRepository } from '@/lib/data/factory';
 import {
   HeroSection,
@@ -38,8 +40,9 @@ export default async function HomePage({ params }: Props) {
     const [recentPosts, fieldsWithFirstCategory, featuredBooks] = await Promise.all([
       contentRepository.getRecentPosts(6),
       contentRepository.getFieldsWithFirstCategory(),
-      contentRepository.getFeaturedBooks(3),
+      contentRepository.getFeaturedBooks(HOMEPAGE_FEATURED_BOOKS_LIMIT),
     ]);
+    const homepageFields = pickHomepageFields(fieldsWithFirstCategory);
 
     return (
       <main className="min-h-screen overflow-x-hidden">
@@ -84,7 +87,7 @@ export default async function HomePage({ params }: Props) {
           </section>
         )}
 
-        <FieldsSection fields={fieldsWithFirstCategory} />
+        <FieldsSection fields={homepageFields} />
 
         <FeaturedBooksSection books={featuredBooks} />
       </main>

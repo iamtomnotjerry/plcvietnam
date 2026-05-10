@@ -269,7 +269,7 @@ export function SearchPageClient({ initialQuery }: SearchPageClientProps) {
               </div>
               <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {paginatedPosts.map((post) => (
-                  <PostCard key={post.id} post={post} showCategory showThumbnail />
+                  <PostCard key={post.id} post={post} showTags showThumbnail />
                 ))}
               </div>
               {renderPagination(postPage, totalPostPages, (p) => {

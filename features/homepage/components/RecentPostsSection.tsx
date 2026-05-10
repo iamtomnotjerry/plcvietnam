@@ -56,7 +56,7 @@ export function RecentPostsSection({ posts }: RecentPostsSectionProps) {
               viewport={{ once: true, margin: '-40px' }}
               transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
-              <PostCard post={post} variant="compact" showCategory={true} showThumbnail={true} />
+              <PostCard post={post} variant="compact" showTags showThumbnail />
             </motion.div>
           ))}
         </div>

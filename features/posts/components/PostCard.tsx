@@ -8,6 +8,7 @@
 
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { Tag } from 'lucide-react';
 import Image from 'next/image';
 import type { Post } from '@/lib/types/domain';
 import { postHref } from '@/lib/utils/routes';
@@ -19,7 +20,8 @@ import { TiltCard } from '@/components/ui/TiltCard';
 export interface PostCardProps {
   post: Post;
   variant?: 'default' | 'compact' | 'featured';
-  showCategory?: boolean;
+  /** When true, show up to 4 tag pills above the title (no nested links — whole card is one link). */
+  showTags?: boolean;
   showThumbnail?: boolean;
 }
 
@@ -60,7 +62,7 @@ const VARIANT_CONFIG = {
  * - Excerpt (max 200 chars)
  * - Publication date
  * - Reading time
- * - Category name (optional)
+ * - Tag pills (optional)
  * - Thumbnail image (optional)
  *
  * Variants:
@@ -68,10 +70,12 @@ const VARIANT_CONFIG = {
  * - compact: Smaller card for grids
  * - featured: Larger card with emphasis
  */
+const MAX_TAGS_VISIBLE = 4;
+
 export function PostCard({
   post,
   variant = 'default',
-  showCategory = true,
+  showTags = true,
   showThumbnail = true,
 }: PostCardProps) {
   const t = useTranslations('posts');
@@ -107,12 +111,22 @@ export function PostCard({
 
         {/* Content */}
         <div className={config.padding}>
-          {/* Category badge */}
-          {showCategory && post.category && (
-            <div className="mb-3">
-              <Badge>{post.category.name}</Badge>
+          {/* Tags */}
+          {showTags && post.tags && post.tags.length > 0 ? (
+            <div className="mb-3 flex flex-wrap items-center gap-1.5">
+              <Tag className="h-3.5 w-3.5 shrink-0 text-primary/80" strokeWidth={2} aria-hidden />
+              {post.tags.slice(0, MAX_TAGS_VISIBLE).map((tag) => (
+                <Badge key={tag.id} variant="default" className="font-normal">
+                  {tag.name}
+                </Badge>
+              ))}
+              {post.tags.length > MAX_TAGS_VISIBLE ? (
+                <span className="text-xs font-medium text-muted-foreground">
+                  +{post.tags.length - MAX_TAGS_VISIBLE}
+                </span>
+              ) : null}
             </div>
-          )}
+          ) : null}
 
           {/* Title — always occupies exactly 2 lines for consistent card height */}
           <h3

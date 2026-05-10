@@ -10,6 +10,8 @@ export interface Field {
   description: string;
   icon?: string;
   postCount: number;
+  /** Shown first on homepage "Lĩnh vực" (max 6 flags in CMS; section shows up to 6 total). */
+  featuredOnHome?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

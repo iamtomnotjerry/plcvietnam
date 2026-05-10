@@ -317,7 +317,13 @@
     "searchPlaceholder": "Tìm kiếm...",
     "clearSearch": "Xóa tìm kiếm",
     "navAriaLabel": "Cây điều hướng nội dung",
-    "fieldNoCategories": "Chưa có danh mục nào cả"
+    "fieldNoCategories": "Chưa có danh mục nào cả",
+    "modeTopics": "Chủ đề",
+    "modeTags": "Thẻ",
+    "modeSwitcherAriaLabel": "Chuyển giữa cây chủ đề và danh sách thẻ",
+    "tagNavAriaLabel": "Thẻ — điều hướng nhanh",
+    "tagLoadError": "Không thể tải danh sách thẻ",
+    "tagEmpty": "Chưa có thẻ nào"
   },
   "common": {
     "loadingPage": "Đang tải trang",

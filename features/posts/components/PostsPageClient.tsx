@@ -32,7 +32,7 @@ export function PostsPageClient({ posts, pagination }: PostsPageClientProps) {
   return (
     <PostList
       posts={posts}
-      showCategory
+      showTags
       showThumbnail
       variant="compact"
       pagination={{

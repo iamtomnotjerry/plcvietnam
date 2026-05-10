@@ -9,7 +9,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/client-singleton';
-import { CreateBookSchema } from '@/lib/validation/schemas';
+import { AdminBookBodySchema } from '@/lib/validation/schemas';
+import {
+  countBooksFeaturedExcluding,
+  featuredBooksCapErrorMessage,
+} from '@/lib/api/admin-books-featured';
+import { HOMEPAGE_FEATURED_BOOKS_LIMIT } from '@/lib/data/homepage-featured-books';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { ZodError } from 'zod';
@@ -42,7 +47,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .order('title', { ascending: true });
 
   if (error) return apiInternalError('Không thể tải danh sách sách');
-  return NextResponse.json(data ?? []);
+  const rows = data ?? [];
+  return NextResponse.json(
+    rows.map((row) => ({
+      ...row,
+      featured: row.featured === true,
+    }))
+  );
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -64,10 +75,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
-  // Validate input
   let validated;
   try {
-    validated = CreateBookSchema.parse(body);
+    validated = AdminBookBodySchema.parse(body);
   } catch (error) {
     if (error instanceof ZodError) {
       const firstError = error.issues[0];
@@ -76,24 +86,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return apiBadRequest('Dữ liệu không hợp lệ');
   }
 
-  // Sanitize HTML content
+  const wantFeatured = validated.featured === true;
+  const supabase = getServiceClient();
+  if (wantFeatured) {
+    const n = await countBooksFeaturedExcluding();
+    if (n >= HOMEPAGE_FEATURED_BOOKS_LIMIT) {
+      return apiBadRequest(featuredBooksCapErrorMessage());
+    }
+  }
+
   const sanitizedDescription = validated.description ? sanitizeHtml(validated.description) : null;
 
-  const supabase = getServiceClient();
   const { data, error } = await supabase
     .from('books')
     .insert({
       slug: validated.slug,
       title: validated.title,
       description: sanitizedDescription,
-      cover_image_url: validated.cover_url ?? null,
-      download_url: validated.download_url ?? null,
-      author_name: null,
+      cover_image_url: validated.coverImageUrl?.trim() || null,
+      download_url: validated.downloadUrl?.trim() || null,
+      author_name: validated.authorName?.trim() || null,
+      series: validated.series?.trim() || null,
+      volume: validated.volume ?? null,
+      publisher: validated.publisher?.trim() || null,
+      published_year: validated.publishedYear ?? null,
+      pages: validated.pages ?? null,
+      isbn: validated.isbn?.trim() || null,
+      amazon_url: validated.externalUrl?.trim() || null,
+      featured: wantFeatured,
       field_id: null,
-      amazon_url: null,
-      isbn: null,
-      publisher: null,
-      published_year: null,
     })
     .select()
     .single();

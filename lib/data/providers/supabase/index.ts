@@ -92,6 +92,7 @@ function mapField(row: Database['public']['Tables']['fields']['Row']): Field {
     description: row.description ?? '',
     icon: row.icon ?? undefined,
     postCount: row.post_count ?? 0,
+    featuredOnHome: row.featured_on_home ?? false,
     createdAt: new Date(row.created_at ?? Date.now()),
     updatedAt: new Date(row.updated_at ?? Date.now()),
   };
@@ -682,6 +683,7 @@ export class SupabaseProvider implements ContentRepository {
     const { data, error } = await this.db
       .from('books')
       .select('*')
+      .eq('featured', true)
       .order('created_at', { ascending: false })
       .limit(limit);
 

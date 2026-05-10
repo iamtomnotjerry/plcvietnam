@@ -11,6 +11,7 @@ import {
   Pencil,
   Plus,
   Shapes,
+  Star,
   Trash2,
   Wrench,
 } from 'lucide-react';
@@ -41,6 +42,7 @@ interface Field {
   description: string | null;
   icon: string | null;
   post_count: number;
+  featured_on_home: boolean;
 }
 
 interface DeleteState {
@@ -61,6 +63,8 @@ function slugify(text: string) {
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken';
 
+type HomeFeaturedFilter = 'all' | 'featured' | 'not_featured';
+
 const fieldColumnHelper = createColumnHelper<Field>();
 
 export function AdminFieldsClient() {
@@ -78,12 +82,14 @@ export function AdminFieldsClient() {
   const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle');
   const [formDescription, setFormDescription] = useState('');
   const [formIcon, setFormIcon] = useState('');
+  const [formFeaturedOnHome, setFormFeaturedOnHome] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // Delete state
   const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [homeFeaturedFilter, setHomeFeaturedFilter] = useState<HomeFeaturedFilter>('all');
 
   const fetchFields = useCallback(async () => {
     setIsLoading(true);
@@ -103,6 +109,33 @@ export function AdminFieldsClient() {
   useEffect(() => {
     fetchFields();
   }, [fetchFields]);
+
+  const fieldsForTable = useMemo(() => {
+    if (homeFeaturedFilter === 'featured') return fields.filter((f) => f.featured_on_home);
+    if (homeFeaturedFilter === 'not_featured') return fields.filter((f) => !f.featured_on_home);
+    return fields;
+  }, [fields, homeFeaturedFilter]);
+
+  const homeFeaturedToolbar = (
+    <div className="flex flex-wrap items-center gap-2">
+      <label
+        className="shrink-0 text-sm font-medium text-foreground"
+        htmlFor="admin-fields-home-featured-filter"
+      >
+        {t('filterHomeLabel')}
+      </label>
+      <select
+        id="admin-fields-home-featured-filter"
+        value={homeFeaturedFilter}
+        onChange={(e) => setHomeFeaturedFilter(e.target.value as HomeFeaturedFilter)}
+        className="cursor-pointer rounded-lg border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="all">{tc('filterAll')}</option>
+        <option value="featured">{t('filterHomeFeaturedOnly')}</option>
+        <option value="not_featured">{t('filterHomeNotFeatured')}</option>
+      </select>
+    </div>
+  );
 
   // Check slug availability
   const checkSlug = useCallback(
@@ -139,6 +172,7 @@ export function AdminFieldsClient() {
     setSlugStatus('idle');
     setFormDescription('');
     setFormIcon('');
+    setFormFeaturedOnHome(false);
     setFormError(null);
     setShowForm(true);
   }
@@ -150,6 +184,7 @@ export function AdminFieldsClient() {
     setSlugStatus('idle');
     setFormDescription(field.description ?? '');
     setFormIcon(field.icon ?? '');
+    setFormFeaturedOnHome(field.featured_on_home === true);
     setFormError(null);
     setShowForm(true);
   }
@@ -179,6 +214,7 @@ export function AdminFieldsClient() {
         slug: formSlug.trim(),
         description: formDescription.trim() || null,
         icon: formIcon.trim() || null,
+        featured_on_home: formFeaturedOnHome,
       };
       const res = await fetch('/api/admin/fields', {
         method: editingField ? 'PATCH' : 'POST',
@@ -186,7 +222,15 @@ export function AdminFieldsClient() {
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? tc('errSave'));
+      if (!res.ok) {
+        const msg =
+          data?.error && typeof data.error === 'object' && 'message' in data.error
+            ? String((data.error as { message: string }).message)
+            : typeof data.error === 'string'
+              ? data.error
+              : tc('errSave');
+        throw new Error(msg);
+      }
       closeForm();
       fetchFields();
       triggerNavigationRefresh(); // Refresh navigation tree
@@ -252,6 +296,18 @@ export function AdminFieldsClient() {
           </span>
         ),
       }),
+      fieldColumnHelper.accessor('featured_on_home', {
+        header: () => (
+          <AdminTableColumnHeader icon={Star} align="right">
+            {t('colFeaturedHome')}
+          </AdminTableColumnHeader>
+        ),
+        cell: (info) => (
+          <span className="block text-center text-sm text-muted-foreground">
+            {info.getValue() ? '✓' : tc('dash')}
+          </span>
+        ),
+      }),
       fieldColumnHelper.display({
         id: 'actions',
         header: () => (
@@ -299,7 +355,7 @@ export function AdminFieldsClient() {
         },
       }),
     ],
-    [tc, isDeleting]
+    [t, tc, isDeleting]
   );
 
   return (
@@ -326,13 +382,18 @@ export function AdminFieldsClient() {
       <AdminDataTable
         mode="client"
         columns={columns}
-        data={fields}
+        data={fieldsForTable}
         getRowId={(row) => row.id}
         enableGlobalFilter
         enableSorting
         initialPageSize={10}
-        emptyLabel={t('empty')}
+        emptyLabel={
+          !isLoading && fields.length > 0 && fieldsForTable.length === 0
+            ? t('emptyFiltered')
+            : t('empty')
+        }
         isLoading={isLoading}
+        toolbar={homeFeaturedToolbar}
         className={ADMIN_DATA_TABLE_SHELL_CLASS}
       />
 
@@ -462,6 +523,22 @@ export function AdminFieldsClient() {
                   placeholder={t('iconPlaceholder')}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
+              </div>
+              <div className="rounded-lg border border-border/80 bg-muted/30 p-3">
+                <label className="flex cursor-pointer items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formFeaturedOnHome}
+                    onChange={(e) => setFormFeaturedOnHome(e.target.checked)}
+                    className="mt-1 rounded border-input"
+                  />
+                  <span>
+                    <span className="text-sm font-medium text-foreground">
+                      {t('featuredHomeCheckbox')}
+                    </span>
+                    <p className="mt-1 text-xs text-muted-foreground">{t('featuredHomeHint')}</p>
+                  </span>
+                </label>
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button

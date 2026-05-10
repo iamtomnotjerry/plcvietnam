@@ -295,9 +295,11 @@ export type Database = {
         Row: {
           created_at: string | null;
           description: string | null;
+          featured_on_home?: boolean;
           icon: string | null;
           id: string;
           name: string;
+          order: number | null;
           post_count: number | null;
           slug: string;
           updated_at: string | null;
@@ -305,9 +307,11 @@ export type Database = {
         Insert: {
           created_at?: string | null;
           description?: string | null;
+          featured_on_home?: boolean;
           icon?: string | null;
           id?: string;
           name: string;
+          order?: number | null;
           post_count?: number | null;
           slug: string;
           updated_at?: string | null;
@@ -315,9 +319,11 @@ export type Database = {
         Update: {
           created_at?: string | null;
           description?: string | null;
+          featured_on_home?: boolean;
           icon?: string | null;
           id?: string;
           name?: string;
+          order?: number | null;
           post_count?: number | null;
           slug?: string;
           updated_at?: string | null;
