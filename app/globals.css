@@ -41,6 +41,37 @@
   --radius: 0.5rem;
 }
 
+/* Ambient background blobs — skipped under prefers-reduced-motion via component visibility */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes ambient-float-a {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(4%, 3%) scale(1.05);
+    }
+  }
+
+  @keyframes ambient-float-b {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(-4%, -3%) scale(1.04);
+    }
+  }
+
+  .ambient-blob-a {
+    animation: ambient-float-a 28s ease-in-out infinite;
+  }
+
+  .ambient-blob-b {
+    animation: ambient-float-b 34s ease-in-out infinite;
+  }
+}
+
 .dark {
   --color-background: #0c0a09;
   --color-foreground: #fafaf9;

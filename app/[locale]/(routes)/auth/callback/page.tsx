@@ -7,6 +7,10 @@ import type { EmailOtpType } from '@supabase/supabase-js';
 import { useRouter } from '@/i18n/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { resolveSafeCallbackPath } from '@/lib/auth/safe-callback';
+import {
+  AuthCallbackPending,
+  AuthCallbackSuspenseFallback,
+} from '@/features/auth/components/AuthCallbackPending';
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -103,22 +107,12 @@ function AuthCallbackContent() {
     };
   }, [router, searchParams]);
 
-  return (
-    <div className="flex min-h-[40vh] items-center justify-center p-6 text-center text-sm text-muted-foreground">
-      {t('processing')}
-    </div>
-  );
+  return <AuthCallbackPending message={t('processing')} />;
 }
 
 export default function AuthCallbackPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-[40vh] items-center justify-center" aria-hidden>
-          <div className="h-4 w-36 animate-pulse rounded bg-muted" />
-        </div>
-      }
-    >
+    <Suspense fallback={<AuthCallbackSuspenseFallback />}>
       <AuthCallbackContent />
     </Suspense>
   );

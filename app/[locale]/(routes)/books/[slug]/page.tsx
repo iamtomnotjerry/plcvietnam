@@ -11,6 +11,7 @@ import {
 } from '@/lib/utils/structuredData';
 import { withLocales } from '@/lib/i18n/staticParams';
 import { absoluteUrlForLocale, metadataLanguageAlternates } from '@/lib/i18n/urls';
+import { SectionReveal } from '@/components/ui/SectionReveal';
 
 interface BookDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -99,7 +100,7 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
               </ol>
             </nav>
 
-            <div className="flex flex-col md:flex-row gap-10 md:gap-12">
+            <SectionReveal className="flex flex-col md:flex-row gap-10 md:gap-12">
               <div className="relative w-full max-w-[280px] mx-auto md:mx-0 aspect-[2/3] shrink-0 rounded-xl overflow-hidden shadow-xl ring-1 ring-border bg-muted">
                 {book.coverImageUrl ? (
                   <Image
@@ -171,7 +172,7 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
                   )}
                 </div>
               </div>
-            </div>
+            </SectionReveal>
           </div>
         </div>
 

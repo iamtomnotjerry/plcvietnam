@@ -5,8 +5,8 @@ Update this file whenever API contracts, security posture, or architecture behav
 
 ## Last Updated
 
-- Date: 2026-05-09
-- Scope: **`POST /api/auth/resend-confirmation`** (Supabase `auth.resend` signup + same anti-enumeration + Turnstile + CSRF as forgot-password); per-identity **`confirm-resend:{ip}:{emailHash}`** on **`forgotResend`** (60s); sign-up success UI **gửi lại email xác nhận**; server **`getPublicSiteOrigin()`** in `lib/auth/public-site-url.ts` for email redirect URLs; forgot-password **60s resend cooldown** (`forgotResend` + client countdown); prior: API/admin hardening, i18n, Supabase auth unification
+- Date: 2026-05-10
+- Scope: **UX motion layer**: shared tokens in `lib/ui/motion.ts`; **`AuthCallbackPending`** spinner/skeleton + `role="status"` on `/auth/callback`; **`TiltCard`** (3D tilt, desktop-only, off when `prefers-reduced-motion`, safe without `matchMedia` in tests); **`SectionReveal`** (`whileInView` fade-up) on post detail header, book detail hero, about hero; **`AmbientBackground`** + **`AmbientCursorGlow`** in `AppLayout` (cursor glow skips coarse pointer + reduced motion); footer/header motion presets re-export from `lib/ui/motion`; ambient blob keyframes in `app/globals.css`. Prior: resend-confirmation, auth hardening, i18n
 
 ## API Contract Status
 
@@ -67,6 +67,10 @@ Update this file whenever API contracts, security posture, or architecture behav
 
 ## Frontend Quality Updates
 
+- Rate limiting: if Upstash Redis returns an error at runtime (e.g. `WRONGPASS` / bad `UPSTASH_REDIS_REST_TOKEN`), `checkRateLimit` **degrades to in-memory** per instance instead of failing closed as a false 429; fix Vercel + Upstash credentials for distributed limits.
+- Global motion: `lib/ui/motion.ts` centralizes easing, durations, stagger/fade-up/card variants and `sectionRevealVariants`; footer presets remain available via `features/layout/footer/footer-motion.ts`.
+- Auth OAuth/email callback shows accessible pending UI (`features/auth/components/AuthCallbackPending.tsx`) instead of plain text alone while session exchanges.
+- Listing cards (`PostCard`, `BookCard`) use `TiltCard` for subtle pointer tilt on `md+`; disabled when reduced motion or when `matchMedia` is unavailable (tests).
 - Navigation tree semantics improved:
   - expandable nodes use `button` semantics
   - `aria-expanded` and `aria-controls` added

@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import type { Book } from '@/lib/types/domain';
 import { bookHref } from '@/lib/utils/routes';
+import { TiltCard } from '@/components/ui/TiltCard';
 
 function isValidImageUrl(url: string | undefined | null): url is string {
   if (!url || url.trim() === '') return false;
@@ -74,28 +75,84 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
 
   if (variant === 'grid') {
     return (
+      <TiltCard className="h-full">
+        <Link
+          href={detailHref}
+          className="group block h-full bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/40 hover:-translate-y-0.5"
+        >
+          <div className="relative w-full h-[280px] overflow-hidden bg-muted">
+            {isValidImageUrl(book.coverImageUrl) ? (
+              <Image
+                src={book.coverImageUrl}
+                alt={book.title}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+            ) : (
+              COVER_PLACEHOLDER
+            )}
+          </div>
+
+          <div className="p-5">
+            {book.series && <div className="mb-3">{renderSeriesBadge()}</div>}
+
+            <h3 className="text-lg font-semibold text-card-foreground line-clamp-2 min-h-[3.5rem] mb-2 group-hover:text-primary transition-colors duration-200">
+              {book.title}
+            </h3>
+
+            <p className="text-sm text-muted-foreground mb-3">
+              {book.authorName}
+              {book.publishedYear && (
+                <span className="text-muted-foreground/70"> · {book.publishedYear}</span>
+              )}
+            </p>
+
+            <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+              {truncateDescription(book.description)}
+            </p>
+
+            <span className="inline-flex items-center text-sm font-medium text-primary">
+              {t('detailCta')}
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </span>
+          </div>
+        </Link>
+      </TiltCard>
+    );
+  }
+
+  return (
+    <TiltCard className="w-full">
       <Link
         href={detailHref}
-        className="group block h-full bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/40 hover:-translate-y-0.5"
+        className="group flex gap-4 bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/40 p-4"
       >
-        <div className="relative w-full h-[280px] overflow-hidden bg-muted">
+        <div className="relative w-32 h-44 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
           {isValidImageUrl(book.coverImageUrl) ? (
             <Image
               src={book.coverImageUrl}
               alt={book.title}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="128px"
             />
           ) : (
             COVER_PLACEHOLDER
           )}
         </div>
 
-        <div className="p-5">
-          {book.series && <div className="mb-3">{renderSeriesBadge()}</div>}
+        <div className="flex-1 flex flex-col min-w-0">
+          {book.series && <div className="mb-2">{renderSeriesBadge()}</div>}
 
-          <h3 className="text-lg font-semibold text-card-foreground line-clamp-2 min-h-[3.5rem] mb-2 group-hover:text-primary transition-colors duration-200">
+          <h3 className="text-lg font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200">
             {book.title}
           </h3>
 
@@ -106,60 +163,13 @@ export function BookCard({ book, variant = 'grid' }: BookCardProps) {
             )}
           </p>
 
-          <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
             {truncateDescription(book.description)}
           </p>
 
-          <span className="inline-flex items-center text-sm font-medium text-primary">
-            {t('detailCta')}
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </span>
+          <span className="text-sm font-medium text-primary">{t('detailCta')}</span>
         </div>
       </Link>
-    );
-  }
-
-  return (
-    <Link
-      href={detailHref}
-      className="group flex gap-4 bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/40 p-4"
-    >
-      <div className="relative w-32 h-44 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
-        {isValidImageUrl(book.coverImageUrl) ? (
-          <Image
-            src={book.coverImageUrl}
-            alt={book.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            sizes="128px"
-          />
-        ) : (
-          COVER_PLACEHOLDER
-        )}
-      </div>
-
-      <div className="flex-1 flex flex-col min-w-0">
-        {book.series && <div className="mb-2">{renderSeriesBadge()}</div>}
-
-        <h3 className="text-lg font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200">
-          {book.title}
-        </h3>
-
-        <p className="text-sm text-muted-foreground mb-3">
-          {book.authorName}
-          {book.publishedYear && (
-            <span className="text-muted-foreground/70"> · {book.publishedYear}</span>
-          )}
-        </p>
-
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
-          {truncateDescription(book.description)}
-        </p>
-
-        <span className="text-sm font-medium text-primary">{t('detailCta')}</span>
-      </div>
-    </Link>
+    </TiltCard>
   );
 }

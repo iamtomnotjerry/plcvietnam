@@ -24,3 +24,9 @@ Canonical reference is `.env.example`.
 - Treat `SUPABASE_SERVICE_ROLE_KEY` as mandatory for privileged server operations.
 - Fail fast on missing required secrets in privileged paths.
 - Keep per-environment values in secret managers, not committed files.
+
+## Upstash Redis (rate limiting)
+
+- Use the **REST URL** and **REST token** from the Upstash console (Redis → **Details**). The token is not the same as an old database password if you rotated credentials.
+- If Vercel logs show `WRONGPASS` / `invalid or missing auth token` on `/api/auth/*`, `UPSTASH_REDIS_REST_TOKEN` in the deployment does not match that Upstash database. Update the env var and redeploy.
+- Runtime behavior: if Redis returns an error, `lib/rate-limit.ts` falls back to **in-memory** limits per instance so users are not blocked with a false “too many requests” while you fix credentials (multi-instance still benefits from fixing Upstash).

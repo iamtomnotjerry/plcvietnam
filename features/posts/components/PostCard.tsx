@@ -14,6 +14,7 @@ import { postHref } from '@/lib/utils/routes';
 import { formatDate } from '@/lib/utils/date';
 import { truncate } from '@/lib/utils/text';
 import { Badge } from '@/components/ui/Badge';
+import { TiltCard } from '@/components/ui/TiltCard';
 
 export interface PostCardProps {
   post: Post;
@@ -85,86 +86,88 @@ export function PostCard({
   const config = VARIANT_CONFIG[variant];
 
   return (
-    <Link
-      href={postUrl}
-      prefetch
-      className="group block h-full bg-card border border-border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary/50 cursor-pointer"
-    >
-      {/* Thumbnail */}
-      {showThumbnail && isValidImageUrl(post.thumbnailUrl) && (
-        <div className={`relative w-full overflow-hidden rounded-t-lg ${config.imageHeight}`}>
-          <Image
-            src={post.thumbnailUrl}
-            alt={post.title}
-            fill
-            className="object-cover transition-transform duration-300 hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className={config.padding}>
-        {/* Category badge */}
-        {showCategory && post.category && (
-          <div className="mb-3">
-            <Badge>{post.category.name}</Badge>
+    <TiltCard className="h-full">
+      <Link
+        href={postUrl}
+        prefetch
+        className="group block h-full bg-card border border-border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary/50 cursor-pointer"
+      >
+        {/* Thumbnail */}
+        {showThumbnail && isValidImageUrl(post.thumbnailUrl) && (
+          <div className={`relative w-full overflow-hidden rounded-t-lg ${config.imageHeight}`}>
+            <Image
+              src={post.thumbnailUrl}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-300 hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
           </div>
         )}
 
-        {/* Title — always occupies exactly 2 lines for consistent card height */}
-        <h3
-          className={`${config.titleSize} ${config.titleMinH} font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200`}
-        >
-          {post.title}
-        </h3>
+        {/* Content */}
+        <div className={config.padding}>
+          {/* Category badge */}
+          {showCategory && post.category && (
+            <div className="mb-3">
+              <Badge>{post.category.name}</Badge>
+            </div>
+          )}
 
-        {/* Excerpt - max 200 chars */}
-        <p className={`text-sm text-muted-foreground ${config.excerptLines} mb-4`}>
-          {truncate(post.excerpt, 200)}
-        </p>
+          {/* Title — always occupies exactly 2 lines for consistent card height */}
+          <h3
+            className={`${config.titleSize} ${config.titleMinH} font-semibold text-card-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-200`}
+          >
+            {post.title}
+          </h3>
 
-        {/* Metadata */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          {/* Publication date */}
-          <div className="flex items-center gap-1">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            <time dateTime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
-          </div>
+          {/* Excerpt - max 200 chars */}
+          <p className={`text-sm text-muted-foreground ${config.excerptLines} mb-4`}>
+            {truncate(post.excerpt, 200)}
+          </p>
 
-          {/* Reading time */}
-          <div className="flex items-center gap-1">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>{t('readingMinutes', { count: post.readingTimeMinutes })}</span>
+          {/* Metadata */}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            {/* Publication date */}
+            <div className="flex items-center gap-1">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <time dateTime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
+            </div>
+
+            {/* Reading time */}
+            <div className="flex items-center gap-1">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>{t('readingMinutes', { count: post.readingTimeMinutes })}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </TiltCard>
   );
 }

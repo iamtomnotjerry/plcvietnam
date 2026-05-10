@@ -15,6 +15,7 @@ import {
   generateBreadcrumbSchema,
   renderJsonLd,
 } from '@/lib/utils/structuredData';
+import { SectionReveal } from '@/components/ui/SectionReveal';
 
 type StatItem = { value: string; label: string; icon: string };
 type HighlightItem = { icon: string; title: string; desc: string };
@@ -138,7 +139,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
           </Link>
         </div>
 
-        <div className="mb-12 text-center">
+        <SectionReveal className="mb-12 text-center">
           {author.avatarUrl && (
             <div className="mb-6 flex justify-center">
               <div className="relative w-[200px] h-[200px] rounded-full overflow-hidden border-4 border-primary/20">
@@ -168,7 +169,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
           <p className="mt-4 text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
             {tAbout('heroIntro')}
           </p>
-        </div>
+        </SectionReveal>
 
         <div className="grid grid-cols-3 gap-4 mb-12">
           {stats.map((stat) => (

@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { NavigationTree } from '@/features/navigation/components/NavigationTree';
 import { MobileNavDrawer } from '@/components/ui/MobileNavDrawer';
+import { AmbientBackground } from '@/components/ui/AmbientBackground';
+import { AmbientCursorGlow } from '@/components/ui/AmbientCursorGlow';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 
@@ -18,7 +20,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const t = useTranslations('sidebar');
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="relative flex min-h-screen flex-col bg-background">
+      <AmbientBackground />
+      <AmbientCursorGlow />
       <SiteHeader mobileNavOpen={drawerOpen} onMobileNavToggle={toggleDrawer} />
       <div className="flex flex-1">
         {/* Sticky sidebar — stays fixed while page content scrolls */}

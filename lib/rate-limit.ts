@@ -94,9 +94,44 @@ export const rateLimiters = {
     : null,
 };
 
+async function consumeMemoryLimiter(
+  identifier: string,
+  limiterType: 'auth' | 'api' | 'comments' | 'forgotResend'
+): Promise<{ success: boolean; limit?: number; remaining?: number; reset?: number }> {
+  const memoryLimiter = memoryLimiters[limiterType];
+  try {
+    const result = await memoryLimiter.consume(identifier);
+    return {
+      success: true,
+      limit: memoryLimiter.points,
+      remaining: result.remainingPoints,
+      reset: Date.now() + (result.msBeforeNext || 0),
+    };
+  } catch (rateLimiterRes) {
+    const exceeded = rateLimiterRes as RateLimiterRes;
+    return {
+      success: false,
+      limit: memoryLimiter.points,
+      remaining: 0,
+      reset: Date.now() + (exceeded.msBeforeNext || 60000),
+    };
+  }
+}
+
+function logRedisRateLimitFailure(error: unknown): void {
+  const msg = error instanceof Error ? error.message : String(error);
+  if (msg.includes('WRONGPASS') || msg.includes('unauthorized') || msg.includes('Unauthorized')) {
+    console.error(
+      '[rate-limit] Upstash Redis rejected the request (invalid token?). Verify UPSTASH_REDIS_REST_TOKEN matches your Upstash REST API token — https://console.upstash.com'
+    );
+  }
+  console.error('Rate limit error:', error);
+}
+
 /**
  * Check rate limit for a request
- * Falls back to in-memory limiter if Redis is not configured
+ * Falls back to in-memory limiter if Redis is not configured, or if Redis errors at runtime
+ * (misconfigured token, outage) so auth/API routes are not incorrectly denied as 429.
  * @param identifier - Unique identifier (IP address, user ID, etc.)
  * @param limiterType - Type of rate limiter to use ('auth', 'api', 'comments', 'forgotResend')
  * @returns Whether the request is allowed
@@ -108,35 +143,19 @@ export async function checkRateLimit(
   const limiter = rateLimiters[limiterType];
 
   try {
-    // Use Redis-based rate limiter if available
     if (limiter) {
-      const { success, limit, remaining, reset } = await limiter.limit(identifier);
-      return { success, limit, remaining, reset };
+      try {
+        const { success, limit, remaining, reset } = await limiter.limit(identifier);
+        return { success, limit, remaining, reset };
+      } catch (redisError) {
+        logRedisRateLimitFailure(redisError);
+        return consumeMemoryLimiter(identifier, limiterType);
+      }
     }
 
-    // Fallback to in-memory rate limiter
-    const memoryLimiter = memoryLimiters[limiterType];
-    try {
-      const result = await memoryLimiter.consume(identifier);
-      return {
-        success: true,
-        limit: memoryLimiter.points,
-        remaining: result.remainingPoints,
-        reset: Date.now() + (result.msBeforeNext || 0),
-      };
-    } catch (rateLimiterRes) {
-      const exceeded = rateLimiterRes as RateLimiterRes;
-      // Rate limit exceeded
-      return {
-        success: false,
-        limit: memoryLimiter.points,
-        remaining: 0,
-        reset: Date.now() + (exceeded.msBeforeNext || 60000),
-      };
-    }
+    return consumeMemoryLimiter(identifier, limiterType);
   } catch (error) {
     console.error('Rate limit error:', error);
-    // On critical error, fail closed (deny request) for security
     return {
       success: false,
       limit: 30,
