@@ -39,6 +39,10 @@
 
 - The `/integrations` page and `GET /api/admin/integrations-status` are **read-only** health snapshots: extend checks in `lib/integrations/run-integration-health-checks.ts`, keep types in `lib/integrations/types.ts`, and add or adjust user-facing copy in `messages/integrations/*` (and `i18n/load-messages.ts` if namespaces change). Do not return secrets or raw env values; prefer boolean/safe codes only.
 
+### Architecture page (admin UI)
+
+- The `/architecture` page is **documentation-only** in the app: keep copy in `messages/architecture/*` aligned with real dependencies (`package.json`) and repo layout. Update `docs/senior-md/architecture-overview.md` or `current-system-state.md` when the described behavior or gates change materially.
+
 ### Checklog (audit trail)
 
 - New or changed **mutating** `app/api/admin/*` handlers should record successful operator actions via `logAdminChecklogEvent` unless the action is already fully covered by another persisted channel (avoid duplicate rows for the same user action).

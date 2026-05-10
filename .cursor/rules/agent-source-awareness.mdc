@@ -7,7 +7,7 @@ alwaysApply: true
 
 Before making any code change, always do all checks below:
 
-1. Read `docs/senior-md/` (especially `current-system-state.md` for the latest auth/API/rate-limit snapshot; `api-contracts.md` for Checklog query contracts when touching audit or admin list routes, and the **Integrations status** section when touching `/integrations` UI or `GET /api/admin/integrations-status`) and active rules in `.cursor/rules/`.
+1. Read `docs/senior-md/` (especially `current-system-state.md` for the latest auth/API/rate-limit snapshot; `api-contracts.md` for Checklog query contracts when touching audit or admin list routes; the **Integrations status** section when touching `/integrations` UI or `GET /api/admin/integrations-status`; and `architecture-overview.md` when changing how the stack is described for the `/architecture` page or `messages/architecture/*`) and active rules in `.cursor/rules/`.
 2. Read the target file(s) completely and inspect adjacent call sites.
 3. Validate assumptions with project scripts (`type-check`, `lint`, relevant tests).
 4. Keep changes surgical: no unrelated refactors, no style churn.

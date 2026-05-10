@@ -1,5 +1,7 @@
 # Architecture Overview
 
+Admin-facing visual companion (Vietnamese/English, expandable sections): **locale route `/architecture`** (middleware-gated to `admin` role). This file remains the concise engineering summary.
+
 ## System Shape
 
 - Next.js App Router serves both UI routes and API routes.

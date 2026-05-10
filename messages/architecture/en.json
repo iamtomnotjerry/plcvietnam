@@ -1,0 +1,295 @@
+{
+  "architecture": {
+    "metaTitle": "System architecture",
+    "badge": "Internal reference",
+    "title": "How this site is built",
+    "subtitle": "A single map of the codebase: what each layer does in plain language, where it lives in the repo, and which tools power it. Written so both engineers and curious non-technical readers can follow along.",
+    "flowCaption": "Typical request path (simplified)",
+    "flowSimHelp": "Animation simulates one request “traveling” through the stack: browser → Next.js UI/server → API route → database. The moving dot and line are decorative; if your OS uses reduced motion, effects stay minimal.",
+    "flowUser": "Reader or editor (browser)",
+    "flowNext": "Next.js (pages, layouts, server components)",
+    "flowApi": "API routes (validation, auth, responses)",
+    "flowData": "Supabase (database, auth, storage)",
+    "overviewTitle": "Big picture",
+    "overviewBody": "This project is a monolith-style Next.js app: the public website, admin CMS, and HTTP APIs live in one repository. That keeps changes small and traceable. The UI is grouped by feature under features/, shared widgets under components/, and long-lived logic under lib/. Data goes through Supabase; sensitive admin areas are gated in middleware and again inside each API handler.",
+    "scaleTitle": "Maintainability and scaling",
+    "scaleBody": "Today, scaling mostly means clear boundaries (UI vs API vs data), strict TypeScript, documented API contracts, and tests so refactors stay safe. If traffic grows, the same layout can later split out workers or services—without rewriting the mental model of the layers below.",
+    "maintainLabel": "Why this matters",
+    "pathsLabel": "Main folders",
+    "techHeading": "Stack in this layer",
+    "techDetail": "In this repo",
+    "techName": "Technology / library",
+    "techPurpose": "What it does here",
+    "layersHeading": "Layers in detail",
+    "docHintTitle": "Written docs in the repo",
+    "docHintBody": "For deeper onboarding see docs/senior-md/architecture-overview.md and docs/senior-md/current-system-state.md. This page is the friendly, visual companion.",
+    "layerIds": [
+      "presentation",
+      "api",
+      "domain",
+      "data",
+      "security",
+      "crosscut",
+      "integrations",
+      "quality"
+    ],
+    "layers": {
+      "presentation": {
+        "title": "Presentation (UI & UX)",
+        "plain": "Everything visitors and editors see: pages, navigation, forms, animations, and translations. The goal is to keep screens small and delegate heavy rules to lib/ or the API.",
+        "maintain": "New screens usually land in features/ so one product area does not sprawl across the whole tree.",
+        "paths": "app/[locale]/ · features/ · components/ · messages/",
+        "tech": [
+          {
+            "icon": "nextjs",
+            "name": "Next.js (App Router)",
+            "purpose": "Renders pages, layouts, server and client components, and colocates API routes with the deployable app.",
+            "detail": "Routes live under app/: locale-first pages in app/[locale]/, Route Handlers in app/api/. Production build is npm run build on this repo (often hosted on Vercel)."
+          },
+          {
+            "icon": "react",
+            "name": "React 19",
+            "purpose": "Component model for UI and small interactive islands marked with \"use client\".",
+            "detail": "Server Components are the default; client components are used for menus, forms, drag-and-drop CMS, and anything needing browser-only APIs."
+          },
+          {
+            "icon": "i18next",
+            "name": "next-intl",
+            "purpose": "Locales vi (default, no URL prefix) and en (/en/...), plus merged JSON message bundles.",
+            "detail": "Routing is configured in i18n/routing.ts; catalogs are merged in i18n/load-messages.ts from messages/* (e.g. architecture, integrations, admin)."
+          },
+          {
+            "icon": "tailwind",
+            "name": "Tailwind CSS v4",
+            "purpose": "Utility-first styling and responsive layout shared across marketing and admin surfaces.",
+            "detail": "Global tokens and glass/editorial utilities live in app/globals.css; components use className composition without a heavy CSS-in-JS runtime."
+          },
+          {
+            "icon": "framer",
+            "name": "Framer Motion",
+            "purpose": "Declarative motion for hero, navigation, and this architecture page; respects prefers-reduced-motion.",
+            "detail": "Shared easing and stagger helpers are in lib/ui/motion.ts to keep animation timing consistent."
+          },
+          {
+            "icon": "lucide",
+            "name": "lucide-react",
+            "purpose": "Stroke icons for navigation, CMS, Checklog, Integrations, and architecture diagrams.",
+            "detail": "Brand marks for vendors use inline SVGs (Simple Icons, CC0) where a distinct logo helps recognition."
+          }
+        ]
+      },
+      "api": {
+        "title": "API layer (HTTP boundary)",
+        "plain": "Browser or server code calls URLs under /api/.... Each route checks input, talks to data helpers, and returns a predictable JSON shape (including standardized errors).",
+        "maintain": "Handlers stay thin: validate, call lib/, map response. That makes behavior easy to test and document.",
+        "paths": "app/api/** · lib/api/responses.ts",
+        "tech": [
+          {
+            "icon": "nextjs",
+            "name": "Next.js Route Handlers",
+            "purpose": "HTTP entrypoints (GET/POST/…) implemented as route.ts files next to the rest of the app.",
+            "detail": "Examples: app/api/auth/*, app/api/admin/*, app/api/comments, app/api/checklog/session-event. Each handler should stay thin: parse body/query, validate, call lib/, return JSON."
+          },
+          {
+            "icon": "zod",
+            "name": "Zod",
+            "purpose": "Runtime validation for request bodies, query params, and environment shape.",
+            "detail": "Used in many API routes and in lib/env.ts for fail-fast startup checks; shared shapes can live in lib/validation/schemas.ts."
+          },
+          {
+            "icon": "responses",
+            "name": "Shared response helpers",
+            "purpose": "Standard JSON error shape { error: { code, message } } and helpers for 429 with rate-limit headers.",
+            "detail": "Implemented in lib/api/responses.ts; documented for contributors in docs/senior-md/api-contracts.md."
+          }
+        ]
+      },
+      "domain": {
+        "title": "Domain & application logic",
+        "plain": "Business rules that should not live in React components: auth helpers, audit logging, rate-limit orchestration, integration health checks, and data provider wiring.",
+        "maintain": "Pure or near-pure functions here are the easiest to unit test and reuse if you add another client (e.g. mobile) later.",
+        "paths": "lib/** (e.g. lib/auth/, lib/checklog/, lib/integrations/, lib/data/)",
+        "tech": [
+          {
+            "icon": "typescript",
+            "name": "TypeScript modules in lib/",
+            "purpose": "Auth, rate limiting, Checklog, integrations health, Supabase singletons, and other cross-cutting logic.",
+            "detail": "Examples: lib/auth/server-auth.ts, lib/checklog/*, lib/integrations/run-integration-health-checks.ts, lib/rate-limit.ts. Keeps React trees focused on rendering."
+          },
+          {
+            "icon": "json",
+            "name": "Data providers (lib/data/)",
+            "purpose": "Repository-style access so pages and APIs share the same data access patterns.",
+            "detail": "Route handlers call providers instead of duplicating Supabase queries; see docs/senior-md/architecture-overview.md for the intended boundary."
+          }
+        ]
+      },
+      "data": {
+        "title": "Data & persistence",
+        "plain": "Structured content and user profiles live in PostgreSQL (managed by Supabase). Files such as uploads use Supabase Storage. Migrations live with the repo so schema changes are reviewable.",
+        "maintain": "Schema migrations and RLS policies are versioned; production deploys apply them deliberately (supabase db push in your workflow).",
+        "paths": "supabase/migrations/ · Supabase project (hosted)",
+        "tech": [
+          {
+            "icon": "supabase",
+            "name": "Supabase (Postgres + Auth + Storage)",
+            "purpose": "Managed Postgres for content and profiles; Auth for sessions; Storage for uploads.",
+            "detail": "Schema migrations are versioned under supabase/migrations/. Row Level Security and policies are part of the security model for multi-user data."
+          },
+          {
+            "icon": "supabasejs",
+            "name": "@supabase/ssr & @supabase/supabase-js",
+            "purpose": "Official clients: browser client for interactive UI, SSR-aware server client for middleware and Route Handlers.",
+            "detail": "Cookie handling is wired in middleware.ts and API routes so sessions survive full page loads and server actions."
+          }
+        ]
+      },
+      "security": {
+        "title": "Security & access control",
+        "plain": "Who can open /admin, /checklog, /integrations, or /architecture is decided using the signed-in user and their profile role. APIs repeat the check so a single forgotten link cannot bypass protection.",
+        "maintain": "Defense in depth: middleware for UX redirects, route-level checks for APIs, and minimal data in audit logs.",
+        "paths": "middleware.ts · lib/auth/** · Turnstile + rate limits on auth routes",
+        "tech": [
+          {
+            "icon": "supabase",
+            "name": "Supabase Auth",
+            "purpose": "Email/password and OAuth (e.g. Google); JWT/session surfaced to Next.js via cookies.",
+            "detail": "Profiles table carries role (admin/author/reader). Server routes call supabase.auth.getUser() and load profile role for authorization decisions."
+          },
+          {
+            "icon": "middleware",
+            "name": "Middleware gates",
+            "purpose": "First line of defense for /admin UI, /api/admin, and admin-only pages like /checklog, /integrations, /architecture.",
+            "detail": "middleware.ts runs next-intl then Supabase session refresh; operational pages require role admin, while broader CMS may allow author."
+          },
+          {
+            "icon": "cloudflare",
+            "name": "Cloudflare Turnstile (optional)",
+            "purpose": "CAPTCHA widget on abuse-prone auth routes when NEXT_PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY are set.",
+            "detail": "Validated server-side in the same request as sign-in/register/forgot-password flows; see environment-variables docs for exact keys."
+          },
+          {
+            "icon": "upstash",
+            "name": "Upstash Redis + rate-limiter-flexible",
+            "purpose": "Sliding-window counters for auth and related abuse limits; uses REST API from Edge/server.",
+            "detail": "Production expects UPSTASH_REDIS_REST_URL and token; rate-limiter-flexible provides an in-memory path only where the codebase explicitly allows degradation."
+          }
+        ]
+      },
+      "crosscut": {
+        "title": "Cross-cutting operations",
+        "plain": "Concerns that touch many features: environment validation, structured admin audit (Checklog), drag-and-drop ordering in CMS, and safe HTML sanitization where user content appears.",
+        "maintain": "Checklog channels and human labels stay in sync with docs/senior-md when you add new admin actions.",
+        "paths": "lib/env.ts · lib/checklog/** · features/ CMS tools",
+        "tech": [
+          {
+            "icon": "env",
+            "name": "Central env validation",
+            "purpose": "Single module (lib/env.ts) describes required configuration for production vs development.",
+            "detail": "Prevents deploying with missing Supabase keys or, in production, missing Upstash when Redis-backed limits are mandatory."
+          },
+          {
+            "icon": "checklog",
+            "name": "Checklog pipeline",
+            "purpose": "Structured audit trail to checklog_events: auth events, CMS mutations, session events, and selected HTTP mutations from middleware.",
+            "detail": "logAdminChecklogEvent and related helpers keep channels dotted and metadata small; UI at /checklog with human labels in messages/*/checklog."
+          },
+          {
+            "icon": "dndkit",
+            "name": "@dnd-kit/*",
+            "purpose": "Pointer and keyboard accessible drag-and-drop for taxonomy reorder screens in admin.",
+            "detail": "Used instead of native HTML5 DnD alone for better focus management and testing hooks."
+          },
+          {
+            "icon": "dompurify",
+            "name": "isomorphic-dompurify",
+            "purpose": "HTML sanitization when rendering rich text that originated from editors or users.",
+            "detail": "Runs in environments where a DOM implementation is available to the sanitizer (see dependency notes in package); reduces XSS surface for CMS content."
+          }
+        ]
+      },
+      "integrations": {
+        "title": "External services",
+        "plain": "The site relies on a small set of vendors: database/auth host, optional Redis, hosting, CAPTCHA, and OAuth identity. The internal Integrations page summarizes health from env and light probes—billing and quotas stay in each vendor’s console.",
+        "maintain": "Add new probes and copy in lib/integrations/ and messages/integrations/ together so operators still understand statuses.",
+        "paths": "lib/integrations/ · features/integrations/ · app/api/admin/integrations-status/",
+        "tech": [
+          {
+            "icon": "supabase",
+            "name": "Supabase",
+            "purpose": "Hosted Postgres, Auth, and Storage backing the whole product.",
+            "detail": "Project URL and keys come from env; health probe hits profiles via service role on the Integrations admin API."
+          },
+          {
+            "icon": "upstash",
+            "name": "Upstash Redis",
+            "purpose": "Serverless Redis accessed over HTTPS for distributed rate limiting.",
+            "detail": "Optional in local dev; production configuration is validated in lib/env when strict Redis is required."
+          },
+          {
+            "icon": "vercel",
+            "name": "Vercel (typical host)",
+            "purpose": "Edge/serverless deployment target for Next.js; VERCEL env hints appear in integration checks.",
+            "detail": "Not exclusive—you can run node next start elsewhere—but the stack assumes modern Node and Edge middleware capabilities."
+          },
+          {
+            "icon": "cloudflare",
+            "name": "Cloudflare (Turnstile)",
+            "purpose": "CAPTCHA provider integrated at the edge of auth flows.",
+            "detail": "Keys are public site key + secret; see Integrations dashboard for configured vs missing state."
+          },
+          {
+            "icon": "google",
+            "name": "Google OAuth",
+            "purpose": "Social sign-in through Supabase OAuth with Google as provider.",
+            "detail": "Requires GOOGLE_CLIENT_ID/SECRET in env; callback handled under locale-aware auth routes."
+          }
+        ]
+      },
+      "quality": {
+        "title": "Quality, tooling, and delivery",
+        "plain": "Automated checks catch regressions before merge: types, lint, unit/integration tests, and hooks that run on commit/push in your usual Git workflow.",
+        "maintain": "Keeping tests close to the code they guard (API tests near app/api, feature tests under features/) scales better than one giant suite folder.",
+        "paths": "vitest.config.* · **/*.test.ts / **/*.test.tsx · ESLint · Husky",
+        "tech": [
+          {
+            "icon": "typescript",
+            "name": "TypeScript",
+            "purpose": "Strict typing for components, hooks, and server modules (tsc --noEmit in CI).",
+            "detail": "npm run type-check is part of the validate script alongside lint and vitest."
+          },
+          {
+            "icon": "eslint",
+            "name": "ESLint + Prettier",
+            "purpose": "Lint with eslint-config-next and Prettier integration; zero warnings in CI.",
+            "detail": "eslint . --max-warnings=0; Prettier runs on staged files via lint-staged in Husky pre-commit."
+          },
+          {
+            "icon": "vitest",
+            "name": "Vitest",
+            "purpose": "Unit and integration tests with fast watch mode for local development.",
+            "detail": "Tests are colocated near features (features/, app/api/) per docs/senior-md/testing-strategy.md; jsdom for DOM-heavy components."
+          },
+          {
+            "icon": "testinglibrary",
+            "name": "Testing Library",
+            "purpose": "User-centric queries and interactions in component tests.",
+            "detail": "Pairs with Vitest; encourages testing visible behavior instead of implementation details."
+          },
+          {
+            "icon": "npm",
+            "name": "npm scripts + lint-staged",
+            "purpose": "package.json scripts orchestrate dev, build, lint, test, and format.",
+            "detail": "lint-staged runs prettier/eslint on git staged files to keep review noise low."
+          },
+          {
+            "icon": "git",
+            "name": "Husky + Git hooks",
+            "purpose": "Hooks trigger checks before commits/pushes (e.g. tests on push in this repo).",
+            "detail": "Ensures automated quality gates run even if a developer forgets manual npm run validate."
+          }
+        ]
+      }
+    }
+  }
+}

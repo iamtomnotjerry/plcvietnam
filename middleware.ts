@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import createIntlMiddleware from 'next-intl/middleware';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { pathForLocale, localeFromPathname } from '@/lib/i18n/urls';
 import { logChecklogMutationFromMiddleware } from '@/lib/checklog/mutation-log-middleware';
 import { routing } from './i18n/routing';
@@ -8,6 +8,29 @@ import { routing } from './i18n/routing';
 type UserRole = 'admin' | 'author' | 'reader';
 
 const intlMiddleware = createIntlMiddleware(routing);
+
+/**
+ * With `localePrefix: 'as-needed'`, the canonical default locale has no URL prefix (`/architecture`).
+ * Client locale switches can still issue RSC fetches to `/vi/...`, which would get a redirect from
+ * next-intl and break soft navigation ("Failed to fetch"). Normalize to the unprefixed path first.
+ */
+function requestWithCanonicalDefaultLocalePath(request: NextRequest): NextRequest {
+  const { defaultLocale } = routing;
+  const pathname = request.nextUrl.pathname;
+  const prefix = `/${defaultLocale}`;
+  let canonicalPath: string | null = null;
+  if (pathname === prefix) {
+    canonicalPath = '/';
+  } else if (pathname.startsWith(`${prefix}/`)) {
+    canonicalPath = pathname.slice(prefix.length) || '/';
+  }
+  if (canonicalPath === null) {
+    return request;
+  }
+  const url = request.nextUrl.clone();
+  url.pathname = canonicalPath;
+  return new NextRequest(url, request);
+}
 
 function localizedAuthUrl(request: NextRequest, pathname: string, path: string): URL {
   const locale = localeFromPathname(pathname);
@@ -39,6 +62,15 @@ function isIntegrationsUi(pathname: string) {
     pathname === '/integrations' ||
     pathname.startsWith('/integrations/') ||
     pathname.startsWith('/en/integrations')
+  );
+}
+
+/** System architecture doc UI: admin-only, same locale rules as checklog. */
+function isArchitectureUi(pathname: string) {
+  return (
+    pathname === '/architecture' ||
+    pathname.startsWith('/architecture/') ||
+    pathname.startsWith('/en/architecture')
   );
 }
 
@@ -190,6 +222,7 @@ async function supabaseAdminOnlyGateForUi(
 }
 
 export async function middleware(request: NextRequest) {
+  request = requestWithCanonicalDefaultLocalePath(request);
   const pathname = request.nextUrl.pathname;
 
   logChecklogMutationFromMiddleware(request);
@@ -211,6 +244,14 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isIntegrationsUi(pathname)) {
+    const intlResponse = intlMiddleware(request);
+    if (intlResponse.status !== 200) {
+      return intlResponse;
+    }
+    return supabaseAdminOnlyGateForUi(request, intlResponse);
+  }
+
+  if (isArchitectureUi(pathname)) {
     const intlResponse = intlMiddleware(request);
     if (intlResponse.status !== 200) {
       return intlResponse;

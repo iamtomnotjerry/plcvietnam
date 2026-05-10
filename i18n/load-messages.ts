@@ -8,6 +8,8 @@ import legalVi from '../messages/legal/vi.json';
 import legalEn from '../messages/legal/en.json';
 import integrationsVi from '../messages/integrations/vi.json';
 import integrationsEn from '../messages/integrations/en.json';
+import architectureVi from '../messages/architecture/vi.json';
+import architectureEn from '../messages/architecture/en.json';
 
 import vi01 from '../messages/about/vi/01.json';
 import vi02 from '../messages/about/vi/02.json';
@@ -49,6 +51,7 @@ export async function loadMessages(locale: string): Promise<AbstractIntlMessages
   const pagesExtra = (loc === 'en' ? pagesEn : pagesVi) as BaseMessages;
   const legalExtra = (loc === 'en' ? legalEn : legalVi) as BaseMessages;
   const integrationsExtra = (loc === 'en' ? integrationsEn : integrationsVi) as BaseMessages;
+  const architectureExtra = (loc === 'en' ? architectureEn : architectureVi) as BaseMessages;
 
   return {
     ...base,
@@ -56,6 +59,7 @@ export async function loadMessages(locale: string): Promise<AbstractIntlMessages
     ...pagesExtra,
     ...legalExtra,
     ...integrationsExtra,
+    ...architectureExtra,
     aboutPage: {
       ...((base.aboutPage as BaseMessages) ?? {}),
       ...aboutExtra,

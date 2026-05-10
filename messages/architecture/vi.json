@@ -1,0 +1,295 @@
+{
+  "architecture": {
+    "metaTitle": "Kiến trúc hệ thống",
+    "badge": "Tài liệu nội bộ",
+    "title": "Website được xây dựng thế nào",
+    "subtitle": "Bản đồ một trang cho toàn bộ mã nguồn: mỗi lớp làm gì bằng ngôn ngữ thường ngày, nằm ở đâu trong repo, và công cụ nào đang được dùng. Phù hợp cho cả kỹ sư và người không chuyên kỹ thuật muốn hiểu tổng thể.",
+    "flowCaption": "Luồng xử lý điển hình (đơn giản hóa)",
+    "flowSimHelp": "Hiệu ứng mô phỏng một yêu cầu “đi xuyên” các lớp: trình duyệt → Next.js (UI/server) → API → cơ sở dữ liệu. Chấm và vạch chạy chỉ mang tính minh họa; nếu hệ điều hành bật giảm chuyển động, hiệu ứng sẽ nhẹ hoặc tĩnh.",
+    "flowUser": "Người đọc / biên tập (trình duyệt)",
+    "flowNext": "Next.js (trang, layout, server)",
+    "flowApi": "API trong ứng dụng (kiểm tra, phản hồi)",
+    "flowData": "Supabase (cơ sở dữ liệu, đăng nhập, lưu trữ)",
+    "overviewTitle": "Tổng quan",
+    "overviewBody": "Dự án là một ứng dụng Next.js kiểu monolith: trang công khai, CMS quản trị và các API HTTP cùng nằm trong một repository. Cách này giúp thay đổi nhỏ, dễ theo dõi. Giao diện được gom theo tính năng trong features/, phần dùng chung trong components/, logic bền vững trong lib/. Dữ liệu đi qua Supabase; khu vực admin nhạy cảm được chặn ở middleware và kiểm tra lại trong từng API.",
+    "scaleTitle": "Dễ bảo trì và mở rộng",
+    "scaleBody": "Ở quy mô hiện tại, “scale” chủ yếu là ranh giới rõ (UI / API / dữ liệu), TypeScript chặt, hợp đồng API có tài liệu, và bài test để refactor an toàn. Khi lưu lượng lớn hơn, cùng một mô hình tư duy vẫn có thể tách thêm worker hoặc dịch vụ—không cần viết lại từ đầu.",
+    "maintainLabel": "Vì sao quan trọng",
+    "pathsLabel": "Thư mục chính",
+    "techHeading": "Công nghệ trong lớp này",
+    "techDetail": "Trong repo này",
+    "techName": "Công nghệ / thư viện",
+    "techPurpose": "Việc nó đảm nhận",
+    "layersHeading": "Chi tiết từng lớp",
+    "docHintTitle": "Tài liệu viết trong repo",
+    "docHintBody": "Xem thêm docs/senior-md/architecture-overview.md và docs/senior-md/current-system-state.md. Trang này là bản trực quan, dễ đọc hơn.",
+    "layerIds": [
+      "presentation",
+      "api",
+      "domain",
+      "data",
+      "security",
+      "crosscut",
+      "integrations",
+      "quality"
+    ],
+    "layers": {
+      "presentation": {
+        "title": "Lớp giao diện (UI & UX)",
+        "plain": "Phần người dùng và biên tập nhìn thấy: trang, menu, biểu mẫu, hiệu ứng, và đa ngôn ngữ. Hướng tiếp cận là giữ màn hình gọn, phần quy tắc nặng đẩy xuống lib/ hoặc API.",
+        "maintain": "Màn hình mới thường đặt trong features/ để mỗi phần sản phẩm không lan ra khắp cây thư mục.",
+        "paths": "app/[locale]/ · features/ · components/ · messages/",
+        "tech": [
+          {
+            "icon": "nextjs",
+            "name": "Next.js (App Router)",
+            "purpose": "Hiển thị trang, layout, component server/client và gom API vào cùng một ứng dụng triển khai.",
+            "detail": "Route nằm trong app/: trang theo locale ở app/[locale]/, xử lý HTTP ở app/api/. Build production là npm run build (thường deploy trên Vercel)."
+          },
+          {
+            "icon": "react",
+            "name": "React 19",
+            "purpose": "Mô hình component cho UI và các vùng tương tác đánh dấu \"use client\".",
+            "detail": "Mặc định ưu tiên Server Component; client dùng cho menu, biểu mẫu, CMS kéo-thả, và API trình duyệt."
+          },
+          {
+            "icon": "i18next",
+            "name": "next-intl",
+            "purpose": "Locale vi (mặc định, không tiền tố URL) và en (/en/...), gom file JSON messages.",
+            "detail": "Cấu hình trong i18n/routing.ts; i18n/load-messages.ts merge messages/* (architecture, integrations, admin, …)."
+          },
+          {
+            "icon": "tailwind",
+            "name": "Tailwind CSS v4",
+            "purpose": "Styling utility và layout responsive dùng chung marketing và admin.",
+            "detail": "Token và lớp glass/editorial trong app/globals.css; ít phụ thuộc CSS-in-JS nặng."
+          },
+          {
+            "icon": "framer",
+            "name": "Framer Motion",
+            "purpose": "Chuyển động khai báo cho hero, menu, và trang kiến trúc; tôn trọng prefers-reduced-motion.",
+            "detail": "Easing và stagger dùng chung trong lib/ui/motion.ts để đồng bộ nhịp animation."
+          },
+          {
+            "icon": "lucide",
+            "name": "lucide-react",
+            "purpose": "Icon nét cho menu, CMS, Checklog, Integrations và sơ đồ kiến trúc.",
+            "detail": "Logo nhà cung cấp dùng SVG inline (Simple Icons, CC0) khi cần nhận diện thương hiệu."
+          }
+        ]
+      },
+      "api": {
+        "title": "Lớp API (cổng HTTP)",
+        "plain": "Trình duyệt hoặc mã server gọi các đường dẫn /api/.... Mỗi route kiểm tra đầu vào, gọi helper dữ liệu, và trả JSON theo dạng ổn định (kể cả lỗi chuẩn hóa).",
+        "maintain": "Handler giữ mỏng: validate, gọi lib/, map phản hồi. Dễ test và ghi vào tài liệu hợp đồng API.",
+        "paths": "app/api/** · lib/api/responses.ts",
+        "tech": [
+          {
+            "icon": "nextjs",
+            "name": "Next.js Route Handlers",
+            "purpose": "Cổng HTTP (GET/POST/…) trong file route.ts cạnh phần còn lại của app.",
+            "detail": "Ví dụ app/api/auth/*, app/api/admin/*, app/api/comments, app/api/checklog/session-event. Handler nên mỏng: parse, validate, gọi lib/, trả JSON."
+          },
+          {
+            "icon": "zod",
+            "name": "Zod",
+            "purpose": "Kiểm tra runtime cho body, query và hình dạng biến môi trường.",
+            "detail": "Dùng ở nhiều API và lib/env.ts; schema dùng chung có thể đặt lib/validation/schemas.ts."
+          },
+          {
+            "icon": "responses",
+            "name": "Helper phản hồi dùng chung",
+            "purpose": "Lỗi JSON chuẩn { error: { code, message } } và helper 429 kèm header giới hạn.",
+            "detail": "lib/api/responses.ts; tài liệu hợp đồng ở docs/senior-md/api-contracts.md."
+          }
+        ]
+      },
+      "domain": {
+        "title": "Logic nghiệp vụ & ứng dụng",
+        "plain": "Quy tắc không nên nhét vào component React: auth, nhật ký kiểm tra, giới hạn tần suất, kiểm tra tích hợp, và lớp truy cập dữ liệu.",
+        "maintain": "Hàm gần như thuần (pure) ở đây dễ unit test và tái sử dụng nếu sau này có thêm client khác (ví dụ mobile).",
+        "paths": "lib/** (vd. lib/auth/, lib/checklog/, lib/integrations/, lib/data/)",
+        "tech": [
+          {
+            "icon": "typescript",
+            "name": "Module TypeScript trong lib/",
+            "purpose": "Auth, rate limit, Checklog, tích hợp, singleton Supabase và logic xuyên tính năng.",
+            "detail": "Ví dụ lib/auth/server-auth.ts, lib/checklog/*, lib/integrations/run-integration-health-checks.ts, lib/rate-limit.ts — giữ cây React nhẹ."
+          },
+          {
+            "icon": "json",
+            "name": "Data providers (lib/data/)",
+            "purpose": "Lớp truy cập dữ liệu dùng chung cho trang và API.",
+            "detail": "Handler gọi provider thay vì lặp truy vấn Supabase; ranh giới ý định trong docs/senior-md/architecture-overview.md."
+          }
+        ]
+      },
+      "data": {
+        "title": "Dữ liệu & lưu trữ",
+        "plain": "Nội dung có cấu trúc và hồ sơ người dùng nằm trong PostgreSQL (Supabase). File tải lên dùng Supabase Storage. Migration kèm repo để mọi thay đổi schema được review.",
+        "maintain": "Migration và chính sách RLS có phiên bản; môi trường production áp dụng có kiểm soát (vd. supabase db push).",
+        "paths": "supabase/migrations/ · dự án Supabase (hosted)",
+        "tech": [
+          {
+            "icon": "supabase",
+            "name": "Supabase (Postgres + Auth + Storage)",
+            "purpose": "Postgres cho nội dung và profile; Auth cho phiên; Storage cho file tải lên.",
+            "detail": "Migration phiên bản trong supabase/migrations/. RLS và policy là phần mô hình bảo mật đa người dùng."
+          },
+          {
+            "icon": "supabasejs",
+            "name": "@supabase/ssr & @supabase/supabase-js",
+            "purpose": "Client chính thức: trình duyệt cho UI; server tương thích SSR cho middleware và Route Handlers.",
+            "detail": "Cookie được nối trong middleware.ts và API để phiên sống qua tải trang đầy đủ."
+          }
+        ]
+      },
+      "security": {
+        "title": "Bảo mật & phân quyền",
+        "plain": "Ai được vào /admin, /checklog, /integrations hay /architecture được quyết định bằng người dùng đã đăng nhập và vai trò profile. API kiểm tra lại để không lệ thuộc một đường link UI.",
+        "maintain": "Nhiều lớp bảo vệ: middleware cho chuyển hướng UX, kiểm tra từng route cho API, log kiểm tra tối thiểu dữ liệu nhạy cảm.",
+        "paths": "middleware.ts · lib/auth/** · Turnstile + rate limit trên route auth",
+        "tech": [
+          {
+            "icon": "supabase",
+            "name": "Supabase Auth",
+            "purpose": "Email/mật khẩu và OAuth (vd. Google); session đưa vào Next.js qua cookie.",
+            "detail": "Bảng profiles có role (admin/author/reader). Route server gọi getUser() và đọc role để phân quyền."
+          },
+          {
+            "icon": "middleware",
+            "name": "Middleware",
+            "purpose": "Lớp chặn đầu cho /admin, /api/admin và trang chỉ admin như /checklog, /integrations, /architecture.",
+            "detail": "middleware.ts chạy next-intl rồi làm mới session Supabase; trang vận hành yêu cầu admin, CMS có thể cho author."
+          },
+          {
+            "icon": "cloudflare",
+            "name": "Cloudflare Turnstile (tùy cấu hình)",
+            "purpose": "CAPTCHA trên route auth nhạy cảm khi có NEXT_PUBLIC_TURNSTILE_SITE_KEY và TURNSTILE_SECRET_KEY.",
+            "detail": "Xác thực phía server cùng request đăng nhập/đăng ký/quên mật khẩu; xem tài liệu biến môi trường."
+          },
+          {
+            "icon": "upstash",
+            "name": "Upstash Redis + rate-limiter-flexible",
+            "purpose": "Đếm cửa sổ trượt cho giới hạn auth; gọi REST từ Edge/server.",
+            "detail": "Production kỳ vọng UPSTASH_REDIS_REST_URL và token; fallback bộ nhớ chỉ nơi code cho phép suy giảm."
+          }
+        ]
+      },
+      "crosscut": {
+        "title": "Vận hành chung (cross-cutting)",
+        "plain": "Những phần chạm nhiều tính năng: kiểm tra biến môi trường, nhật ký admin (Checklog), kéo-thả sắp xếp trong CMS, và làm sạch HTML khi hiển thị nội dung người dùng.",
+        "maintain": "Kênh Checklog và nhãn hiển thị cần đi đôi với docs/senior-md khi thêm thao tác admin mới.",
+        "paths": "lib/env.ts · lib/checklog/** · công cụ CMS trong features/",
+        "tech": [
+          {
+            "icon": "env",
+            "name": "Kiểm tra env tập trung",
+            "purpose": "Một module (lib/env.ts) mô tả cấu hình bắt buộc cho production vs development.",
+            "detail": "Tránh deploy thiếu khóa Supabase hoặc, ở production, thiếu Upstash khi bắt buộc Redis."
+          },
+          {
+            "icon": "checklog",
+            "name": "Luồng Checklog",
+            "purpose": "Nhật ký có cấu trúc vào checklog_events: auth, mutation CMS, session, một phần HTTP từ middleware.",
+            "detail": "logAdminChecklogEvent và helper giữ channel dạng chấm và metadata nhỏ; UI /checklog với nhãn messages/*/checklog."
+          },
+          {
+            "icon": "dndkit",
+            "name": "@dnd-kit/*",
+            "purpose": "Kéo-thả chuột và bàn phím cho màn sắp xếp taxonomy trong admin.",
+            "detail": "Thay cho chỉ DnD HTML5 thuần để quản lý focus và test tốt hơn."
+          },
+          {
+            "icon": "dompurify",
+            "name": "isomorphic-dompurify",
+            "purpose": "Làm sạch HTML giàu thẻ trước khi hiển thị nội dung từ editor hoặc người dùng.",
+            "detail": "Chạy khi môi trường cung cấp DOM cho sanitizer; giảm bề mặt XSS cho nội dung CMS."
+          }
+        ]
+      },
+      "integrations": {
+        "title": "Dịch vụ bên ngoài",
+        "plain": "Website phụ thuộc một nhóm nhà cung cấp: host DB/auth, Redis tùy chọn, hosting, CAPTCHA, danh tính OAuth. Trang Dịch vụ kết nối tóm tắt sức khỏe từ env và probe nhẹ—chi phí và hạn mức xem tại console từng bên.",
+        "maintain": "Khi thêm tích hợp, cập nhật đồng bộ lib/integrations/ và messages/integrations/ để vận hành vẫn hiểu được trạng thái.",
+        "paths": "lib/integrations/ · features/integrations/ · app/api/admin/integrations-status/",
+        "tech": [
+          {
+            "icon": "supabase",
+            "name": "Supabase",
+            "purpose": "Postgres, Auth và Storage hosted cho toàn bộ sản phẩm.",
+            "detail": "URL dự án và khóa lấy từ env; probe Integrations đọc profiles qua service role."
+          },
+          {
+            "icon": "upstash",
+            "name": "Upstash Redis",
+            "purpose": "Redis serverless qua HTTPS cho giới hạn tần suất phân tán.",
+            "detail": "Tùy chọn ở local; production kiểm tra chặt trong lib/env khi bắt buộc Redis."
+          },
+          {
+            "icon": "vercel",
+            "name": "Vercel (host điển hình)",
+            "purpose": "Mục tiêu deploy Edge/serverless cho Next.js; biến VERCEL gợi ý trong kiểm tra tích hợp.",
+            "detail": "Không bắt buộc tuyệt đối—có thể chạy node next start nơi khác—nhưng giả định Node và Edge middleware hiện đại."
+          },
+          {
+            "icon": "cloudflare",
+            "name": "Cloudflare (Turnstile)",
+            "purpose": "Nhà cung cấp CAPTCHA tích hợp đầu luồng auth.",
+            "detail": "Cặp site key công khai + secret; dashboard Integrations cho biết đã cấu hình hay thiếu."
+          },
+          {
+            "icon": "google",
+            "name": "Google OAuth",
+            "purpose": "Đăng nhập mạng xã hội qua Supabase OAuth với Google.",
+            "detail": "Cần GOOGLE_CLIENT_ID/SECRET; callback qua route auth theo locale."
+          }
+        ]
+      },
+      "quality": {
+        "title": "Chất lượng, công cụ, triển khai",
+        "plain": "Kiểm tra tự động bắt lỗi hồi quy trước khi merge: kiểu, lint, test đơn vị/tích hợp, và hook khi commit/push trong quy trình Git của team.",
+        "maintain": "Giữ test gần mã nó bảo vệ (test API cạnh app/api, test feature trong features/) dễ scale hơn một thư mục test khổng lồ.",
+        "paths": "vitest · **/*.test.ts / **/*.test.tsx · ESLint · Husky",
+        "tech": [
+          {
+            "icon": "typescript",
+            "name": "TypeScript",
+            "purpose": "Kiểu chặt cho component, hook và module server (tsc --noEmit trong CI).",
+            "detail": "npm run type-check nằm trong validate cùng lint và vitest."
+          },
+          {
+            "icon": "eslint",
+            "name": "ESLint + Prettier",
+            "purpose": "Lint với eslint-config-next và Prettier; không cảnh báo thừa trên CI.",
+            "detail": "eslint . --max-warnings=0; Prettier chạy trên file stage qua lint-staged trong Husky pre-commit."
+          },
+          {
+            "icon": "vitest",
+            "name": "Vitest",
+            "purpose": "Test đơn vị và tích hợp, watch nhanh khi dev.",
+            "detail": "Test đặt gần features/ và app/api/ theo docs/senior-md/testing-strategy.md; jsdom cho component DOM."
+          },
+          {
+            "icon": "testinglibrary",
+            "name": "Testing Library",
+            "purpose": "Truy vấn và tương tác theo góc nhìn người dùng trong test component.",
+            "detail": "Đi cặp Vitest; khuyến khích kiểm tra hành vi hiển thị thay vì chi tiết implementation."
+          },
+          {
+            "icon": "npm",
+            "name": "npm scripts + lint-staged",
+            "purpose": "package.json điều phối dev, build, lint, test, format.",
+            "detail": "lint-staged chạy prettier/eslint trên file đã stage để PR gọn."
+          },
+          {
+            "icon": "git",
+            "name": "Husky + Git hooks",
+            "purpose": "Hook chạy kiểm tra trước commit/push (vd. test khi push trong repo này).",
+            "detail": "Đảm bảo cổng chất lượng tự động kể cả khi quên chạy tay npm run validate."
+          }
+        ]
+      }
+    }
+  }
+}

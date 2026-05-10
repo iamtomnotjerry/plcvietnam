@@ -32,6 +32,7 @@ export function AdminSidebar() {
       links: [
         { href: '/checklog', labelKey: 'checklog' as const },
         { href: '/integrations', labelKey: 'integrations' as const },
+        { href: '/architecture', labelKey: 'architecture' as const },
         { href: '/admin/about/edit', labelKey: 'aboutEdit' as const },
       ],
     },
@@ -50,6 +51,13 @@ export function AdminSidebar() {
         pathname === '/integrations' ||
         pathname.startsWith('/integrations/') ||
         pathname.startsWith('/en/integrations')
+      );
+    }
+    if (href === '/architecture') {
+      return (
+        pathname === '/architecture' ||
+        pathname.startsWith('/architecture/') ||
+        pathname.startsWith('/en/architecture')
       );
     }
     // Exact match for /admin/posts/new, otherwise prefix match
