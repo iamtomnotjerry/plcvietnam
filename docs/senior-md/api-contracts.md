@@ -62,6 +62,16 @@ Admin-only operational audit trail. Canonical behavior snapshot: `current-system
 
 **UI:** locale route `/checklog`, middleware-gated to admins. Client: `features/checklog/`.
 
+## Integrations status (admin)
+
+Read-only operational snapshot for third-party connectivity (not part of Checklog persistence).
+
+| Route                                | Role    | Notes                                                                                                                        |
+| ------------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/admin/integrations-status` | `admin` | Env checks + light probes (`runIntegrationHealthChecks`); response must not include secrets or vendor billing/usage figures. |
+
+**UI:** locale route `/integrations`, middleware-gated to admins (same pattern as `/checklog`). Client: `features/integrations/`; copy: `messages/integrations/*`; health logic: `lib/integrations/`.
+
 ## Versioning Rule
 
 - Non-backward-compatible API changes require:

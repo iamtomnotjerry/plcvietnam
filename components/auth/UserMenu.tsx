@@ -11,7 +11,7 @@ import { Link } from '@/i18n/navigation';
 
 /**
  * UserMenu - Only shows when user is logged in.
- * Avatar opens a menu with name, admin (if editor), checklog (admin only), and sign out.
+ * Avatar opens a menu with name, admin (if editor), checklog & integrations (admin only), and sign out.
  */
 export function UserMenu() {
   const { user, status } = useSupabaseAuth();
@@ -117,6 +117,16 @@ export function UserMenu() {
               onClick={() => setOpen(false)}
             >
               {tAdmin('sidebar.checklog')}
+            </Link>
+          ) : null}
+          {role === 'admin' ? (
+            <Link
+              href="/integrations"
+              role="menuitem"
+              className="block px-3 py-2 text-sm text-foreground hover:bg-muted"
+              onClick={() => setOpen(false)}
+            >
+              {tAdmin('sidebar.integrations')}
             </Link>
           ) : null}
           <button

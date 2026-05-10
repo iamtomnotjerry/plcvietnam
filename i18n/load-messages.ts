@@ -6,6 +6,8 @@ import pagesVi from '../messages/pages/vi.json';
 import pagesEn from '../messages/pages/en.json';
 import legalVi from '../messages/legal/vi.json';
 import legalEn from '../messages/legal/en.json';
+import integrationsVi from '../messages/integrations/vi.json';
+import integrationsEn from '../messages/integrations/en.json';
 
 import vi01 from '../messages/about/vi/01.json';
 import vi02 from '../messages/about/vi/02.json';
@@ -46,12 +48,14 @@ export async function loadMessages(locale: string): Promise<AbstractIntlMessages
   const adminExtra = (loc === 'en' ? adminEn : adminVi) as BaseMessages;
   const pagesExtra = (loc === 'en' ? pagesEn : pagesVi) as BaseMessages;
   const legalExtra = (loc === 'en' ? legalEn : legalVi) as BaseMessages;
+  const integrationsExtra = (loc === 'en' ? integrationsEn : integrationsVi) as BaseMessages;
 
   return {
     ...base,
     ...adminExtra,
     ...pagesExtra,
     ...legalExtra,
+    ...integrationsExtra,
     aboutPage: {
       ...((base.aboutPage as BaseMessages) ?? {}),
       ...aboutExtra,

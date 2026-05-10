@@ -1,0 +1,99 @@
+{
+  "integrations": {
+    "badge": "Vận hành & kết nối",
+    "title": "Dịch vụ bên ngoài",
+    "subtitle": "Trang này giúp bạn hiểu nhanh website đang dùng những dịch vụ nào, đã kết nối ổn chưa, và cần làm gì tiếp — không cần kiến thức kỹ thuật sâu.",
+    "refresh": "Kiểm tra lại",
+    "loadError": "Không tải được trạng thái tích hợp.",
+    "lastCheck": "Lần kiểm tra: {time}",
+    "envLabel": "Môi trường: {env}",
+    "servicesStripLabel": "Các dịch vụ trên trang",
+    "howToReadTitle": "Đọc trang này thế nào?",
+    "howToRead1": "Ô màu xanh: mọi thứ trong tầm kiểm tra đang ổn hoặc dịch vụ là tùy chọn.",
+    "howToRead2": "Ô vàng: nên xem lại — có thể vẫn chạy nhưng thiếu bảo vệ hoặc chưa tối ưu.",
+    "howToRead3": "Ô đỏ: cần xử lý — thường là không kết nối được hoặc cấu hình lỗi.",
+    "usageSectionTitle": "Dung lượng, chi phí và hạn mức",
+    "usageSectionBody": "Website không hiển thị số liệu dùng băng thông hay dung lượng database theo thời gian thực — mỗi nhà cung cấp có bảng điều khiển riêng. Dùng nút \"Mở bảng điều khiển\" ở từng ô để xem usage, hóa đơn và giới hạn gói dịch vụ.",
+    "statusLine": "Trạng thái tóm tắt",
+    "liveProbeOk": "Đã thử kết nối thử: thành công.",
+    "liveProbeFail": "Đã thử kết nối thử: thất bại — kiểm tra khóa API hoặc mạng.",
+    "liveProbeSkipped": "Chưa chạy kiểm tra kết nối trực tiếp cho mục này.",
+    "openDashboard": "Mở bảng điều khiển nhà cung cấp",
+    "openChecklog": "Mở Checklog trong site",
+    "levels": {
+      "ok": {
+        "title": "Ổn định",
+        "hint": "Trong phạm vi kiểm tra hiện tại, không phát hiện vấn đề."
+      },
+      "warn": {
+        "title": "Nên xem lại",
+        "hint": "Có thể vận hành được nhưng thiếu cấu hình khuyến nghị."
+      },
+      "error": {
+        "title": "Cần xử lý",
+        "hint": "Có lỗi kết nối hoặc cấu hình — ưu tiên kiểm tra."
+      },
+      "info": {
+        "title": "Thông tin / tùy chọn",
+        "hint": "Có thể bình thường tùy cách bạn triển khai site."
+      }
+    },
+    "services": {
+      "supabase": {
+        "name": "Supabase (database & đăng nhập)",
+        "plain": "Lưu trữ dữ liệu, tài khoản người dùng và file ảnh. Nếu lỗi, site có thể không vào được hoặc không lưu được nội dung."
+      },
+      "upstash": {
+        "name": "Upstash Redis (chống spam API)",
+        "plain": "Giới hạn số lần gọi API để tránh lạm dụng. Trên môi trường thật cần có; trên máy dev có thể dùng chế độ tạm trong bộ nhớ."
+      },
+      "turnstile": {
+        "name": "Cloudflare Turnstile (CAPTCHA)",
+        "plain": "Giúp chặn robot khi đăng nhập / đăng ký. Không bắt buộc trên máy dev nhưng nên bật khi site đã public."
+      },
+      "google_oauth": {
+        "name": "Đăng nhập Google",
+        "plain": "Cho phép người dùng vào bằng tài khoản Google. Nếu chưa bật, vẫn có thể dùng email và mật khẩu."
+      },
+      "hosting": {
+        "name": "Nơi chạy website (hosting)",
+        "plain": "Hệ thống đoán bạn có đang chạy trên Vercel hay không. Việc triển khai thực tế xem trong tài khoản nhà cung cấp."
+      },
+      "checklog_edge": {
+        "name": "Ghi nhật ký thao tác HTTP (Checklog)",
+        "plain": "Ghi lại các lần gửi dữ liệu lên server để vận hành. Có thể tắt bằng biến môi trường nếu cần giảm log."
+      }
+    },
+    "details": {
+      "supabase": {
+        "db_ok": "Kết nối tới database thành công (đọc thử một bảng hệ thống).",
+        "db_error": "Database trả lỗi — kiểm tra Supabase có đang bảo trì hoặc RLS/quyền.",
+        "db_exception": "Không gọi được database — kiểm tra URL và khóa dịch vụ trên máy chủ."
+      },
+      "upstash": {
+        "required_missing": "Trên môi trường production mà chưa cấu hình Redis — cần thêm để giới hạn request an toàn.",
+        "dev_memory_fallback": "Đang dùng bộ nhớ tạm trên máy dev — chỉ phù hợp khi phát triển, không dùng cho nhiều máy chủ cùng lúc.",
+        "ping_ok": "Redis trả lời bình thường (PING).",
+        "ping_unexpected": "Redis trả lời bất thường — kiểm tra console Upstash.",
+        "ping_failed": "Không kết nối được Redis — kiểm tra URL, token và hạn mức."
+      },
+      "turnstile": {
+        "configured": "Đã có đủ khóa site và secret — CAPTCHA có thể hoạt động.",
+        "not_configured": "Chưa cấu hình Turnstile — trên production nên bật để giảm bot.",
+        "misconfigured": "Chỉ có một trong hai khóa — cần đủ cặp site key và secret."
+      },
+      "google_oauth": {
+        "configured": "Đã có Client ID và secret — đăng nhập Google có thể dùng.",
+        "email_only": "Chưa cấu hình Google OAuth — người dùng chỉ đăng nhập bằng email/mật khẩu (nếu bạn bật)."
+      },
+      "hosting": {
+        "vercel_detected": "Biến môi trường cho thấy đang chạy trên Vercel.",
+        "not_vercel_env": "Không phát hiện Vercel — có thể host khác hoặc chạy local; không phải lỗi."
+      },
+      "checklog_edge": {
+        "mutation_log_enabled": "Đang ghi log mutation HTTP từ biên mạng (mặc định).",
+        "mutation_log_disabled": "Đã tắt ghi log mutation HTTP — Checklog sẽ ít dòng \"HTTP\" hơn."
+      }
+    }
+  }
+}

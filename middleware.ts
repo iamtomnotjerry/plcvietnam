@@ -33,6 +33,15 @@ function isChecklogUi(pathname: string) {
   );
 }
 
+/** Integrations health UI: admin-only, same locale rules as checklog. */
+function isIntegrationsUi(pathname: string) {
+  return (
+    pathname === '/integrations' ||
+    pathname.startsWith('/integrations/') ||
+    pathname.startsWith('/en/integrations')
+  );
+}
+
 async function supabaseAdminGateForApi(request: NextRequest): Promise<NextResponse> {
   const response = NextResponse.next({ request });
 
@@ -194,6 +203,14 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isChecklogUi(pathname)) {
+    const intlResponse = intlMiddleware(request);
+    if (intlResponse.status !== 200) {
+      return intlResponse;
+    }
+    return supabaseAdminOnlyGateForUi(request, intlResponse);
+  }
+
+  if (isIntegrationsUi(pathname)) {
     const intlResponse = intlMiddleware(request);
     if (intlResponse.status !== 200) {
       return intlResponse;

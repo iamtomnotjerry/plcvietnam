@@ -1,0 +1,99 @@
+{
+  "integrations": {
+    "badge": "Operations & connectivity",
+    "title": "Third-party services",
+    "subtitle": "See which external services power the site, whether checks pass, and what to do next — written for non-technical readers.",
+    "refresh": "Run checks again",
+    "loadError": "Could not load integration status.",
+    "lastCheck": "Last checked: {time}",
+    "envLabel": "Environment: {env}",
+    "servicesStripLabel": "Services on this page",
+    "howToReadTitle": "How to read this page",
+    "howToRead1": "Green: checks look good, or the service is optional.",
+    "howToRead2": "Amber: worth reviewing — the site may run but something recommended is missing.",
+    "howToRead3": "Red: needs attention — usually a failed connection or bad configuration.",
+    "usageSectionTitle": "Usage, billing, and quotas",
+    "usageSectionBody": "This page does not show live bandwidth or database size — each vendor has its own dashboard. Use “Open provider console” on each card to see usage, invoices, and plan limits.",
+    "statusLine": "Summary",
+    "liveProbeOk": "Live probe: connection succeeded.",
+    "liveProbeFail": "Live probe: failed — check credentials or network.",
+    "liveProbeSkipped": "No live connection test for this item.",
+    "openDashboard": "Open provider console",
+    "openChecklog": "Open Checklog in this site",
+    "levels": {
+      "ok": {
+        "title": "Healthy",
+        "hint": "No issues detected within the current checks."
+      },
+      "warn": {
+        "title": "Review recommended",
+        "hint": "May work but recommended configuration is incomplete."
+      },
+      "error": {
+        "title": "Action needed",
+        "hint": "Connection or configuration error — prioritize fixing."
+      },
+      "info": {
+        "title": "Informational / optional",
+        "hint": "May be normal depending on how you deploy."
+      }
+    },
+    "services": {
+      "supabase": {
+        "name": "Supabase (database & auth)",
+        "plain": "Stores data, user accounts, and image files. If it fails, the site may not sign users in or save content."
+      },
+      "upstash": {
+        "name": "Upstash Redis (API rate limits)",
+        "plain": "Limits how often APIs can be called to reduce abuse. Required in production; local dev may use an in-memory fallback."
+      },
+      "turnstile": {
+        "name": "Cloudflare Turnstile (CAPTCHA)",
+        "plain": "Helps block bots on sign-in and sign-up. Optional in local dev but recommended when the site is public."
+      },
+      "google_oauth": {
+        "name": "Google sign-in",
+        "plain": "Lets users sign in with Google. If off, email/password can still work if enabled."
+      },
+      "hosting": {
+        "name": "Where the site runs (hosting)",
+        "plain": "Detects whether this deployment looks like Vercel. Your real hosting setup is in the provider account."
+      },
+      "checklog_edge": {
+        "name": "HTTP mutation logging (Checklog)",
+        "plain": "Records data-changing requests for operations. Can be turned off via environment variable to reduce noise."
+      }
+    },
+    "details": {
+      "supabase": {
+        "db_ok": "Database responded successfully (test read on a system table).",
+        "db_error": "Database returned an error — check Supabase status or permissions.",
+        "db_exception": "Could not reach the database — verify URL and service keys on the server."
+      },
+      "upstash": {
+        "required_missing": "Production is missing Redis configuration — add it for safe distributed rate limits.",
+        "dev_memory_fallback": "Using in-memory limits on dev — fine locally, not for multiple production instances.",
+        "ping_ok": "Redis responded with PONG.",
+        "ping_unexpected": "Unexpected Redis response — check the Upstash console.",
+        "ping_failed": "Could not reach Redis — verify URL, token, and quotas."
+      },
+      "turnstile": {
+        "configured": "Site key and secret are set — CAPTCHA can work.",
+        "not_configured": "Turnstile not configured — enable on production to reduce bots.",
+        "misconfigured": "Only one of the two keys is set — both site key and secret are required."
+      },
+      "google_oauth": {
+        "configured": "Client ID and secret are set — Google sign-in can work.",
+        "email_only": "Google OAuth not configured — users rely on email/password if you enable it."
+      },
+      "hosting": {
+        "vercel_detected": "Environment suggests this runs on Vercel.",
+        "not_vercel_env": "Vercel not detected — may be another host or local; not an error."
+      },
+      "checklog_edge": {
+        "mutation_log_enabled": "HTTP mutation logging from the edge is on (default).",
+        "mutation_log_disabled": "HTTP mutation logging is off — fewer “HTTP” lines in Checklog."
+      }
+    }
+  }
+}
