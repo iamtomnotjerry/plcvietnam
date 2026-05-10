@@ -70,5 +70,11 @@
     "slug": "troubleshooting",
     "name": "Xử lý sự cố",
     "postCount": 13
+  },
+  {
+    "id": "tag-reader-1",
+    "slug": "huong-dan-doc-gia",
+    "name": "Hướng dẫn độc giả",
+    "postCount": 0
   }
 ]

@@ -75,5 +75,38 @@
     "order": 2,
     "createdAt": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "cat-reader-1",
+    "slug": "reader-lam-quen",
+    "name": "Làm quen với blog",
+    "description": "Tổng quan PLC Việt Nam, cấu trúc nội dung và cách tìm bài.",
+    "fieldId": "field-reader",
+    "postCount": 0,
+    "order": 1,
+    "createdAt": "2026-05-10T00:00:00Z",
+    "updatedAt": "2026-05-10T00:00:00Z"
+  },
+  {
+    "id": "cat-reader-2",
+    "slug": "reader-tai-khoan",
+    "name": "Tài khoản & đăng nhập",
+    "description": "Đăng ký, đăng nhập email/Google, đăng xuất và phiên làm việc.",
+    "fieldId": "field-reader",
+    "postCount": 0,
+    "order": 2,
+    "createdAt": "2026-05-10T00:00:00Z",
+    "updatedAt": "2026-05-10T00:00:00Z"
+  },
+  {
+    "id": "cat-reader-3",
+    "slug": "reader-mat-khau",
+    "name": "Mật khẩu & xác nhận email",
+    "description": "Quên mật khẩu, đặt lại mật khẩu, xác nhận và gửi lại email.",
+    "fieldId": "field-reader",
+    "postCount": 0,
+    "order": 3,
+    "createdAt": "2026-05-10T00:00:00Z",
+    "updatedAt": "2026-05-10T00:00:00Z"
   }
 ]

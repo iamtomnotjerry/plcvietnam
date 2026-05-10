@@ -1,0 +1,146 @@
+[
+  {
+    "id": "post-reader-01",
+    "slug": "reader-chao-mung-va-cach-su-dung-blog",
+    "title": "Chào mừng bạn đến với PLC Việt Nam — Bắt đầu như một độc giả",
+    "excerpt": "Tổng quan về blog, cách tìm bài viết, và những việc bạn có thể làm với tài khoản độc giả (reader).",
+    "content": "<h2>Chúng tôi xây dựng blog này cho ai?</h2><p>PLC Việt Nam là không gian chia sẻ kiến thức về PLC, SCADA, Siemens và tự động hóa công nghiệp. Phần lớn nội dung <strong>có thể đọc miễn phí</strong> mà không cần đăng nhập. Tài khoản giúp bạn đồng bộ trải nghiệm (ví dụ bình luận hoặc các tính năng cộng đồng được bật trên hệ thống).</p><h2>Bạn sẽ thấy gì trên trang chủ?</h2><ul><li><strong>Bài viết mới</strong>: các bài cập nhật gần đây.</li><li><strong>Lĩnh vực</strong>: nhóm chủ đề lớn; trong mỗi lĩnh vực có <strong>danh mục</strong> và <strong>bài viết</strong>.</li><li><strong>Thư viện sách</strong>: tài liệu tham khảo được giới thiệu trên blog.</li></ul><h2>Điều hướng nhanh</h2><p>Dùng menu trên cùng hoặc <strong>cây chủ đề</strong> ở sidebar (màn hình lớn) để mở đúng lĩnh vực. Trên điện thoại, mở biểu tượng menu để xem cùng một cấu trúc.</p><h2>Gợi ý lộ trình cho người mới</h2><ol><li>Đọc nhanh các bài trong mục <em>Hướng dẫn cho người mới</em> (lĩnh vực bạn đang xem).</li><li>Chọn một lĩnh vực kỹ thuật (PLC, SCADA, Siemens…) theo mục tiêu của bạn.</li><li>Dùng <strong>Tìm kiếm</strong> khi bạn đã có từ khóa cụ thể.</li></ol><p>Nếu bạn chỉ muốn đọc, hãy bắt đầu từ các bài trong danh mục <strong>Làm quen với blog</strong> và <strong>Đọc bài &amp; tìm kiếm</strong>.</p>",
+    "categoryId": "cat-reader-1",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T08:00:00Z",
+    "updatedAt": "2026-05-10T08:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Chào mừng độc giả mới — PLC Việt Nam",
+      "description": "Hướng dẫn tổng quan cho người mới: cấu trúc blog, lĩnh vực, danh mục và lộ trình đọc.",
+      "keywords": ["PLC Việt Nam", "hướng dẫn", "độc giả", "blog"]
+    }
+  },
+  {
+    "id": "post-reader-02",
+    "slug": "reader-doc-bai-tim-kiem-va-cau-truc-noi-dung",
+    "title": "Đọc bài, tìm kiếm và hiểu cấu trúc nội dung",
+    "excerpt": "Cách mở bài viết, di chuyển giữa lĩnh vực — danh mục — bài viết, và dùng ô tìm kiếm hiệu quả.",
+    "content": "<h2>Cấu trúc URL thân thiện</h2><p>Nội dung được tổ chức theo ba cấp: <strong>Lĩnh vực → Danh mục → Bài viết</strong>. Đường dẫn thường có dạng <code>/fields/[lĩnh-vực]/[danh-mục]/[bài-viết]</code>, giúp bạn chia sẻ liên kết trực tiếp tới một bài cụ thể.</p><h2>Mở và đọc bài</h2><ul><li>Ở trang danh sách trong danh mục, chọn tiêu đề bài để vào trang chi tiết.</li><li>Trên trang bài viết, bạn xem phần <strong>tóm tắt</strong>, <strong>nội dung</strong>, thông tin tác giả và (nếu được bật) <strong>bình luận</strong>.</li><li>Thời gian đọc ước lượng giúp bạn cân nhắc trước khi bắt đầu.</li></ul><h2>Tìm kiếm toàn site</h2><p>Dùng mục <strong>Tìm kiếm</strong> trên header. Gõ từ khóa ngắn, ưu tiên thuật ngữ kỹ thuật (ví dụ “Modbus”, “TIA Portal”, “PID”). Kết quả gồm bài viết và có thể cả sách, tùy cấu hình dữ liệu.</p><h2>Mẹo cho người mới</h2><ul><li>Đọc <strong>phần đầu bài</strong> và <strong>mục lục ẩn</strong> (nếu tác giả dùng tiêu đề phụ) trước khi đọc sâu.</li><li>Lưu tab trình duyệt hoặc bookmark các bài quan trọng để học dần.</li><li>Khi gặp thuật ngữ lạ, thử tìm thêm trong cùng lĩnh vực hoặc qua ô tìm kiếm.</li></ul>",
+    "categoryId": "cat-reader-1",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T08:15:00Z",
+    "updatedAt": "2026-05-10T08:15:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Đọc bài và tìm kiếm trên PLC Việt Nam",
+      "description": "Hướng dẫn cấu trúc nội dung, cách mở bài viết và dùng tìm kiếm.",
+      "keywords": ["tìm kiếm", "đọc blog", "danh mục"]
+    }
+  },
+  {
+    "id": "post-reader-03",
+    "slug": "reader-dang-ky-tai-khoan-email-va-xac-nhan",
+    "title": "Đăng ký tài khoản bằng email — Từng bước và xác nhận",
+    "excerpt": "Quy trình tạo tài khoản, kiểm tra hộp thư, xác nhận email và các lưu ý bảo mật cơ bản.",
+    "content": "<h2>Khi nào nên đăng ký?</h2><p>Khi bạn muốn <strong>bình luận</strong>, lưu tùy chọn cá nhân hoặc dùng các tính năng yêu cầu định danh. Đăng ký không thay thế việc đọc miễn phí các bài công khai.</p><h2>Các bước đăng ký</h2><ol><li>Mở trang <strong>Đăng ký</strong> từ menu tài khoản hoặc liên kết trên trang đăng nhập.</li><li>Nhập <strong>email</strong> hợp lệ và <strong>mật khẩu</strong> theo chính sách của hệ thống (độ dài tối thiểu, chữ hoa, chữ thường, chữ số và ký tự đặc biệt).</li><li>Hoàn tất <strong>xác thực người thật</strong> (CAPTCHA) nếu trang yêu cầu — giúp giảm spam và tấn công tự động.</li><li>Gửi biểu mẫu và kiểm tra email để <strong>xác nhận địa chỉ</strong>.</li></ol><h2>Sau khi gửi đăng ký</h2><ul><li>Mở email từ nhà cung cấp xác thực và bấm liên kết xác nhận trong thời gian hiệu lực.</li><li>Nếu không thấy thư, kiểm tra <strong>Hộp thư rác / Spam</strong> và <strong>Thư quảng cáo</strong>.</li><li>Bạn có thể dùng chức năng <strong>gửi lại email xác nhận</strong> (nếu có) với <strong>thời gian chờ giữa các lần gửi</strong> để bảo vệ hệ thống.</li></ul><h2>Lưu ý riêng tư</h2><p>Dùng email cá nhân bạn kiểm soát được. Tránh dùng email dùng chung công ty nếu bạn không chắc chính sách IT cho phép nhận thư xác thực bên ngoài.</p><h2>An toàn tài khoản</h2><p>Đừng chia sẻ mật khẩu. Tránh đăng ký trên thiết bị công cộng mà không đăng xuất sau đó. Nếu nghi ngờ lộ mật khẩu, hãy <strong>đổi mật khẩu</strong> sau khi đăng nhập hoặc dùng luồng <strong>Quên mật khẩu</strong>.</p>",
+    "categoryId": "cat-reader-2",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T08:30:00Z",
+    "updatedAt": "2026-05-10T08:30:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Đăng ký tài khoản và xác nhận email",
+      "description": "Hướng dẫn đăng ký bằng email, xác nhận tài khoản và lưu ý bảo mật.",
+      "keywords": ["đăng ký", "xác nhận email", "tài khoản"]
+    }
+  },
+  {
+    "id": "post-reader-04",
+    "slug": "reader-dang-nhap-email-mat-khau-va-google",
+    "title": "Đăng nhập bằng email/mật khẩu hoặc Google",
+    "excerpt": "Hai cách đăng nhập phổ biến, cách nhận biết phiên đăng nhập thành công và xử lý sự cố thường gặp.",
+    "content": "<h2>Đăng nhập bằng email và mật khẩu</h2><ol><li>Mở trang <strong>Đăng nhập</strong>.</li><li>Nhập email đã đăng ký và mật khẩu.</li><li>Nếu có CAPTCHA, hoàn tất trước khi gửi.</li><li>Sau khi thành công, bạn được chuyển về trang trước đó hoặc trang chủ.</li></ol><h2>Đăng nhập bằng Google</h2><p>Chọn nút đăng nhập Google (nếu được bật). Trình duyệt mở luồng OAuth của Google; sau khi đồng ý, hệ thống tạo hoặc liên kết phiên theo chính sách của blog. Bạn nên dùng <strong>một tài khoản Google ổn định</strong> để tránh tạo nhiều hồ sơ trùng lặp.</p><h2>Sau khi đăng nhập</h2><ul><li>Biểu tượng hoặc menu tài khoản hiển thị <strong>tên / email</strong> tóm tắt.</li><li>Một số thao tác (bình luận, chỉnh sửa nếu bạn là tác giả) yêu cầu phiên còn hiệu lực.</li></ul><h2>Sự cố thường gặp</h2><ul><li><strong>Sai mật khẩu</strong>: kiểm tra bật tắt caps lock, thử nhập lại; nếu vẫn lỗi, dùng <strong>Quên mật khẩu</strong>.</li><li><strong>Tài khoản chưa xác nhận email</strong>: hoàn tất bước xác nhận trong hộp thư hoặc gửi lại email xác nhận.</li><li><strong>Quá nhiều lần thử</strong>: hệ thống có thể tạm giới hạn tần suất để chống brute-force; hãy đợi vài phút rồi thử lại.</li></ul>",
+    "categoryId": "cat-reader-2",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T08:45:00Z",
+    "updatedAt": "2026-05-10T08:45:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Đăng nhập — Email, mật khẩu và Google",
+      "description": "Hướng dẫn đăng nhập và xử lý sự cố thường gặp.",
+      "keywords": ["đăng nhập", "Google OAuth", "PLC Việt Nam"]
+    }
+  },
+  {
+    "id": "post-reader-05",
+    "slug": "reader-dang-xuat-va-bao-mat-phien",
+    "title": "Đăng xuất, phiên làm việc và thiết bị dùng chung",
+    "excerpt": "Cách đăng xuất an toàn, quản lý phiên trên nhiều thiết bị và thói quen tốt khi dùng máy công cộng.",
+    "content": "<h2>Đăng xuất ở đâu?</h2><p>Mở <strong>menu tài khoản</strong> (góc trên, biểu tượng người dùng) và chọn <strong>Đăng xuất</strong>. Thao tác này kết thúc phiên trên trình duyệt hiện tại theo cơ chế mà ứng dụng triển khai (Supabase session).</p><h2>Vì sao đăng xuất quan trọng?</h2><p>Trên <strong>máy tính dùng chung</strong>, đăng xuất giúp người khác không truy cập bình luận hoặc thông tin cá nhân dưới danh nghĩa bạn. Trên điện thoại cá nhân, đăng xuất hữu ích khi bạn chuyển nhượng thiết bị hoặc sửa chữa.</p><h2>Phiên và cookie</h2><p>Đăng nhập thường dựa trên <strong>cookie / bộ nhớ trình duyệt</strong>. Xóa cookie trang web có thể đưa bạn về trạng thái chưa đăng nhập. Điều này là bình thường và không có nghĩa tài khoản bị xóa.</p><h2>Thói quen đề xuất</h2><ul><li>Đăng xuất trước khi rời máy tính công cộng.</li><li>Không lưu mật khẩu trên trình duyệt dùng chung nếu không tin cậy.</li><li>Nếu nghi ngờ phiên bị lộ, <strong>đổi mật khẩu</strong> sau khi đăng nhập lại trên thiết bị an toàn.</li></ul>",
+    "categoryId": "cat-reader-2",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T09:00:00Z",
+    "updatedAt": "2026-05-10T09:00:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Đăng xuất và bảo mật phiên",
+      "description": "Hướng dẫn đăng xuất an toàn và thói quen trên thiết bị dùng chung.",
+      "keywords": ["đăng xuất", "bảo mật", "phiên"]
+    }
+  },
+  {
+    "id": "post-reader-06",
+    "slug": "reader-quen-mat-khau-va-email-khoi-phuc",
+    "title": "Quên mật khẩu — Gửi email khôi phục và giới hạn tần suất",
+    "excerpt": "Cách yêu cầu liên kết đặt lại mật khẩu, kiểm tra hộp thư và hiểu thời gian chờ giữa các lần gửi.",
+    "content": "<h2>Bắt đầu từ trang Quên mật khẩu</h2><p>Trên màn hình đăng nhập, chọn <strong>Quên mật khẩu</strong> (hoặc liên kết tương đương). Nhập <strong>email đã đăng ký</strong> và gửi yêu cầu.</p><h2>Điều gì xảy ra phía sau?</h2><p>Hệ thống gửi email chứa <strong>liên kết đặt lại mật khẩu</strong> có thời hạn. Vì lý do bảo mật, thông báo hiển thị cho người dùng thường <strong>trung tính</strong> (không tiết lộ email có tồn tại hay không) để giảm <em>enumeration</em> tài khoản.</p><h2>Kiểm tra hộp thư</h2><ul><li>Chờ vài phút; kiểm tra thư mục spam.</li><li>Chỉ bấm liên kết từ nguồn bạn tin cậy và khớp với tên miền chính thức của blog.</li></ul><h2>Giới hạn tần suất (cooldown)</h2><p>Để chống lạm dụng, blog có thể giới hạn số lần gửi lại email khôi phục trong một khoảng thời gian (ví dụ <strong>60 giây</strong> giữa các lần gửi với cùng email). Nếu bạn vừa gửi, hãy đợi đến khi hết thời gian chờ trước khi thử lại.</p><h2>Nếu vẫn không nhận được thư</h2><ul><li>Xác nhận bạn gõ đúng email đã dùng lúc đăng ký.</li><li>Thử địa chỉ email thay thế nếu bạn có nhiều hồ sơ.</li><li>Liên hệ quản trị qua kênh chính thức của tổ chức nếu tường lửa công ty chặn email xác thực.</li></ul>",
+    "categoryId": "cat-reader-3",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T09:15:00Z",
+    "updatedAt": "2026-05-10T09:15:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Quên mật khẩu và email khôi phục",
+      "description": "Hướng dẫn gửi email đặt lại mật khẩu và cooldown.",
+      "keywords": ["quên mật khẩu", "khôi phục"]
+    }
+  },
+  {
+    "id": "post-reader-07",
+    "slug": "reader-dat-lai-mat-khau-sau-lien-ket",
+    "title": "Đặt lại mật khẩu sau khi nhận liên kết",
+    "excerpt": "Mở liên kết, đặt mật khẩu mới đủ mạnh, xác nhận khớp và hoàn tất đăng nhập lại.",
+    "content": "<h2>Sau khi bấm liên kết trong email</h2><p>Trình duyệt mở trang <strong>đặt lại mật khẩu</strong>. Tùy cấu hình, phiên xác thực có thể được thiết lập qua mã trong URL hoặc luồng callback — bạn chỉ cần làm theo hướng dẫn trên màn hình.</p><h2>Quy tắc mật khẩu</h2><p>Hệ thống thường yêu cầu mật khẩu đạt <strong>độ dài tối thiểu</strong> và gồm <strong>chữ hoa, chữ thường, chữ số và ký tự đặc biệt</strong>. Đây là chuẩn phổ biến để giảm rủi ro dò mật khẩu.</p><h2>Ô “Mật khẩu” và “Xác nhận mật khẩu”</h2><p>Hai ô phải <strong>khớp hoàn toàn</strong>. Máy chủ cũng kiểm tra khớp để tránh lỗi do gửi trực tiếp API.</p><h2>Sau khi đổi mật khẩu thành công</h2><ul><li>Đăng nhập lại bằng email và mật khẩu mới.</li><li>Cập nhật mật khẩu trong <strong>trình quản lý mật khẩu</strong> cá nhân (được khuyến nghị).</li><li>Nếu bạn đang đăng nhập ở thiết bị khác, có thể cần đăng nhập lại ở đó.</li></ul><h2>Lưu ý an ninh</h2><p>Không chia sẻ liên kết đặt lại mật khẩu cho người khác. Nếu bạn <strong>không</strong> yêu cầu đặt lại mà vẫn nhận email, hãy bỏ qua và kiểm tra bảo mật email.</p>",
+    "categoryId": "cat-reader-3",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T09:30:00Z",
+    "updatedAt": "2026-05-10T09:30:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Đặt lại mật khẩu — Hướng dẫn chi tiết",
+      "description": "Đặt mật khẩu mới an toàn sau liên kết khôi phục.",
+      "keywords": ["đặt lại mật khẩu", "reset password"]
+    }
+  },
+  {
+    "id": "post-reader-08",
+    "slug": "reader-xac-nhan-email-gui-lai-va-chinh-sach",
+    "title": "Xác nhận email khi đăng ký — Gửi lại thư và chính sách chung",
+    "excerpt": "Hoàn tất xác nhận sau đăng ký, gửi lại email với thời gian chờ, và các chính sách liên quan (quyền riêng tư, điều khoản).",
+    "content": "<h2>Vì sao cần xác nhận email?</h2><p>Xác nhận giúp đảm bảo bạn <strong>sở hữu địa chỉ email</strong> dùng để đăng ký, giảm tài khoản rác và hỗ trợ khôi phục tài khoản đúng người.</p><h2>Sau khi đăng ký</h2><ol><li>Kiểm tra hộp thư và mở email xác nhận.</li><li>Bấm nút hoặc liên kết trong thư.</li><li>Khi thành công, bạn có thể đăng nhập đầy đủ tính năng phụ thuộc xác thực.</li></ol><h2>Gửi lại email xác nhận</h2><p>Nếu hết hạn hoặc mất thư, dùng tùy chọn <strong>Gửi lại</strong> trên màn hình hướng dẫn (nếu có). Giống luồng quên mật khẩu, hệ thống có thể áp dụng <strong>cooldown</strong> giữa các lần gửi để tránh spam.</p><h2>Chính sách và điều khoản</h2><p>Trên blog có các trang <strong>Chính sách quyền riêng tư</strong> và <strong>Điều khoản sử dụng</strong>. Bạn nên đọc để hiểu cách dữ liệu được xử lý và quy tắc hành vi khi bình luận hoặc tương tác.</p><h2>Gợi ý thực hành</h2><ul><li>Giữ một địa chỉ email ổn định cho tài khoản.</li><li>Bật xác thực hai lớp cho email (tại nhà cung cấp hộp thư) nếu có thể.</li><li>Không đăng công khai liên kết xác nhận hoặc liên kết đặt lại mật khẩu.</li></ul><p>Chúc bạn sử dụng PLC Việt Nam hiệu quả — từ đọc nội dung đến tham gia cộng đồng một cách an toàn.</p>",
+    "categoryId": "cat-reader-3",
+    "authorId": "author-1",
+    "tagIds": ["tag-reader-1"],
+    "publishedAt": "2026-05-10T09:45:00Z",
+    "updatedAt": "2026-05-10T09:45:00Z",
+    "viewCount": 0,
+    "seo": {
+      "title": "Xác nhận email và gửi lại thư",
+      "description": "Hoàn tất xác nhận đăng ký, gửi lại email và liên kết chính sách.",
+      "keywords": ["xác nhận email", "điều khoản", "quyền riêng tư"]
+    }
+  }
+]

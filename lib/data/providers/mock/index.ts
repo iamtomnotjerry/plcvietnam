@@ -31,6 +31,7 @@ import type {
 import fieldsData from '@/public/mock-data/fields.json';
 import categoriesData from '@/public/mock-data/categories.json';
 import postsData from '@/public/mock-data/posts.json';
+import readerGuidePostsData from '@/public/mock-data/posts-reader-guide.json';
 import booksData from '@/public/mock-data/books.json';
 import tagsData from '@/public/mock-data/tags.json';
 import authorData from '@/public/mock-data/authors.json';
@@ -198,7 +199,7 @@ export class MockProvider implements ContentRepository {
     };
 
     // Transform posts with relationships
-    this.posts = postsData.map((p) => {
+    this.posts = [...postsData, ...readerGuidePostsData].map((p) => {
       const raw = p as { status?: string };
       const status =
         raw.status === 'draft' ? 'draft' : raw.status === 'published' ? 'published' : undefined;

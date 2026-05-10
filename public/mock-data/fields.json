@@ -1,5 +1,15 @@
 [
   {
+    "id": "field-reader",
+    "slug": "reader-guide",
+    "name": "Hướng dẫn cho người mới",
+    "description": "Bộ bài viết dành cho độc giả: làm quen blog, đăng ký, đăng nhập, khôi phục mật khẩu và các thói quen an toàn.",
+    "icon": "book-open",
+    "postCount": 0,
+    "createdAt": "2026-05-10T00:00:00Z",
+    "updatedAt": "2026-05-10T00:00:00Z"
+  },
+  {
     "id": "field-1",
     "slug": "plc",
     "name": "Lập trình PLC",

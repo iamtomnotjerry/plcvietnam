@@ -7,6 +7,7 @@
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Link } from '@/i18n/navigation';
+import { fieldHref } from '@/lib/utils/routes';
 
 export interface HeroSectionProps {
   title: string;
@@ -84,6 +85,13 @@ export function HeroSection({ title, tagline, description }: HeroSectionProps) {
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-6 py-3 text-sm font-semibold backdrop-blur-sm transition-colors hover:bg-muted"
             >
               {t('library')}
+            </Link>
+            <Link
+              href={fieldHref('reader-guide')}
+              prefetch
+              className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/10 px-6 py-3 text-sm font-semibold text-primary backdrop-blur-sm transition-colors hover:bg-primary/15"
+            >
+              {t('newReaderGuide')}
             </Link>
           </motion.div>
         </motion.div>
