@@ -5,7 +5,7 @@ Update this file whenever API contracts, security posture, or architecture behav
 
 ## Last Updated
 
-- Date: 2026-05-10
+- Date: 2026-05-10 (revision: admin CMS list UI — tables, search, pagination defaults)
 - Docs/rules: Checklog + **Integrations status** contracts in `api-contracts.md`; conventions in `engineering-standards.md`; env note in `environment-variables.md`; agent checklist in `.cursor/rules/agent-source-awareness.mdc`.
 - **Integrations dashboard** (admin-only): locale UI `/integrations` (middleware admin gate, same family as `/checklog`); `GET /api/admin/integrations-status` → `runIntegrationHealthChecks` in `lib/integrations/run-integration-health-checks.ts` (Supabase read probe on `profiles`, optional Upstash `PING` when REST URL+token set, env-only checks for Turnstile, Google OAuth, Vercel/hosting hint, `CHECKLOG_MUTATION_LOG_ENABLED`). Response is a stable JSON snapshot (no secrets, no live usage/billing numbers). UI: `features/integrations/` (brand tiles, responsive header strip); i18n namespace `integrations` in `messages/integrations/` (merged in `i18n/load-messages.ts`). Sidebar/user menu entries under admin nav.
 - **Architecture page** (admin-only): locale UI `/architecture` (same middleware admin-only gate as `/checklog` / `/integrations`). In-app, non-technical-friendly description of stack and repo layers; copy in `messages/architecture/`; client `features/architecture/components/ArchitecturePageClient.tsx`. Deep reference remains `docs/senior-md/architecture-overview.md`.
@@ -13,6 +13,7 @@ Update this file whenever API contracts, security posture, or architecture behav
 
 ## API Contract Status
 
+- `GET /api/admin/posts` (editor/admin): supports `page`, `limit` (1–100), `status` (`all` \| `draft` \| `published`), and optional `q` (trimmed, max 200 chars) for case-insensitive search on post `title` / `slug` via `contentRepository.listPostsForAdmin` → Supabase `ilike` OR.
 - Error responses are standardized across admin and most non-admin routes via `lib/api/responses.ts`.
 - Error payload shape:
   - `{ "error": { "code": "<ERROR_CODE>", "message": "<message>" } }`
@@ -82,6 +83,7 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Navigation fetch no longer forces `no-store`, allowing route cache policy to apply.
 - Mobile search overlay now restores focus and traps focus while dialog is open.
 - Post delete flow in `PostDetail` now uses inline error surface instead of blocking alert popup.
+- **Admin CMS lists** (`/admin/posts`, books, fields, categories, tags): shared **`AdminDataTable`** (`@tanstack/react-table`) with **`AdminTableColumnHeader`**, **`AdminTableToolbarSearchField`**, and **`AdminCmsPageHero`**. Server Component pages pass hero icons as **pre-rendered JSX** (e.g. `<Newspaper className="h-6 w-6" />`), not `LucideIcon` component refs. **Default page size** for admin tables and admin posts list URL is **10** (`limit` query). **Posts search** uses the same table-toolbar search UI as other lists; query `q` updates via **debounced** navigation (client). **Loading**: skeleton rows in `AdminDataTable` (`isLoading`), not a single “loading” text row. **Truncation**: `lib/admin/table-text-truncate.ts` (e.g. description preview **20** chars in tables). **Site header nav** omits the `/search` link (navbar already has search) while the footer explore links still include Search. Admin actions column label i18n: **Công cụ** / **Tools** (`admin.crud.colActions`, `admin.postsTable.colActions`).
 
 ## Documentation Baseline
 

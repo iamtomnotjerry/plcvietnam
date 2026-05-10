@@ -1,8 +1,37 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { createColumnHelper } from '@tanstack/react-table';
 import { useTranslations } from 'next-intl';
+import {
+  Hash,
+  Link2,
+  Newspaper,
+  Pencil,
+  Plus,
+  Tags as TagsIcon,
+  Trash2,
+  Wrench,
+} from 'lucide-react';
+import {
+  ADMIN_CMS_HERO_CTA_CLASS,
+  ADMIN_DATA_TABLE_SHELL_CLASS,
+  ADMIN_ROW_ACTIONS_TRIGGER_CLASS,
+} from '@/features/admin/admin-table-styles';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
+import { AdminDataTable } from '@/features/admin/components/AdminDataTable';
+import { AdminTableColumnHeader } from '@/features/admin/components/AdminTableColumnHeader';
+import { AdminTablePill } from '@/features/admin/components/AdminTablePill';
+import { AdminTruncatedCell } from '@/features/admin/components/AdminTruncatedCell';
+import { Button } from '@/components/ui/Button';
 import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 
 interface Tag {
   id: string;
@@ -29,6 +58,8 @@ function slugify(text: string) {
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken';
 
+const tagColumnHelper = createColumnHelper<Tag>();
+
 export function AdminTagsClient() {
   const t = useTranslations('admin.tags');
   const tc = useTranslations('admin.crud');
@@ -48,9 +79,6 @@ export function AdminTagsClient() {
   // Delete state
   const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Search
-  const [search, setSearch] = useState('');
 
   const fetchTags = useCallback(async () => {
     setIsLoading(true);
@@ -182,56 +210,97 @@ export function AdminTagsClient() {
     }
   }
 
-  const filteredTags = search.trim()
-    ? tags.filter(
-        (t) =>
-          t.name.toLowerCase().includes(search.toLowerCase()) ||
-          t.slug.toLowerCase().includes(search.toLowerCase())
-      )
-    : tags;
+  const columns = useMemo(
+    () => [
+      tagColumnHelper.accessor('name', {
+        header: () => (
+          <AdminTableColumnHeader icon={Hash}>{t('colTagName')}</AdminTableColumnHeader>
+        ),
+        cell: (info) => (
+          <AdminTablePill variant="neutral">
+            <AdminTruncatedCell value={`#${info.getValue()}`} variant="slug" maxLength={28} />
+          </AdminTablePill>
+        ),
+      }),
+      tagColumnHelper.accessor('slug', {
+        header: () => <AdminTableColumnHeader icon={Link2}>{tc('colSlug')}</AdminTableColumnHeader>,
+        cell: (info) => <AdminTruncatedCell value={info.getValue()} variant="slug" />,
+      }),
+      tagColumnHelper.accessor('post_count', {
+        header: () => (
+          <AdminTableColumnHeader icon={Newspaper} align="right">
+            {tc('colPosts')}
+          </AdminTableColumnHeader>
+        ),
+        cell: (info) => (
+          <span className="block text-right tabular-nums text-muted-foreground">
+            {info.getValue()}
+          </span>
+        ),
+      }),
+      tagColumnHelper.display({
+        id: 'actions',
+        header: () => (
+          <AdminTableColumnHeader icon={Wrench} align="right">
+            {tc('colActions')}
+          </AdminTableColumnHeader>
+        ),
+        cell: (info) => {
+          const tag = info.row.original;
+          return (
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={ADMIN_ROW_ACTIONS_TRIGGER_CLASS}
+                    aria-label={tc('rowActionsAria')}
+                  >
+                    <Wrench className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[11rem]">
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2"
+                    onClick={() => openEdit(tag)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    {tc('edit')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive"
+                    disabled={isDeleting}
+                    onClick={() => setDeleteState({ tagId: tag.id, tagName: tag.name })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {tc('delete')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      }),
+    ],
+    [t, tc, isDeleting]
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
-        </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          {t('add')}
-        </button>
-      </div>
-
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('searchPlaceholder')}
-          className="w-full rounded-lg border border-input bg-background pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        />
-      </div>
+    <div className="space-y-8">
+      <AdminCmsPageHero
+        title={t('title')}
+        subtitle={t('subtitle')}
+        icon={<TagsIcon className="h-6 w-6" aria-hidden />}
+        action={
+          <button type="button" onClick={openCreate} className={ADMIN_CMS_HERO_CTA_CLASS}>
+            <Plus className="h-4 w-4" aria-hidden />
+            {t('add')}
+          </button>
+        }
+      />
 
       {/* Error */}
       {error && (
@@ -240,69 +309,18 @@ export function AdminTagsClient() {
         </div>
       )}
 
-      {/* Tags grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
-          ))}
-        </div>
-      ) : filteredTags.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">
-          <p className="text-sm">{search ? t('emptySearch', { query: search }) : t('empty')}</p>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/40">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                  {t('colTagName')}
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                  {tc('colSlug')}
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                  {tc('colPosts')}
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                  {tc('colActions')}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filteredTags.map((tag) => (
-                <tr key={tag.id} className="hover:bg-muted/20 transition-colors">
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-foreground">
-                      #{tag.name}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{tag.slug}</td>
-                  <td className="px-4 py-3 text-right text-muted-foreground">{tag.post_count}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEdit(tag)}
-                        className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
-                      >
-                        {tc('edit')}
-                      </button>
-                      <button
-                        onClick={() => setDeleteState({ tagId: tag.id, tagName: tag.name })}
-                        disabled={isDeleting}
-                        className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {tc('delete')}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <AdminDataTable
+        mode="client"
+        columns={columns}
+        data={tags}
+        getRowId={(row) => row.id}
+        enableGlobalFilter
+        enableSorting
+        initialPageSize={10}
+        emptyLabel={t('empty')}
+        isLoading={isLoading}
+        className={ADMIN_DATA_TABLE_SHELL_CLASS}
+      />
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog

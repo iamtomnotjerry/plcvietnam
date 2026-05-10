@@ -43,6 +43,10 @@
 
 - The `/architecture` page is **documentation-only** in the app: keep copy in `messages/architecture/*` aligned with real dependencies (`package.json`) and repo layout. Update `docs/senior-md/architecture-overview.md` or `current-system-state.md` when the described behavior or gates change materially.
 
+### Admin CMS list UI
+
+- Prefer **`features/admin/components/AdminDataTable`** for admin tabular screens; use **`serverToolbarSearch`** when the list is server-paginated (e.g. posts + URL `q`) and **`enableGlobalFilter`** for client-only filtering. Do not pass `LucideIcon` constructors from Server Components into **`AdminCmsPageHero`** — pass rendered icon JSX. When changing default page size, pagination options, search behavior, or loading UX, update **`docs/senior-md/current-system-state.md`** and **`messages/architecture/*`** if the architecture page mentions those layers.
+
 ### Checklog (audit trail)
 
 - New or changed **mutating** `app/api/admin/*` handlers should record successful operator actions via `logAdminChecklogEvent` unless the action is already fully covered by another persisted channel (avoid duplicate rows for the same user action).

@@ -1,15 +1,20 @@
+import type { LucideIcon } from 'lucide-react';
+import { CheckCircle2, FilePenLine, LayoutList, Newspaper, PenSquare } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { contentRepository } from '@/lib/data/factory';
 import type { AdminPostStatusFilter } from '@/lib/data/repository';
+import { ADMIN_CMS_HERO_CTA_CLASS } from '@/features/admin/admin-table-styles';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
+import { buildAdminPostsListQuery } from '@/lib/admin/build-admin-posts-list-query';
 import { AdminPostsClient } from './AdminPostsClient';
 
 export const dynamic = 'force-dynamic';
 
 interface AdminPostsPageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ status?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; limit?: string; q?: string }>;
 }
 
 export default async function AdminPostsPage({ params, searchParams }: AdminPostsPageProps) {
@@ -22,77 +27,89 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
       ? statusParam
       : 'all';
   const page = Math.max(1, parseInt(sp.page || '1', 10) || 1);
+  const limitRaw = parseInt(sp.limit || '10', 10);
+  const limit = Number.isFinite(limitRaw) ? Math.min(100, Math.max(1, limitRaw)) : 10;
+  const q = typeof sp.q === 'string' ? sp.q : '';
+  const search = q.trim() || undefined;
 
-  const result = await contentRepository.listPostsForAdmin({ status, page, limit: 20 });
+  const result = await contentRepository.listPostsForAdmin({ status, page, limit, search });
+
+  const filterHref = (nextStatus: AdminPostStatusFilter) =>
+    `/admin/posts?${buildAdminPostsListQuery({
+      status: nextStatus,
+      page: 1,
+      limit,
+      q: search,
+    })}` as Route;
 
   return (
-    <div>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">
-            {t('postsPage.title')}
-          </h1>
-          <p className="text-sm text-muted-foreground">{t('postsPage.subtitle')}</p>
-        </div>
-        <Link
-          href={'/admin/posts/new' as Route}
-          className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-        >
-          {t('postsPage.newPostCta')}
-        </Link>
-      </div>
+    <div className="space-y-8">
+      <AdminCmsPageHero
+        title={t('postsPage.title')}
+        subtitle={t('postsPage.subtitle')}
+        icon={<Newspaper className="h-6 w-6" aria-hidden />}
+        action={
+          <Link href={'/admin/posts/new' as Route} className={ADMIN_CMS_HERO_CTA_CLASS}>
+            <PenSquare className="h-4 w-4" aria-hidden />
+            {t('postsPage.newPostCta')}
+          </Link>
+        }
+      />
 
-      <div className="mb-4 flex flex-wrap gap-2 text-sm">
+      <div className="flex flex-wrap gap-2">
         <FilterLink
-          href="/admin/posts?status=all"
+          href={filterHref('all')}
           label={t('postsPage.filterAll')}
           active={status === 'all'}
+          icon={LayoutList}
         />
         <FilterLink
-          href="/admin/posts?status=published"
+          href={filterHref('published')}
           label={t('postsPage.filterPublished')}
           active={status === 'published'}
+          icon={CheckCircle2}
         />
         <FilterLink
-          href="/admin/posts?status=draft"
+          href={filterHref('draft')}
           label={t('postsPage.filterDraft')}
           active={status === 'draft'}
+          icon={FilePenLine}
         />
       </div>
 
-      <AdminPostsClient posts={result.data} />
-
-      {result.pagination.totalPages > 1 && (
-        <div className="mt-6 flex justify-center gap-2 text-sm">
-          {Array.from({ length: result.pagination.totalPages }, (_, i) => i + 1).map((p) => (
-            <Link
-              key={p}
-              href={`/admin/posts?status=${status}&page=${p}` as Route}
-              className={
-                p === result.pagination.page
-                  ? 'rounded-md bg-primary px-3 py-1 text-primary-foreground'
-                  : 'rounded-md border border-border px-3 py-1 hover:bg-muted'
-              }
-            >
-              {p}
-            </Link>
-          ))}
-        </div>
-      )}
+      <AdminPostsClient
+        posts={result.data}
+        status={status}
+        page={result.pagination.page}
+        limit={result.pagination.limit}
+        totalCount={result.pagination.total}
+        searchQuery={q}
+      />
     </div>
   );
 }
 
-function FilterLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+function FilterLink({
+  href,
+  label,
+  active,
+  icon: Icon,
+}: {
+  href: Route;
+  label: string;
+  active: boolean;
+  icon: LucideIcon;
+}) {
   return (
     <Link
-      href={href as Route}
+      href={href}
       className={
         active
-          ? 'rounded-full bg-primary px-3 py-1 text-primary-foreground'
-          : 'rounded-full border border-border bg-card px-3 py-1 text-muted-foreground hover:bg-muted'
+          ? 'inline-flex items-center gap-2 rounded-full bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/25'
+          : 'inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-3.5 py-1.5 text-sm text-muted-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-muted/70 hover:text-foreground'
       }
     >
+      <Icon className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
       {label}
     </Link>
   );

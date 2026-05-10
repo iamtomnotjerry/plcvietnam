@@ -1,15 +1,18 @@
 import { FOOTER_EXPLORE_LINKS } from '@/features/layout/footer/footer-config';
-import { BookOpen, Home, Info, Newspaper, Search } from 'lucide-react';
+import { BookOpen, Home, Info, Newspaper } from 'lucide-react';
 
-const MAIN_NAV_ICONS = [Home, Newspaper, BookOpen, Info, Search] as const;
+/** Header omits `/search` — navbar already has `SearchInput` / mobile search (avoids duplicate search icons). */
+const HEADER_LINK_ITEMS = FOOTER_EXPLORE_LINKS.filter((item) => item.href !== '/search');
 
-/** Primary routes — aligned with `FOOTER_EXPLORE_LINKS` (single source of paths + nav keys). */
-export const HEADER_MAIN_NAV = FOOTER_EXPLORE_LINKS.map((item, index) => ({
+const MAIN_NAV_ICONS = [Home, Newspaper, BookOpen, Info] as const;
+
+/** Primary routes — subset of `FOOTER_EXPLORE_LINKS` (footer still lists Search). */
+export const HEADER_MAIN_NAV = HEADER_LINK_ITEMS.map((item, index) => ({
   href: item.href,
   navKey: item.navKey,
   Icon: MAIN_NAV_ICONS[index]!,
 })) as ReadonlyArray<{
-  href: (typeof FOOTER_EXPLORE_LINKS)[number]['href'];
-  navKey: (typeof FOOTER_EXPLORE_LINKS)[number]['navKey'];
+  href: (typeof HEADER_LINK_ITEMS)[number]['href'];
+  navKey: (typeof HEADER_LINK_ITEMS)[number]['navKey'];
   Icon: (typeof MAIN_NAV_ICONS)[number];
 }>;

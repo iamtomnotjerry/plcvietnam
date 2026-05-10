@@ -75,6 +75,12 @@
             "name": "lucide-react",
             "purpose": "Icon nét cho menu, CMS, Checklog, Integrations và sơ đồ kiến trúc.",
             "detail": "Logo nhà cung cấp dùng SVG inline (Simple Icons, CC0) khi cần nhận diện thương hiệu."
+          },
+          {
+            "icon": "tanstack",
+            "name": "@tanstack/react-table",
+            "purpose": "Bảng trong CMS admin: cột, phân trang client/server, tìm trong toolbar.",
+            "detail": "features/admin/components/AdminDataTable; ô tìm AdminTableToolbarSearchField; danh sách bài viết debounce tham số q trên URL; skeleton khi isLoading."
           }
         ]
       },
@@ -180,7 +186,7 @@
         "title": "Vận hành chung (cross-cutting)",
         "plain": "Những phần chạm nhiều tính năng: kiểm tra biến môi trường, nhật ký admin (Checklog), kéo-thả sắp xếp trong CMS, và làm sạch HTML khi hiển thị nội dung người dùng.",
         "maintain": "Kênh Checklog và nhãn hiển thị cần đi đôi với docs/senior-md khi thêm thao tác admin mới.",
-        "paths": "lib/env.ts · lib/checklog/** · công cụ CMS trong features/",
+        "paths": "lib/env.ts · lib/checklog/** · lib/admin/** · features/admin/ · công cụ CMS khác trong features/",
         "tech": [
           {
             "icon": "env",

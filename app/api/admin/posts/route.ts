@@ -63,11 +63,15 @@ export async function GET(request: NextRequest) {
       ? statusParam
       : 'all';
 
+  const qRaw = searchParams.get('q')?.trim();
+  const search = qRaw && qRaw.length <= 200 ? qRaw : undefined;
+
   try {
     const result = await contentRepository.listPostsForAdmin({
       status,
       page: pagination?.page ?? 1,
       limit: pagination?.limit ?? 50,
+      search,
     });
     return NextResponse.json(result);
   } catch (error) {

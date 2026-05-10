@@ -16,7 +16,9 @@
       "checklog": "Checklog",
       "integrations": "Connected services",
       "architecture": "System architecture",
-      "backToSite": "← Back to site"
+      "backToSite": "← Back to site",
+      "openMenu": "Open admin menu",
+      "closeMenu": "Close menu"
     },
     "postsPage": {
       "title": "Posts",
@@ -32,14 +34,28 @@
       "colSlug": "Slug",
       "colStatus": "Status",
       "colUpdated": "Updated",
-      "colActions": "Actions",
+      "colActions": "Tools",
       "empty": "No posts yet.",
+      "emptySearch": "No posts match \"{query}\".",
       "statusDraft": "Draft",
       "statusPublished": "Published",
       "edit": "Edit",
       "delete": "Delete",
+      "viewPublic": "View live",
+      "actionsMenuAria": "Row actions",
       "deleteTitle": "Delete post?",
       "deleteDescription": "This cannot be undone. The post will be permanently removed."
+    },
+    "dataTable": {
+      "searchPlaceholder": "Search…",
+      "searchAria": "Search table",
+      "rowCount": "{count} rows",
+      "loading": "Loading…",
+      "rowsPerPage": "Rows per page",
+      "rowsPerPageAria": "Rows per page",
+      "pageOf": "Page {current} of {total}",
+      "prevPage": "Previous page",
+      "nextPage": "Next page"
     },
     "crud": {
       "errUnknown": "Unknown error",
@@ -61,11 +77,12 @@
       "colSlug": "Slug",
       "colDesc": "Description",
       "colPosts": "Posts",
-      "colActions": "Actions",
+      "colActions": "Tools",
       "colField": "Field",
       "labelSlug": "Slug",
       "dash": "—",
-      "filterAll": "All"
+      "filterAll": "All",
+      "rowActionsAria": "Row actions"
     },
     "tags": {
       "loadFailed": "Could not load tags",
@@ -125,8 +142,11 @@
     "books": {
       "loadFailed": "Could not load books",
       "title": "Manage books",
+      "pageSubtitle": "Add and edit titles, covers, and metadata for your library.",
+      "empty": "No books yet.",
       "count": "{count} books",
       "add": "Add book",
+      "colCover": "Cover",
       "featured": "Featured",
       "volume": "Vol. {n}",
       "pagesUnit": "{n} pages",
@@ -202,6 +222,9 @@
         "slugAvailable": "Slug is available",
         "slugTakenShort": "Slug taken",
         "labelTitle": "Title",
+        "sectionMeta": "Publishing & taxonomy",
+        "tabContent": "Body",
+        "tabSeo": "SEO",
         "slugHint": "Auto-generated from title. Edit to customize.",
         "labelStatus": "Status",
         "statusPublished": "Published",

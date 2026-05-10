@@ -1,9 +1,38 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { createColumnHelper } from '@tanstack/react-table';
 import { useTranslations } from 'next-intl';
+import {
+  AlignLeft,
+  Heading,
+  Link2,
+  Newspaper,
+  Pencil,
+  Plus,
+  Shapes,
+  Trash2,
+  Wrench,
+} from 'lucide-react';
 import { triggerNavigationRefresh } from '@/lib/events/navigation';
+import {
+  ADMIN_CMS_HERO_CTA_CLASS,
+  ADMIN_DATA_TABLE_SHELL_CLASS,
+  ADMIN_ROW_ACTIONS_TRIGGER_CLASS,
+} from '@/features/admin/admin-table-styles';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
+import { AdminDataTable } from '@/features/admin/components/AdminDataTable';
+import { AdminTableColumnHeader } from '@/features/admin/components/AdminTableColumnHeader';
+import { AdminTruncatedCell } from '@/features/admin/components/AdminTruncatedCell';
+import { Button } from '@/components/ui/Button';
 import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 
 interface Field {
   id: string;
@@ -31,6 +60,8 @@ function slugify(text: string) {
 }
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken';
+
+const fieldColumnHelper = createColumnHelper<Field>();
 
 export function AdminFieldsClient() {
   const t = useTranslations('admin.fields');
@@ -186,24 +217,104 @@ export function AdminFieldsClient() {
     }
   }
 
+  const columns = useMemo(
+    () => [
+      fieldColumnHelper.accessor('name', {
+        header: () => (
+          <AdminTableColumnHeader icon={Heading}>{tc('colName')}</AdminTableColumnHeader>
+        ),
+        cell: (info) => <AdminTruncatedCell value={info.getValue()} variant="label" />,
+      }),
+      fieldColumnHelper.accessor('slug', {
+        header: () => <AdminTableColumnHeader icon={Link2}>{tc('colSlug')}</AdminTableColumnHeader>,
+        cell: (info) => <AdminTruncatedCell value={info.getValue()} variant="slug" />,
+      }),
+      fieldColumnHelper.accessor('description', {
+        header: () => (
+          <AdminTableColumnHeader icon={AlignLeft}>{tc('colDesc')}</AdminTableColumnHeader>
+        ),
+        cell: (info) => {
+          const v = info.getValue();
+          if (v == null || v === '')
+            return <span className="text-sm text-muted-foreground">{tc('dash')}</span>;
+          return <AdminTruncatedCell value={v} variant="description" />;
+        },
+      }),
+      fieldColumnHelper.accessor('post_count', {
+        header: () => (
+          <AdminTableColumnHeader icon={Newspaper} align="right">
+            {tc('colPosts')}
+          </AdminTableColumnHeader>
+        ),
+        cell: (info) => (
+          <span className="block text-right tabular-nums text-muted-foreground">
+            {info.getValue()}
+          </span>
+        ),
+      }),
+      fieldColumnHelper.display({
+        id: 'actions',
+        header: () => (
+          <AdminTableColumnHeader icon={Wrench} align="right">
+            {tc('colActions')}
+          </AdminTableColumnHeader>
+        ),
+        cell: (info) => {
+          const field = info.row.original;
+          return (
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={ADMIN_ROW_ACTIONS_TRIGGER_CLASS}
+                    aria-label={tc('rowActionsAria')}
+                  >
+                    <Wrench className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[11rem]">
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2"
+                    onClick={() => openEdit(field)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    {tc('edit')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive"
+                    disabled={isDeleting}
+                    onClick={() => setDeleteState({ fieldId: field.id, fieldName: field.name })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {tc('delete')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      }),
+    ],
+    [tc, isDeleting]
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
-        </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          {t('add')}
-        </button>
-      </div>
+    <div className="space-y-8">
+      <AdminCmsPageHero
+        title={t('title')}
+        subtitle={t('subtitle')}
+        icon={<Shapes className="h-6 w-6" aria-hidden />}
+        action={
+          <button type="button" onClick={openCreate} className={ADMIN_CMS_HERO_CTA_CLASS}>
+            <Plus className="h-4 w-4" aria-hidden />
+            {t('add')}
+          </button>
+        }
+      />
 
       {/* Error */}
       {error && (
@@ -212,73 +323,18 @@ export function AdminFieldsClient() {
         </div>
       )}
 
-      {/* Table */}
-      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        {isLoading ? (
-          <div className="p-8 space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 rounded-lg bg-muted animate-pulse" />
-            ))}
-          </div>
-        ) : fields.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">
-            <p className="text-sm">{t('empty')}</p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/40">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                  {tc('colName')}
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                  {tc('colSlug')}
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                  {tc('colDesc')}
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                  {tc('colPosts')}
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                  {tc('colActions')}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {fields.map((field) => (
-                <tr key={field.id} className="hover:bg-muted/20 transition-colors">
-                  <td className="px-4 py-3 font-medium text-foreground">{field.name}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                    {field.slug}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground max-w-xs truncate">
-                    {field.description ?? tc('dash')}
-                  </td>
-                  <td className="px-4 py-3 text-right text-muted-foreground">{field.post_count}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEdit(field)}
-                        className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
-                      >
-                        {tc('edit')}
-                      </button>
-                      <button
-                        onClick={() => setDeleteState({ fieldId: field.id, fieldName: field.name })}
-                        disabled={isDeleting}
-                        className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {tc('delete')}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <AdminDataTable
+        mode="client"
+        columns={columns}
+        data={fields}
+        getRowId={(row) => row.id}
+        enableGlobalFilter
+        enableSorting
+        initialPageSize={10}
+        emptyLabel={t('empty')}
+        isLoading={isLoading}
+        className={ADMIN_DATA_TABLE_SHELL_CLASS}
+      />
 
       {/* Modal form */}
       {showForm && (

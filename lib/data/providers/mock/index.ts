@@ -543,12 +543,18 @@ export class MockProvider implements ContentRepository {
   }
 
   async listPostsForAdmin(options?: AdminPostListOptions): Promise<PaginatedResult<Post>> {
-    const { status = 'all', page = 1, limit = 50 } = options || {};
+    const { status = 'all', page = 1, limit = 50, search } = options || {};
     let list = [...this.posts];
     if (status === 'draft') {
       list = list.filter((p) => (p.status ?? 'published') === 'draft');
     } else if (status === 'published') {
       list = list.filter(isPublishedPost);
+    }
+    const q = search?.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (p) => p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q)
+      );
     }
     list.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
     return paginate(list, page, limit);

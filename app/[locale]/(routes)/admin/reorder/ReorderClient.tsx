@@ -20,6 +20,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/navigation';
+import { ListOrdered } from 'lucide-react';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
 
 interface Field {
   id: string;
@@ -210,11 +212,12 @@ export function ReorderClient() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">{t('title')}</h1>
-        <p className="text-muted-foreground">{t('subtitle')}</p>
-      </div>
+    <div className="container mx-auto max-w-4xl space-y-8 px-4 py-8">
+      <AdminCmsPageHero
+        title={t('title')}
+        subtitle={t('subtitle')}
+        icon={<ListOrdered className="h-6 w-6" aria-hidden />}
+      />
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-border">

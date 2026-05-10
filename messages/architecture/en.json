@@ -75,6 +75,12 @@
             "name": "lucide-react",
             "purpose": "Stroke icons for navigation, CMS, Checklog, Integrations, and architecture diagrams.",
             "detail": "Brand marks for vendors use inline SVGs (Simple Icons, CC0) where a distinct logo helps recognition."
+          },
+          {
+            "icon": "tanstack",
+            "name": "@tanstack/react-table",
+            "purpose": "Admin CMS tables: columns, client/server pagination, toolbar search.",
+            "detail": "features/admin/components/AdminDataTable; shared AdminTableToolbarSearchField; posts list debounces q in the URL; skeleton rows when isLoading."
           }
         ]
       },
@@ -180,7 +186,7 @@
         "title": "Cross-cutting operations",
         "plain": "Concerns that touch many features: environment validation, structured admin audit (Checklog), drag-and-drop ordering in CMS, and safe HTML sanitization where user content appears.",
         "maintain": "Checklog channels and human labels stay in sync with docs/senior-md when you add new admin actions.",
-        "paths": "lib/env.ts · lib/checklog/** · features/ CMS tools",
+        "paths": "lib/env.ts · lib/checklog/** · lib/admin/** · features/admin/ · other CMS tools in features/",
         "tech": [
           {
             "icon": "env",

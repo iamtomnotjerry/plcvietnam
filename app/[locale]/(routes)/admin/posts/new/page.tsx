@@ -1,6 +1,8 @@
+import { FilePenLine } from 'lucide-react';
 import { loadPostEditorOptions } from '@/features/cms/utils/loadEditorOptions';
 import { PostEditorForm } from '@/features/cms/components/PostEditorForm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,11 +16,12 @@ export default async function AdminNewPostPage({ params }: Props) {
   const firstCategoryId = categories[0]?.id ?? '';
 
   return (
-    <div>
-      <h1 className="mb-2 font-serif text-3xl font-semibold tracking-tight">
-        {t('postNew.title')}
-      </h1>
-      <p className="mb-8 text-sm text-muted-foreground">{t('postNew.subtitle')}</p>
+    <div className="space-y-8">
+      <AdminCmsPageHero
+        title={t('postNew.title')}
+        subtitle={t('postNew.subtitle')}
+        icon={<FilePenLine className="h-6 w-6" aria-hidden />}
+      />
       <PostEditorForm
         mode="create"
         fields={fields}

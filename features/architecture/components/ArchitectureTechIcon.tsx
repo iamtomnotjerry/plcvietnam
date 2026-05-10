@@ -8,6 +8,7 @@ import {
   Settings,
   Shield,
   Sparkles,
+  Table2,
 } from 'lucide-react';
 
 /** SVG path `d` from Simple Icons (CC0). Keys match `icon` in messages/architecture/*.json */
@@ -58,6 +59,7 @@ const LUCIDE_BRANDS: Record<string, LucideIcon> = {
   dndkit: GripVertical,
   dompurify: Shield,
   middleware: Router,
+  tanstack: Table2,
 };
 
 type Props = {

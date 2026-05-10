@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
+import { PencilLine } from 'lucide-react';
 import { contentRepository } from '@/lib/data/factory';
 import { loadPostEditorOptions } from '@/features/cms/utils/loadEditorOptions';
 import { PostEditorForm } from '@/features/cms/components/PostEditorForm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,11 +24,13 @@ export default async function AdminEditPostPage({ params }: EditPostPageProps) {
   if (!post) notFound();
 
   return (
-    <div>
-      <h1 className="mb-2 font-serif text-3xl font-semibold tracking-tight">
-        {t('postEdit.title')}
-      </h1>
-      <p className="mb-8 text-sm text-muted-foreground">{post.title}</p>
+    <div className="space-y-8">
+      <AdminCmsPageHero
+        title={t('postEdit.title')}
+        subtitle={post.title}
+        icon={<PencilLine className="h-6 w-6" aria-hidden />}
+        detail={<p className="truncate font-mono text-xs text-muted-foreground">{post.slug}</p>}
+      />
       <PostEditorForm
         mode="edit"
         fields={fields}

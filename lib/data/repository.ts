@@ -95,6 +95,8 @@ export interface AdminPostListOptions {
   status?: AdminPostStatusFilter;
   page?: number;
   limit?: number;
+  /** Case-insensitive match on title or slug (server-side ilike where supported). */
+  search?: string;
 }
 
 export interface CreatePostInput {

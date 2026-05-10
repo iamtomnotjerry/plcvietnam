@@ -16,7 +16,9 @@
       "checklog": "Checklog",
       "integrations": "Dịch vụ kết nối",
       "architecture": "Kiến trúc hệ thống",
-      "backToSite": "← Về site"
+      "backToSite": "← Về site",
+      "openMenu": "Mở menu quản trị",
+      "closeMenu": "Đóng menu"
     },
     "postsPage": {
       "title": "Bài viết",
@@ -32,14 +34,28 @@
       "colSlug": "Slug",
       "colStatus": "Trạng thái",
       "colUpdated": "Cập nhật",
-      "colActions": "Thao tác",
+      "colActions": "Công cụ",
       "empty": "Không có bài viết.",
+      "emptySearch": "Không có bài nào khớp \"{query}\".",
       "statusDraft": "Nháp",
       "statusPublished": "Xuất bản",
       "edit": "Sửa",
       "delete": "Xóa",
+      "viewPublic": "Xem trên site",
+      "actionsMenuAria": "Thao tác dòng",
       "deleteTitle": "Xóa bài viết?",
       "deleteDescription": "Hành động này không thể hoàn tác. Bài viết sẽ bị xóa vĩnh viễn."
+    },
+    "dataTable": {
+      "searchPlaceholder": "Tìm…",
+      "searchAria": "Tìm trong bảng",
+      "rowCount": "{count} dòng",
+      "loading": "Đang tải…",
+      "rowsPerPage": "Dòng mỗi trang",
+      "rowsPerPageAria": "Số dòng mỗi trang",
+      "pageOf": "Trang {current} / {total}",
+      "prevPage": "Trang trước",
+      "nextPage": "Trang sau"
     },
     "crud": {
       "errUnknown": "Lỗi không xác định",
@@ -61,11 +77,12 @@
       "colSlug": "Slug",
       "colDesc": "Mô tả",
       "colPosts": "Bài viết",
-      "colActions": "Thao tác",
+      "colActions": "Công cụ",
       "colField": "Lĩnh vực",
       "labelSlug": "Slug",
       "dash": "—",
-      "filterAll": "Tất cả"
+      "filterAll": "Tất cả",
+      "rowActionsAria": "Thao tác dòng"
     },
     "tags": {
       "loadFailed": "Không thể tải danh sách thẻ",
@@ -125,8 +142,11 @@
     "books": {
       "loadFailed": "Không thể tải danh sách sách",
       "title": "Quản lý Sách",
+      "pageSubtitle": "Thêm, chỉnh sửa ấn phẩm, bìa và thông tin sách trong thư viện.",
+      "empty": "Chưa có sách nào.",
       "count": "{count} cuốn sách",
       "add": "Thêm sách",
+      "colCover": "Bìa",
       "featured": "Nổi bật",
       "volume": "Tập {n}",
       "pagesUnit": "{n} trang",
@@ -202,6 +222,9 @@
         "slugAvailable": "Slug có thể dùng",
         "slugTakenShort": "Slug đã tồn tại",
         "labelTitle": "Tiêu đề",
+        "sectionMeta": "Xuất bản & phân loại",
+        "tabContent": "Nội dung",
+        "tabSeo": "SEO",
         "slugHint": "Tự động tạo từ tiêu đề. Chỉnh sửa để tuỳ chỉnh.",
         "labelStatus": "Trạng thái",
         "statusPublished": "Xuất bản",

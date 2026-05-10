@@ -6,7 +6,7 @@ Admin-facing visual companion (Vietnamese/English, expandable sections): **local
 
 - Next.js App Router serves both UI routes and API routes.
 - Locale-first UI lives under `app/[locale]/` with **`next-intl`** (`i18n/routing.ts`, `i18n/request.ts`, message catalogs in `messages/`).
-- `features/*` holds feature-specific UI, hooks, and local logic.
+- `features/*` holds feature-specific UI, hooks, and local logic (including **`features/admin/`** for CMS list shells: `AdminDataTable`, hero, shared toolbar search, table text truncation under `lib/admin/`).
 - `components/*` holds cross-feature reusable UI components.
 - `app/api/*` holds HTTP transport handlers and boundary validation.
 - `lib/data/*` holds repository/provider abstractions for data access.

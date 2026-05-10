@@ -1,6 +1,8 @@
+import { IdCard } from 'lucide-react';
 import { contentRepository } from '@/lib/data/factory';
 import { AuthorEditorForm } from '@/features/cms/components/AuthorEditorForm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,11 +15,12 @@ export default async function AdminEditAboutPage({ params }: Props) {
   const author = await contentRepository.getAuthor();
 
   return (
-    <div>
-      <h1 className="mb-2 font-serif text-3xl font-semibold tracking-tight">
-        {t('aboutEdit.title')}
-      </h1>
-      <p className="mb-8 text-sm text-muted-foreground">{t('aboutEdit.subtitle')}</p>
+    <div className="space-y-8">
+      <AdminCmsPageHero
+        title={t('aboutEdit.title')}
+        subtitle={t('aboutEdit.subtitle')}
+        icon={<IdCard className="h-6 w-6" aria-hidden />}
+      />
       <AuthorEditorForm author={author} />
     </div>
   );

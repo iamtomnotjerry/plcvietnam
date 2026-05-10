@@ -268,6 +268,9 @@ export class APIProvider implements ContentRepository {
       page: String(options?.page || 1),
       limit: String(options?.limit || 50),
     });
+    if (options?.search?.trim()) {
+      params.set('q', options.search.trim());
+    }
 
     const apiResponse = await this.fetchAPI<ApiPaginatedResponse<ApiPost>>(
       `/api/admin/posts?${params}`

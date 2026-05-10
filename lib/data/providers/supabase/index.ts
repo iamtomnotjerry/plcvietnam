@@ -507,7 +507,7 @@ export class SupabaseProvider implements ContentRepository {
   // ── Admin Posts ───────────────────────────────────────────────────────────
 
   async listPostsForAdmin(options: AdminPostListOptions = {}): Promise<PaginatedResult<Post>> {
-    const { page = 1, limit = 20, status } = options;
+    const { page = 1, limit = 20, status, search } = options;
 
     let query = this.admin
       .from('posts')
@@ -516,6 +516,14 @@ export class SupabaseProvider implements ContentRepository {
       .range((page - 1) * limit, page * limit - 1);
 
     if (status && status !== 'all') query = query.eq('status', status);
+
+    const rawTerm = search?.trim();
+    if (rawTerm) {
+      const safe = rawTerm.replace(/%/g, '').replace(/,/g, '').replace(/'/g, '');
+      if (safe) {
+        query = query.or(`title.ilike.%${safe}%,slug.ilike.%${safe}%`);
+      }
+    }
 
     const { data, error, count } = await query;
     if (error) throw error;

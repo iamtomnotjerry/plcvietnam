@@ -1,9 +1,40 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
+import { createColumnHelper } from '@tanstack/react-table';
 import { useTranslations } from 'next-intl';
+import {
+  BookOpen,
+  Calendar,
+  Heading,
+  Image as ImageIcon,
+  Link2,
+  Pencil,
+  Plus,
+  Trash2,
+  User,
+  Wrench,
+} from 'lucide-react';
+import {
+  ADMIN_CMS_HERO_CTA_CLASS,
+  ADMIN_DATA_TABLE_SHELL_CLASS,
+  ADMIN_ROW_ACTIONS_TRIGGER_CLASS,
+} from '@/features/admin/admin-table-styles';
+import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
+import { AdminDataTable } from '@/features/admin/components/AdminDataTable';
+import { AdminTableColumnHeader } from '@/features/admin/components/AdminTableColumnHeader';
+import { AdminTablePill } from '@/features/admin/components/AdminTablePill';
+import { AdminTruncatedCell } from '@/features/admin/components/AdminTruncatedCell';
+import { Button } from '@/components/ui/Button';
 import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 
 interface BookRow {
   id: string;
@@ -27,6 +58,8 @@ interface DeleteState {
   bookId: string;
   bookTitle: string;
 }
+
+const bookColumnHelper = createColumnHelper<BookRow>();
 
 const EMPTY_FORM_BASE: Omit<BookRow, 'id'> = {
   slug: '',
@@ -190,108 +223,185 @@ export function AdminBooksClient() {
       .replace(/\s+/g, '-');
   }
 
-  if (loading) return <div className="animate-pulse h-64 rounded-xl bg-muted" />;
-  if (error) return <div className="text-destructive p-4">{error}</div>;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('count', { count: books.length })}
-          </p>
-        </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          {t('add')}
-        </button>
-      </div>
-
-      {/* Book list */}
-      <div className="space-y-3">
-        {books.map((book) => (
-          <div
-            key={book.id}
-            className="flex gap-4 items-start bg-card border border-border rounded-xl p-4"
-          >
-            {/* Cover */}
-            <div className="flex-shrink-0 w-16 h-20 rounded-lg overflow-hidden bg-muted">
+  const columns = useMemo(
+    () => [
+      bookColumnHelper.display({
+        id: 'cover',
+        header: () => (
+          <AdminTableColumnHeader icon={ImageIcon}>{t('colCover')}</AdminTableColumnHeader>
+        ),
+        cell: (info) => {
+          const book = info.row.original;
+          return (
+            <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
               {book.cover_image_url ? (
                 <Image
                   src={book.cover_image_url}
                   alt={book.title}
-                  width={64}
-                  height={80}
-                  className="object-cover w-full h-full"
+                  width={40}
+                  height={56}
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-muted-foreground/40"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
+                <div className="flex h-full w-full items-center justify-center">
+                  <BookOpen className="h-4 w-4 text-muted-foreground/50" aria-hidden />
                 </div>
               )}
             </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-2 flex-wrap">
-                <h3 className="font-semibold text-foreground text-sm">{book.title}</h3>
-                {book.volume && (
-                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+          );
+        },
+      }),
+      bookColumnHelper.accessor('title', {
+        header: () => (
+          <AdminTableColumnHeader icon={Heading}>{tc('colName')}</AdminTableColumnHeader>
+        ),
+        cell: (info) => {
+          const book = info.row.original;
+          return (
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <AdminTruncatedCell value={info.getValue()} variant="label" />
+                {book.volume ? (
+                  <AdminTablePill variant="primary" className="py-0.5 text-[10px] leading-tight">
                     {t('volume', { n: book.volume })}
-                  </span>
-                )}
-                {book.featured && (
-                  <span className="text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 px-2 py-0.5 rounded-full font-medium">
+                  </AdminTablePill>
+                ) : null}
+                {book.featured ? (
+                  <AdminTablePill variant="highlight" className="py-0.5 text-[10px] leading-tight">
                     {t('featured')}
-                  </span>
-                )}
+                  </AdminTablePill>
+                ) : null}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {book.author_name} · {book.published_year ?? tc('dash')} ·{' '}
-                {book.pages ? t('pagesUnit', { n: book.pages }) : tc('dash')}
-              </p>
-              {book.series && (
-                <p className="text-xs text-muted-foreground/70 mt-0.5 truncate">{book.series}</p>
-              )}
+              {book.series ? (
+                <div className="mt-0.5">
+                  <AdminTruncatedCell value={book.series} variant="muted" maxLength={48} />
+                </div>
+              ) : null}
             </div>
+          );
+        },
+      }),
+      bookColumnHelper.accessor('slug', {
+        header: () => <AdminTableColumnHeader icon={Link2}>{tc('colSlug')}</AdminTableColumnHeader>,
+        cell: (info) => <AdminTruncatedCell value={info.getValue()} variant="slug" />,
+      }),
+      bookColumnHelper.accessor('author_name', {
+        header: () => (
+          <AdminTableColumnHeader icon={User}>{t('labelAuthor')}</AdminTableColumnHeader>
+        ),
+        cell: (info) => {
+          const v = info.getValue();
+          return v ? (
+            <AdminTruncatedCell value={v} variant="muted" />
+          ) : (
+            <span className="text-sm text-muted-foreground">{tc('dash')}</span>
+          );
+        },
+      }),
+      bookColumnHelper.accessor('published_year', {
+        header: () => (
+          <AdminTableColumnHeader icon={Calendar}>{t('labelYear')}</AdminTableColumnHeader>
+        ),
+        cell: (info) => (
+          <span className="text-sm text-muted-foreground">{info.getValue() ?? tc('dash')}</span>
+        ),
+      }),
+      bookColumnHelper.display({
+        id: 'actions',
+        header: () => (
+          <AdminTableColumnHeader icon={Wrench} align="right">
+            {tc('colActions')}
+          </AdminTableColumnHeader>
+        ),
+        cell: (info) => {
+          const book = info.row.original;
+          return (
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={ADMIN_ROW_ACTIONS_TRIGGER_CLASS}
+                    aria-label={tc('rowActionsAria')}
+                  >
+                    <Wrench className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[11rem]">
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2"
+                    onClick={() => openEdit(book)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    {tc('edit')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive"
+                    disabled={isDeleting}
+                    onClick={() => setDeleteState({ bookId: book.id, bookTitle: book.title })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {tc('delete')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      }),
+    ],
+    [t, tc, isDeleting]
+  );
 
-            {/* Actions */}
-            <div className="flex gap-2 flex-shrink-0">
-              <button
-                onClick={() => openEdit(book)}
-                className="rounded-md px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
-              >
-                {tc('edit')}
-              </button>
-              <button
-                onClick={() => setDeleteState({ bookId: book.id, bookTitle: book.title })}
-                disabled={isDeleting}
-                className="rounded-md px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {tc('delete')}
-              </button>
-            </div>
-          </div>
-        ))}
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <AdminCmsPageHero
+          title={t('title')}
+          subtitle={t('pageSubtitle')}
+          icon={<BookOpen className="h-6 w-6" aria-hidden />}
+          action={
+            <button type="button" onClick={openCreate} className={ADMIN_CMS_HERO_CTA_CLASS}>
+              <Plus className="h-4 w-4" aria-hidden />
+              {t('add')}
+            </button>
+          }
+        />
+        <div className="text-destructive p-4">{error}</div>
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <AdminCmsPageHero
+        title={t('title')}
+        subtitle={t('pageSubtitle')}
+        icon={<BookOpen className="h-6 w-6" aria-hidden />}
+        action={
+          <button type="button" onClick={openCreate} className={ADMIN_CMS_HERO_CTA_CLASS}>
+            <Plus className="h-4 w-4" aria-hidden />
+            {t('add')}
+          </button>
+        }
+      />
+      <p className="text-sm text-muted-foreground">{t('count', { count: books.length })}</p>
+
+      <AdminDataTable
+        mode="client"
+        columns={columns}
+        data={books}
+        getRowId={(row) => row.id}
+        enableGlobalFilter
+        enableSorting
+        initialPageSize={10}
+        emptyLabel={t('empty')}
+        isLoading={loading}
+        className={ADMIN_DATA_TABLE_SHELL_CLASS}
+      />
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog

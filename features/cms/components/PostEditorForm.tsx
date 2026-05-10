@@ -6,6 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { Route } from 'next';
 import type { PostPublicationStatus, SEOMetadata } from '@/lib/types/domain';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Input';
 
 export interface PostEditorCategoryOption {
   id: string;
@@ -76,6 +80,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
   const [seoKeywords, setSeoKeywords] = useState(initial.seo.keywords.join(', '));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [editorPanel, setEditorPanel] = useState<'content' | 'seo'>('content');
 
   // Derive initial fieldId from the initial categoryId
   const initialFieldId = categories.find((c) => c.id === initial.categoryId)?.fieldId ?? '';
@@ -300,181 +305,228 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
     return null;
   };
 
+  const slugInputClass =
+    slugStatus === 'taken'
+      ? 'border-destructive font-mono'
+      : slugStatus === 'available'
+        ? 'border-emerald-500 font-mono'
+        : 'font-mono';
+
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-3xl space-y-6">
+    <form onSubmit={onSubmit} className="mx-auto max-w-6xl space-y-6 pb-4">
       {error && (
         <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">{t('labelTitle')}</label>
-          <input
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          />
-        </div>
-
-        {/* Slug field with live check */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">{tCrud('labelSlug')}</label>
-          <input
-            required
-            value={slug}
-            onChange={handleSlugChange}
-            className={`w-full rounded-lg border px-3 py-2 font-mono text-sm bg-background transition-colors ${
-              slugStatus === 'taken'
-                ? 'border-destructive focus:ring-destructive/50'
-                : slugStatus === 'available'
-                  ? 'border-emerald-500 focus:ring-emerald-500/50'
-                  : 'border-input'
-            }`}
-          />
-          <div className="mt-1 h-4">{slugIndicator()}</div>
-          {mode === 'create' && !slugEdited && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{t('slugHint')}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">{t('labelStatus')}</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as PostPublicationStatus)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="published">{t('statusPublished')}</option>
-            <option value="draft">{t('statusDraft')}</option>
-          </select>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">{t('labelField')}</label>
-          <select
-            required
-            value={fieldId}
-            onChange={(e) => handleFieldChange(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="">{t('selectField')}</option>
-            {fields.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">{t('labelCategory')}</label>
-          <select
-            required
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            disabled={!fieldId || filteredCategories.length === 0}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
-          >
-            <option value="">{t('selectCategory')}</option>
-            {filteredCategories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          {fieldId && filteredCategories.length === 0 && (
-            <p className="mt-1 text-xs text-muted-foreground">{t('noCategoriesInField')}</p>
-          )}
-        </div>
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">{t('labelExcerpt')}</label>
-          <textarea
-            required
-            rows={3}
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">{t('labelContent')}</label>
-          <textarea
-            required
-            rows={14}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 font-mono text-sm"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">{t('labelThumbnail')}</label>
-          <ThumbnailUploader value={thumbnailUrl} onChange={setThumbnailUrl} postSlug={slug} />
-        </div>
-        <div className="sm:col-span-2">
-          <p className="mb-2 text-sm font-medium">{t('tagsHeading')}</p>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <label
-                key={tag.id}
-                className="inline-flex items-center gap-1.5 text-sm cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={tagIds.includes(tag.id)}
-                  onChange={() => toggleTag(tag.id)}
+      <div className="grid gap-6 lg:grid-cols-12 lg:gap-8 lg:items-start">
+        <div className="space-y-6 lg:col-span-5">
+          <Card variant="elevated" className="overflow-hidden">
+            <div className="space-y-4 border-b border-border/80 bg-muted/20 px-5 py-4 sm:px-6">
+              <h2 className="text-sm font-semibold tracking-tight text-foreground">
+                {t('sectionMeta')}
+              </h2>
+            </div>
+            <div className="space-y-4 p-5 sm:p-6">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">{t('labelTitle')}</label>
+                <Input
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full"
                 />
-                {tag.name}
-              </label>
-            ))}
-          </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">{tCrud('labelSlug')}</label>
+                <Input
+                  required
+                  value={slug}
+                  onChange={handleSlugChange}
+                  className={`w-full ${slugInputClass}`}
+                />
+                <div className="mt-1 h-4">{slugIndicator()}</div>
+                {mode === 'create' && !slugEdited && (
+                  <p className="mt-0.5 text-xs text-muted-foreground">{t('slugHint')}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">{t('labelStatus')}</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as PostPublicationStatus)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="published">{t('statusPublished')}</option>
+                  <option value="draft">{t('statusDraft')}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">{t('labelField')}</label>
+                <select
+                  required
+                  value={fieldId}
+                  onChange={(e) => handleFieldChange(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">{t('selectField')}</option>
+                  {fields.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">{t('labelCategory')}</label>
+                <select
+                  required
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  disabled={!fieldId || filteredCategories.length === 0}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                >
+                  <option value="">{t('selectCategory')}</option>
+                  {filteredCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+                {fieldId && filteredCategories.length === 0 && (
+                  <p className="mt-1 text-xs text-muted-foreground">{t('noCategoriesInField')}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">{t('labelThumbnail')}</label>
+                <ThumbnailUploader
+                  value={thumbnailUrl}
+                  onChange={setThumbnailUrl}
+                  postSlug={slug}
+                />
+              </div>
+
+              <div>
+                <p className="mb-2 text-sm font-medium">{t('tagsHeading')}</p>
+                <div className="flex max-h-40 flex-wrap gap-2 overflow-y-auto rounded-md border border-border/60 bg-muted/10 p-3">
+                  {tags.map((tag) => (
+                    <label
+                      key={tag.id}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm hover:bg-muted/60"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={tagIds.includes(tag.id)}
+                        onChange={() => toggleTag(tag.id)}
+                        className="rounded border-input"
+                      />
+                      {tag.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">{t('labelSeoTitle')}</label>
-          <input
-            value={seoTitle}
-            onChange={(e) => setSeoTitle(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">{t('labelSeoDescription')}</label>
-          <input
-            value={seoDescription}
-            onChange={(e) => setSeoDescription(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium">{t('seoKeywords')}</label>
-          <input
-            value={seoKeywords}
-            onChange={(e) => setSeoKeywords(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-          />
+
+        <div className="space-y-6 lg:col-span-7">
+          <Card variant="elevated" className="overflow-hidden">
+            <div className="flex gap-1 border-b border-border bg-muted/25 p-1.5 sm:px-2">
+              <button
+                type="button"
+                onClick={() => setEditorPanel('content')}
+                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  editorPanel === 'content'
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {t('tabContent')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorPanel('seo')}
+                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  editorPanel === 'seo'
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {t('tabSeo')}
+              </button>
+            </div>
+            <div className="space-y-4 p-5 sm:p-6">
+              {editorPanel === 'content' ? (
+                <>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium">{t('labelExcerpt')}</label>
+                    <Textarea
+                      required
+                      rows={4}
+                      value={excerpt}
+                      onChange={(e) => setExcerpt(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium">{t('labelContent')}</label>
+                    <Textarea
+                      required
+                      rows={18}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      className="w-full font-mono text-sm leading-relaxed"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium">{t('labelSeoTitle')}</label>
+                    <Input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium">
+                      {t('labelSeoDescription')}
+                    </label>
+                    <Input
+                      value={seoDescription}
+                      onChange={(e) => setSeoDescription(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium">{t('seoKeywords')}</label>
+                    <Input value={seoKeywords} onChange={(e) => setSeoKeywords(e.target.value)} />
+                  </div>
+                </>
+              )}
+            </div>
+          </Card>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={loading || slugStatus === 'taken' || slugStatus === 'checking'}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60 cursor-pointer"
-        >
-          {loading ? t('saving') : t('save')}
-        </button>
-        {mode === 'edit' && (
-          <button
-            type="button"
-            disabled={loading}
-            onClick={onDelete}
-            className="rounded-lg border border-destructive px-4 py-2 text-sm font-medium text-destructive disabled:opacity-60 cursor-pointer"
+      <div className="sticky bottom-0 z-10 -mx-4 mt-2 border-t border-border bg-background/95 px-4 py-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/85 md:-mx-8 md:px-8">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading || slugStatus === 'taken' || slugStatus === 'checking'}
+            isLoading={loading}
           >
-            {t('deletePost')}
-          </button>
-        )}
+            {loading ? t('saving') : t('save')}
+          </Button>
+          {mode === 'edit' && (
+            <Button type="button" variant="destructive" disabled={loading} onClick={onDelete}>
+              {t('deletePost')}
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );
