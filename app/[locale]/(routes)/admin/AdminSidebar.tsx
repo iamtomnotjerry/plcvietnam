@@ -13,7 +13,6 @@ import {
   Menu,
   Network,
   Newspaper,
-  PenLine,
   Plug,
   ScrollText,
   Shapes,
@@ -27,7 +26,6 @@ import { Button } from '@/components/ui/Button';
 const linkIcon = (href: string): LucideIcon => {
   const map: Record<string, LucideIcon> = {
     '/admin/posts': Newspaper,
-    '/admin/posts/new': PenLine,
     '/admin/books': BookOpen,
     '/admin/fields': Shapes,
     '/admin/categories': FolderTree,
@@ -52,7 +50,6 @@ export function AdminSidebar() {
       groupKey: 'groupContent' as const,
       links: [
         { href: '/admin/posts', labelKey: 'posts' as const },
-        { href: '/admin/posts/new', labelKey: 'newPost' as const },
         { href: '/admin/books', labelKey: 'books' as const },
       ],
     },

@@ -9,6 +9,7 @@ import {
   Shield,
   Sparkles,
   Table2,
+  Type,
 } from 'lucide-react';
 
 /** SVG path `d` from Simple Icons (CC0). Keys match `icon` in messages/architecture/*.json */
@@ -60,6 +61,7 @@ const LUCIDE_BRANDS: Record<string, LucideIcon> = {
   dompurify: Shield,
   middleware: Router,
   tanstack: Table2,
+  tiptap: Type,
 };
 
 type Props = {

@@ -47,6 +47,13 @@
 
 - Prefer **`features/admin/components/AdminDataTable`** for admin tabular screens; use **`serverToolbarSearch`** when the list is server-paginated (e.g. posts + URL `q`) and **`enableGlobalFilter`** for client-only filtering. Do not pass `LucideIcon` constructors from Server Components into **`AdminCmsPageHero`** — pass rendered icon JSX. When changing default page size, pagination options, search behavior, or loading UX, update **`docs/senior-md/current-system-state.md`** and **`messages/architecture/*`** if the architecture page mentions those layers.
 
+### Admin post editor (body HTML)
+
+- **UI**: Prefer `PostComposerSplitWorkspace` + `PostComposerModalFrame` for in-list compose/edit; TipTap lives in **`features/cms/components/RichTextEditor.tsx`**. Toolbar buttons use **`RichTextToolbarButton`** to avoid markup duplication.
+- **Safety**: Any change to allowed tags/attrs for post body must update **both** `lib/security/sanitize.client.ts` (read path) and **`lib/security/sanitize.ts`** (persist path) where relevant — especially **iframes** (YouTube-only allowlist) and **`style`** (narrow hooks on client).
+- **Storage**: Inline images use bucket **`post_media`**; hero/thumbnail flows use **`thumbnails`** — keep `lib/supabase/storage.ts` and upload route in sync.
+- **Docs**: When behavior changes materially, update **`docs/senior-md/architecture-overview.md`**, **`current-system-state.md`**, and **`messages/architecture/*`** if the stack/layers copy references CMS or sanitization.
+
 ### Checklog (audit trail)
 
 - New or changed **mutating** `app/api/admin/*` handlers should record successful operator actions via `logAdminChecklogEvent` unless the action is already fully covered by another persisted channel (avoid duplicate rows for the same user action).

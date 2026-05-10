@@ -47,7 +47,7 @@ export default async function PrivacyPage({ params }: Props) {
         </ol>
       </nav>
 
-      <article className="prose prose-slate dark:prose-invert max-w-none">
+      <article className="rich-text">
         <h1>{t('h1')}</h1>
 
         <p className="lead">{t('lead')}</p>

@@ -3,6 +3,21 @@
  * Server-safe implementation without DOMPurify to avoid ESM issues in production
  */
 
+const YOUTUBE_IFRAME_SRC =
+  /^(https?:)?\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|youtu\.be)(\/|$)/i;
+
+function iframeSrcIsYoutube(tag: string): boolean {
+  const src = tag.match(/\bsrc\s*=\s*["']([^"']*)["']/i)?.[1] ?? '';
+  return YOUTUBE_IFRAME_SRC.test(src.trim());
+}
+
+/** Drop iframes except YouTube embeds (matches client-side PostContent / DOMPurify rules). */
+function stripDisallowedIframes(html: string): string {
+  return html
+    .replace(/<iframe\b[^>]*\/>/gi, (m) => (iframeSrcIsYoutube(m) ? m : ''))
+    .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, (m) => (iframeSrcIsYoutube(m) ? m : ''));
+}
+
 /**
  * Sanitize HTML content to prevent XSS attacks.
  * Server-side: strips all HTML tags for safety
@@ -13,10 +28,11 @@ export function sanitizeHtml(html: string): string {
 
   // Server-side: strip all HTML tags for maximum safety
   // This is safe for API routes and prevents ESM/jsdom issues
-  return html
+  const withoutScripts = html
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+
+  return stripDisallowedIframes(withoutScripts)
     .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
     .replace(/on\w+\s*=\s*[^\s>]*/gi, '')
     .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')

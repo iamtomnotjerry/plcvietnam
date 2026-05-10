@@ -76,7 +76,7 @@ export function PostContent({ content, className = '' }: PostContentProps) {
      */
     const processYouTubeEmbeds = () => {
       const iframes = contentRef.current?.querySelectorAll(
-        'iframe[src*="youtube.com"], iframe[src*="youtu.be"]'
+        'iframe[src*="youtube.com"], iframe[src*="youtu.be"], iframe[src*="youtube-nocookie.com"]'
       );
       if (!iframes) return;
 
@@ -127,25 +127,7 @@ export function PostContent({ content, className = '' }: PostContentProps) {
   return (
     <div
       ref={contentRef}
-      className={`
-        prose prose-slate dark:prose-invert
-        max-w-none
-        prose-headings:scroll-mt-20
-        prose-h2:text-2xl prose-h2:font-semibold prose-h2:mt-8 prose-h2:mb-4
-        prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3
-        prose-h4:text-lg prose-h4:font-semibold prose-h4:mt-4 prose-h4:mb-2
-        prose-p:text-base prose-p:leading-7 prose-p:mb-4
-        prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-        prose-strong:font-semibold prose-strong:text-foreground
-        prose-code:text-sm prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
-        prose-pre:bg-muted prose-pre:border prose-pre:border-border
-        prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4
-        prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-4
-        prose-li:mb-2
-        prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic
-        prose-img:rounded-lg prose-img:my-6
-        ${className}
-      `}
+      className={`rich-text ${className}`}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );

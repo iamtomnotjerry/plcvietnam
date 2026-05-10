@@ -28,3 +28,11 @@ Admin-facing visual companion (Vietnamese/English, expandable sections): **local
 - Strict TypeScript in production paths.
 - Stable response contracts for frontend integrations.
 - Clear logging/monitoring hooks for failure diagnosis.
+
+## CMS post authoring (high level)
+
+- **Composer**: `features/cms/components/AdminNewPostComposerLauncher.tsx` opens a modal with `PostComposerSplitWorkspace` (TipTap `RichTextEditor` + `PostDraftLivePreview`). Full-page **`/admin/posts/new` is removed**; `next.config` redirects to `/admin/posts?compose=1`. **Edit from the posts table** uses the same split modal in `AdminPostsClient`; full-page edit remains at `/admin/posts/[id]/edit`.
+- **Shared modal chrome**: `PostComposerModalFrame` (header + close) is reused by the launcher and the table edit flow.
+- **Rich text (TipTap v3)**: `features/cms/components/RichTextEditor.tsx` — `StarterKit` (incl. headings H2–H4, lists, blockquote, link, code + code block, underline, HR), `TableKit`, `TextAlign`, `Highlight`, `Image` (upload to **`post_media`**), `Youtube` (nocookie embeds), `Placeholder`. Toolbar primitives: `RichTextToolbarButton.tsx`.
+- **HTML safety**: Reading view uses **`sanitizeHtmlClient`** (`lib/security/sanitize.client.ts`, DOMPurify + hooks). **Saving** posts runs **`sanitizeHtml`** (`lib/security/sanitize.ts`) on excerpt/body — strips scripts/styles and non-YouTube iframes; **YouTube iframe `src`** must match `youtube.com` / `youtu.be` / `youtube-nocookie.com` (same idea as client).
+- **Storage**: `POST /api/admin/upload` — buckets include **`thumbnails`** and **`post_media`** (`lib/supabase/storage.ts`); thumbnails vs inline images stay separate.

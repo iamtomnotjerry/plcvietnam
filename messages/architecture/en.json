@@ -81,6 +81,12 @@
             "name": "@tanstack/react-table",
             "purpose": "Admin CMS tables: columns, client/server pagination, toolbar search.",
             "detail": "features/admin/components/AdminDataTable; shared AdminTableToolbarSearchField; posts list debounces q in the URL; skeleton rows when isLoading."
+          },
+          {
+            "icon": "tiptap",
+            "name": "TipTap (+ React)",
+            "purpose": "WYSIWYG article body: formatting, tables, images, YouTube, code; outputs HTML into the post pipeline.",
+            "detail": "features/cms/components/RichTextEditor.tsx; StarterKit + TableKit, TextAlign, Highlight, Image, Youtube; RichTextToolbarButton for toolbar chrome; modal/full page via PostComposerSplitWorkspace."
           }
         ]
       },
@@ -210,7 +216,7 @@
             "icon": "dompurify",
             "name": "isomorphic-dompurify",
             "purpose": "HTML sanitization when rendering rich text that originated from editors or users.",
-            "detail": "Runs in environments where a DOM implementation is available to the sanitizer (see dependency notes in package); reduces XSS surface for CMS content."
+            "detail": "sanitizeHtmlClient in lib/security/sanitize.client.ts (narrow style hooks; iframes limited to YouTube). Post create/update uses sanitizeHtml (lib/security/sanitize.ts) with the same YouTube iframe allowlist for persistence."
           }
         ]
       },

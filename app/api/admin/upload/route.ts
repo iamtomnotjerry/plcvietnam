@@ -12,7 +12,8 @@ import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-const SAFE_PATH_PATTERN = /^[a-zA-Z0-9/_-]+$/;
+/** Allow slug segments + extension (e.g. `my-slug/thumbnail.jpg`). `..` still rejected below. */
+const SAFE_PATH_PATTERN = /^[a-zA-Z0-9/._-]+$/;
 
 function unauthorized() {
   return apiUnauthorized();
@@ -44,7 +45,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const targetBucket =
-    bucket === 'thumbnails' || bucket === 'avatars' || bucket === 'books' ? bucket : 'thumbnails';
+    bucket === 'thumbnails' || bucket === 'post_media' || bucket === 'avatars' || bucket === 'books'
+      ? bucket
+      : 'thumbnails';
 
   const ext = file.name.split('.').pop() ?? 'jpg';
   const providedPath = typeof path === 'string' ? path.trim() : '';

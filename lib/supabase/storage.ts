@@ -1,13 +1,13 @@
 /**
  * Supabase Storage Service
- * Handles file uploads for thumbnails, avatars, and book covers.
+ * Buckets: thumbnails (post cards / hero), post_media (inline article HTML), avatars, books.
  */
 
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import { env } from '@/lib/env';
 
-type Bucket = 'thumbnails' | 'avatars' | 'books';
+type Bucket = 'thumbnails' | 'post_media' | 'avatars' | 'books';
 
 function getClient() {
   // Use service role key for uploads (bypasses RLS/storage policies)

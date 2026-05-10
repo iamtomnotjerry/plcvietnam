@@ -19,10 +19,10 @@ export async function loadPostEditorOptions(): Promise<{
   const categories: PostEditorCategoryOption[] = [];
 
   for (const f of fields) {
-    fieldOptions.push({ id: f.id, name: f.name });
+    fieldOptions.push({ id: f.id, name: f.name, slug: f.slug });
     const cats = await contentRepository.getCategoriesByFieldId(f.id);
     for (const c of cats) {
-      categories.push({ id: c.id, label: c.name, fieldId: f.id });
+      categories.push({ id: c.id, label: c.name, fieldId: f.id, slug: c.slug });
     }
   }
 

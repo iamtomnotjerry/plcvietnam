@@ -7,15 +7,50 @@
 
 import DOMPurify from 'isomorphic-dompurify';
 
-// Enforce YouTube-only iframes
+// Enforce YouTube-only iframes (incl. youtube-nocookie)
 DOMPurify.addHook('uponSanitizeElement', (node, data) => {
   if (data.tagName === 'iframe') {
     const el = node as Element;
     const src = el.getAttribute('src');
-    if (src && !src.match(/^(https?:)?\/\/(www\.)?(youtube\.com|youtu\.be)\//)) {
+    if (
+      src &&
+      !src.match(/^(https?:)?\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|youtu\.be)(\/|$)/i)
+    ) {
       el.parentNode?.removeChild(el);
     }
   }
+});
+
+// Allow only safe inline/layout styles (TipTap text-align, tables, optional highlight color)
+DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+  if (data.attrName !== 'style') return;
+  const el = node as Element;
+  const tag = el.tagName?.toLowerCase() ?? '';
+  const v = String(data.attrValue ?? '').trim();
+  if (/expression|url\s*\(|javascript:/i.test(v)) {
+    data.keepAttr = false;
+    return;
+  }
+
+  const textAlignOnly = /^\s*text-align:\s*(left|center|right|justify)\s*;?\s*$/i.test(v);
+  if (
+    textAlignOnly &&
+    ['p', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'td', 'th', 'div'].includes(tag)
+  ) {
+    return;
+  }
+
+  const tableSizing = tag === 'table' && /^\s*((width|min-width):\s*[^;]+;?\s*)+$/i.test(v);
+  if (tableSizing) return;
+
+  const colSizing = tag === 'col' && /^\s*((width|min-width):\s*[\d.\s%px]+;?\s*)+$/i.test(v);
+  if (colSizing) return;
+
+  const markHighlight =
+    tag === 'mark' && /^\s*background-color:\s*[^;]+;\s*color:\s*inherit\s*;?\s*$/i.test(v);
+  if (markHighlight) return;
+
+  data.keepAttr = false;
 });
 
 // Strip any remaining on* event attributes DOMPurify might miss
@@ -73,6 +108,9 @@ export function sanitizeHtmlClient(html: string): string {
       'span',
       'hr',
       'iframe',
+      'mark',
+      'colgroup',
+      'col',
     ],
     ALLOWED_ATTR: [
       'href',
@@ -89,6 +127,11 @@ export function sanitizeHtmlClient(html: string): string {
       'frameborder',
       'allow',
       'loading',
+      'style',
+      'colspan',
+      'rowspan',
+      'scope',
+      'data-youtube-video',
     ],
     ALLOWED_URI_REGEXP:
       /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,

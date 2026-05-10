@@ -52,6 +52,20 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/admin/posts/new',
+        destination: '/admin/posts?compose=1',
+        permanent: true,
+      },
+      {
+        source: '/en/admin/posts/new',
+        destination: '/en/admin/posts?compose=1',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { useRouter, usePathname } from '@/i18n/navigation';
@@ -38,6 +38,15 @@ import { AdminTableColumnHeader } from '@/features/admin/components/AdminTableCo
 import { AdminTablePill } from '@/features/admin/components/AdminTablePill';
 import { AdminTruncatedCell } from '@/features/admin/components/AdminTruncatedCell';
 import { buildAdminPostsListQuery } from '@/lib/admin/build-admin-posts-list-query';
+import { onNavigationRefresh } from '@/lib/events/navigation';
+import { PostComposerModalFrame } from '@/features/cms/components/PostComposerModalFrame';
+import { PostComposerSplitWorkspace } from '@/features/cms/components/PostComposerSplitWorkspace';
+import type {
+  PostEditorCategoryOption,
+  PostEditorFieldOption,
+  PostEditorInitial,
+  PostEditorTagOption,
+} from '@/features/cms/components/PostEditorForm';
 
 const columnHelper = createColumnHelper<Post>();
 
@@ -48,6 +57,24 @@ interface AdminPostsClientProps {
   limit: number;
   totalCount: number;
   searchQuery: string;
+  fields: PostEditorFieldOption[];
+  categories: PostEditorCategoryOption[];
+  tags: PostEditorTagOption[];
+}
+
+function postToEditorInitial(post: Post): PostEditorInitial {
+  return {
+    id: post.id,
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    content: post.content,
+    categoryId: post.categoryId,
+    tagIds: post.tags.map((tag) => tag.id),
+    thumbnailUrl: post.thumbnailUrl ?? '',
+    status: post.status ?? 'published',
+    seo: post.seo,
+  };
 }
 
 interface DeleteState {
@@ -62,8 +89,12 @@ export function AdminPostsClient({
   limit,
   totalCount,
   searchQuery,
+  fields,
+  categories,
+  tags,
 }: AdminPostsClientProps) {
   const t = useTranslations('admin');
+  const tCms = useTranslations('admin.cms.postEditor');
   const tDataTable = useTranslations('admin.dataTable');
   const locale = useLocale();
   const intlLocale = locale === 'vi' ? 'vi-VN' : 'en-US';
@@ -72,10 +103,21 @@ export function AdminPostsClient({
   const [deleteState, setDeleteState] = useState<DeleteState | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [draftSearch, setDraftSearch] = useState(searchQuery);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+
+  const closeEditModal = useCallback(() => {
+    setEditingPost(null);
+  }, []);
 
   useEffect(() => {
     setDraftSearch(searchQuery);
   }, [searchQuery]);
+
+  useEffect(() => {
+    return onNavigationRefresh(() => {
+      router.refresh();
+    });
+  }, [router]);
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -216,14 +258,14 @@ export function AdminPostsClient({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-[11rem]">
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/admin/posts/${post.id}/edit` as Route}
-                      className="flex cursor-pointer items-center gap-2"
-                    >
-                      <Pencil className="h-4 w-4 shrink-0" aria-hidden />
-                      {t('postsTable.edit')}
-                    </Link>
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2"
+                    onSelect={() => {
+                      setEditingPost(post);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4 shrink-0" aria-hidden />
+                    {t('postsTable.edit')}
                   </DropdownMenuItem>
                   {publicHref ? (
                     <DropdownMenuItem asChild>
@@ -258,6 +300,25 @@ export function AdminPostsClient({
 
   return (
     <>
+      {editingPost ? (
+        <PostComposerModalFrame
+          title={t('postEdit.title')}
+          closeLabel={tCms('composerClose')}
+          onClose={closeEditModal}
+        >
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-muted/10">
+            <PostComposerSplitWorkspace
+              key={editingPost.id}
+              mode="edit"
+              initial={postToEditorInitial(editingPost)}
+              fields={fields}
+              categories={categories}
+              tags={tags}
+              onEditSuccess={closeEditModal}
+            />
+          </div>
+        </PostComposerModalFrame>
+      ) : null}
       <AdminDataTable
         mode="server"
         columns={columns}

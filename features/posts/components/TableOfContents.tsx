@@ -20,6 +20,16 @@ export interface TableOfContentsProps {
    * Optional class name for styling
    */
   className?: string;
+
+  /**
+   * When set, only headings inside this selector are observed (avoids picking up editor DOM).
+   */
+  scopeSelector?: string;
+
+  /**
+   * When set, TOC link clicks scroll this container instead of `window` (e.g. modal preview pane).
+   */
+  scrollContainerSelector?: string;
 }
 
 /**
@@ -37,7 +47,12 @@ export interface TableOfContentsProps {
  * Requirements:
  * - 3.4: Display table of contents for posts with more than 3 headings
  */
-export function TableOfContents({ content, className = '' }: TableOfContentsProps) {
+export function TableOfContents({
+  content,
+  className = '',
+  scopeSelector,
+  scrollContainerSelector,
+}: TableOfContentsProps) {
   const t = useTranslations('posts');
   const [toc, setToc] = useState<TOCItem[]>([]);
   const [activeId, setActiveId] = useState<string>('');
@@ -47,8 +62,10 @@ export function TableOfContents({ content, className = '' }: TableOfContentsProp
     const tocItems = generateTableOfContents(content);
     setToc(tocItems);
 
-    // Set up intersection observer for active section highlighting
-    const headingElements = document.querySelectorAll('h2, h3, h4');
+    const root: Document | Element = scopeSelector
+      ? (document.querySelector(scopeSelector) ?? document)
+      : document;
+    const headingElements = root.querySelectorAll('h2, h3, h4');
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -76,7 +93,7 @@ export function TableOfContents({ content, className = '' }: TableOfContentsProp
         }
       });
     };
-  }, [content]);
+  }, [content, scopeSelector]);
 
   /**
    * Handle click on TOC item - smooth scroll to section
@@ -84,16 +101,24 @@ export function TableOfContents({ content, className = '' }: TableOfContentsProp
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const element = document.getElementById(id);
-    if (element) {
-      const offset = 80; // Account for fixed header
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
+    if (!element) return;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
+    const scrollEl = scrollContainerSelector
+      ? document.querySelector<HTMLElement>(scrollContainerSelector)
+      : null;
+
+    if (scrollEl && scrollEl.contains(element)) {
+      const cRect = scrollEl.getBoundingClientRect();
+      const eRect = element.getBoundingClientRect();
+      const nextTop = scrollEl.scrollTop + (eRect.top - cRect.top) - 24;
+      scrollEl.scrollTo({ top: Math.max(0, nextTop), behavior: 'smooth' });
+      return;
     }
+
+    const offset = 80;
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - offset;
+    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
   };
 
   /**

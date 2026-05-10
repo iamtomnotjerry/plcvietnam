@@ -141,6 +141,166 @@
   .editorial-container {
     @apply mx-auto max-w-7xl px-4 sm:px-6;
   }
+
+  /**
+   * Long-form HTML (post body, legal pages). Project does not use @tailwindcss/typography,
+   * so `prose` utilities produce no CSS — use real selectors instead.
+   */
+  .rich-text {
+    @apply max-w-none text-foreground;
+  }
+
+  .rich-text p {
+    @apply text-base leading-10 mb-6;
+  }
+
+  .rich-text h2 {
+    @apply text-2xl font-semibold mt-8 mb-4 scroll-mt-20;
+  }
+
+  .rich-text h3 {
+    @apply text-xl font-semibold mt-6 mb-3 scroll-mt-20;
+  }
+
+  .rich-text h4 {
+    @apply text-lg font-semibold mt-4 mb-2 scroll-mt-20;
+  }
+
+  .rich-text h5,
+  .rich-text h6 {
+    @apply scroll-mt-20;
+  }
+
+  .rich-text a {
+    @apply text-primary no-underline hover:underline;
+  }
+
+  .rich-text strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .rich-text code {
+    @apply text-sm bg-muted px-1.5 py-0.5 rounded;
+  }
+
+  .rich-text pre {
+    @apply bg-muted border border-border rounded-md p-4 overflow-x-auto;
+  }
+
+  .rich-text ul {
+    @apply list-disc pl-6 mb-4;
+  }
+
+  .rich-text ol {
+    @apply list-decimal pl-6 mb-4;
+  }
+
+  .rich-text li {
+    @apply mb-2 leading-10;
+  }
+
+  .rich-text blockquote {
+    @apply border-l-4 border-primary pl-4 italic leading-10;
+  }
+
+  .rich-text img {
+    @apply rounded-lg my-6;
+  }
+
+  .rich-text table {
+    @apply w-full border-collapse border border-border text-sm my-6;
+  }
+
+  .rich-text th,
+  .rich-text td {
+    @apply border border-border px-3 py-2 align-top;
+  }
+
+  .rich-text th {
+    @apply bg-muted/50 font-semibold text-left;
+  }
+
+  .rich-text mark {
+    @apply rounded px-0.5 bg-amber-200/90 text-inherit dark:bg-amber-500/35;
+  }
+
+  .rich-text [data-youtube-video] {
+    @apply my-6;
+  }
+
+  /** TipTap admin editor — mirror reading rhythm without huge vertical gaps while typing */
+  .post-rich-editor:focus-within {
+    @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  .post-rich-editor .tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    @apply text-muted-foreground;
+  }
+
+  .post-rich-editor .tiptap :where(h2) {
+    @apply text-xl font-semibold mt-4 mb-2;
+  }
+
+  .post-rich-editor .tiptap :where(h3) {
+    @apply text-lg font-semibold mt-3 mb-1.5;
+  }
+
+  .post-rich-editor .tiptap :where(h4) {
+    @apply text-base font-semibold mt-3 mb-1.5;
+  }
+
+  .post-rich-editor .tiptap :where(ul) {
+    @apply list-disc pl-6 my-2;
+  }
+
+  .post-rich-editor .tiptap :where(ol) {
+    @apply list-decimal pl-6 my-2;
+  }
+
+  .post-rich-editor .tiptap :where(blockquote) {
+    @apply border-l-4 border-primary/60 pl-3 italic my-2 text-muted-foreground;
+  }
+
+  .post-rich-editor .tiptap :where(pre) {
+    @apply bg-muted rounded-md p-3 text-sm overflow-x-auto my-2;
+  }
+
+  .post-rich-editor .tiptap :where(code) {
+    @apply bg-muted px-1 py-0.5 rounded text-sm;
+  }
+
+  .post-rich-editor .tiptap :where(hr) {
+    @apply my-4 border-border;
+  }
+
+  .post-rich-editor .tiptap img {
+    @apply my-4 max-w-full h-auto rounded-lg;
+  }
+
+  .post-rich-editor .tiptap :where(table) {
+    @apply w-full border-collapse border border-border text-sm my-3;
+  }
+
+  .post-rich-editor .tiptap :where(th),
+  .post-rich-editor .tiptap :where(td) {
+    @apply border border-border px-2 py-1.5 align-top;
+  }
+
+  .post-rich-editor .tiptap :where(th) {
+    @apply bg-muted/50 font-medium;
+  }
+
+  .post-rich-editor .tiptap mark {
+    @apply rounded px-0.5 bg-amber-200/90 text-inherit dark:bg-amber-500/35;
+  }
+
+  .post-rich-editor .tiptap [data-youtube-video] {
+    @apply my-3;
+  }
 }
 
 @layer base {

@@ -10,11 +10,14 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Input';
+import { RichTextEditor } from '@/features/cms/components/RichTextEditor';
+import { triggerNavigationRefresh } from '@/lib/events/navigation';
 
 export interface PostEditorCategoryOption {
   id: string;
   label: string;
   fieldId: string;
+  slug: string;
 }
 
 export interface PostEditorTagOption {
@@ -25,6 +28,18 @@ export interface PostEditorTagOption {
 export interface PostEditorFieldOption {
   id: string;
   name: string;
+  slug: string;
+}
+
+/** Live preview / parent sync — updated on each relevant field change */
+export interface PostEditorDraftSnapshot {
+  title: string;
+  content: string;
+  excerpt: string;
+  categoryId: string;
+  tagIds: string[];
+  slug: string;
+  thumbnailUrl: string;
 }
 
 export interface PostEditorInitial {
@@ -46,9 +61,26 @@ export interface PostEditorFormProps {
   fields: PostEditorFieldOption[];
   categories: PostEditorCategoryOption[];
   tags: PostEditorTagOption[];
+  /** Single-column layout for narrow composer panel (split with preview). */
+  layout?: 'default' | 'splitComposer';
+  /** Fires when draft fields used by live preview change. */
+  onDraftChange?: (draft: PostEditorDraftSnapshot) => void;
+  /** After successful create (before navigate to list). */
+  onCreateSuccess?: () => void;
+  /** After successful edit when embedded (e.g. modal): skip default redirects. */
+  onEditSuccess?: () => void;
 }
 
 // Convert Vietnamese title → URL-safe slug
+/** True when TipTap/HTML body has no visible text (allows <p></p>, whitespace, br). */
+function isPostBodyEmpty(html: string): boolean {
+  if (typeof document === 'undefined') {
+    return html.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, '').length === 0;
+  }
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return (doc.body.textContent ?? '').replace(/\u00a0/g, ' ').trim().length === 0;
+}
+
 function toSlug(text: string): string {
   return text
     .toLowerCase()
@@ -63,7 +95,17 @@ function toSlug(text: string): string {
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken';
 
-export function PostEditorForm({ mode, initial, fields, categories, tags }: PostEditorFormProps) {
+export function PostEditorForm({
+  mode,
+  initial,
+  fields,
+  categories,
+  tags,
+  layout = 'default',
+  onDraftChange,
+  onCreateSuccess,
+  onEditSuccess,
+}: PostEditorFormProps) {
   const t = useTranslations('admin.cms.postEditor');
   const tCrud = useTranslations('admin.crud');
   const router = useRouter();
@@ -81,6 +123,23 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [editorPanel, setEditorPanel] = useState<'content' | 'seo'>('content');
+
+  const onDraftChangeRef = useRef(onDraftChange);
+  useEffect(() => {
+    onDraftChangeRef.current = onDraftChange;
+  }, [onDraftChange]);
+
+  useEffect(() => {
+    onDraftChangeRef.current?.({
+      title,
+      content,
+      excerpt,
+      categoryId,
+      tagIds,
+      slug,
+      thumbnailUrl,
+    });
+  }, [title, content, excerpt, categoryId, tagIds, slug, thumbnailUrl]);
 
   // Derive initial fieldId from the initial categoryId
   const initialFieldId = categories.find((c) => c.id === initial.categoryId)?.fieldId ?? '';
@@ -153,6 +212,10 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
       setError(t('errorCategoryRequired'));
       return;
     }
+    if (isPostBodyEmpty(content)) {
+      setError(t('errorContentRequired'));
+      return;
+    }
     if (slugStatus === 'taken') {
       setError(t('slugTaken'));
       return;
@@ -195,19 +258,18 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
         return;
       }
 
-      // Trigger navigation refresh to update post counts in sidebar
-      if (typeof window !== 'undefined') {
-        const event = new CustomEvent('navigation:refresh');
-        window.dispatchEvent(event);
-      }
+      // Sidebar + admin lists that listen for this event
+      triggerNavigationRefresh();
 
       // Redirect logic:
       // - Create mode: Always go to posts list to see the new post
       // - Edit mode + Draft: Stay on edit page to continue editing
       // - Edit mode + Published: Can go to public page
       if (mode === 'create') {
-        // After creating, go to posts list
+        onCreateSuccess?.();
         router.push('/admin/posts' as Route);
+      } else if (onEditSuccess) {
+        onEditSuccess();
       } else if (data.status === 'draft') {
         // Draft in edit mode - stay on edit page
         if (data.id) {
@@ -227,7 +289,10 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           router.push('/admin/posts' as Route);
         }
       }
-      router.refresh();
+      // Defer so refresh runs after client navigation has been applied (push + refresh same tick can leave the table stale).
+      queueMicrotask(() => {
+        router.refresh();
+      });
     } finally {
       setLoading(false);
     }
@@ -312,16 +377,25 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
         ? 'border-emerald-500 font-mono'
         : 'font-mono';
 
+  const isSplit = layout === 'splitComposer';
+
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-6xl space-y-6 pb-4">
+    <form
+      onSubmit={onSubmit}
+      className={`mx-auto space-y-6 pb-4 ${isSplit ? 'max-w-none' : 'max-w-6xl'}`}
+    >
       {error && (
         <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-12 lg:gap-8 lg:items-start">
-        <div className="space-y-6 lg:col-span-5">
+      <div
+        className={
+          isSplit ? 'grid grid-cols-1 gap-6' : 'grid gap-6 lg:grid-cols-12 lg:gap-8 lg:items-start'
+        }
+      >
+        <div className={`space-y-6 ${isSplit ? '' : 'lg:col-span-5'}`}>
           <Card variant="elevated" className="overflow-hidden">
             <div className="space-y-4 border-b border-border/80 bg-muted/20 px-5 py-4 sm:px-6">
               <h2 className="text-sm font-semibold tracking-tight text-foreground">
@@ -435,7 +509,7 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
           </Card>
         </div>
 
-        <div className="space-y-6 lg:col-span-7">
+        <div className={`space-y-6 ${isSplit ? '' : 'lg:col-span-7'}`}>
           <Card variant="elevated" className="overflow-hidden">
             <div className="flex gap-1 border-b border-border bg-muted/25 p-1.5 sm:px-2">
               <button
@@ -476,12 +550,11 @@ export function PostEditorForm({ mode, initial, fields, categories, tags }: Post
                   </div>
                   <div>
                     <label className="mb-1.5 block text-sm font-medium">{t('labelContent')}</label>
-                    <Textarea
-                      required
-                      rows={18}
+                    <RichTextEditor
+                      key={mode === 'edit' && initial.id ? initial.id : 'new-post'}
                       value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      className="w-full font-mono text-sm leading-relaxed"
+                      onChange={setContent}
+                      ariaLabel={t('labelContent')}
                     />
                   </div>
                 </>

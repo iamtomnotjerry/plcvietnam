@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import { Suspense } from 'react';
 import { CheckCircle2, FilePenLine, LayoutList, Newspaper, PenSquare } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
@@ -8,6 +9,8 @@ import type { AdminPostStatusFilter } from '@/lib/data/repository';
 import { ADMIN_CMS_HERO_CTA_CLASS } from '@/features/admin/admin-table-styles';
 import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
 import { buildAdminPostsListQuery } from '@/lib/admin/build-admin-posts-list-query';
+import { AdminNewPostComposerLauncher } from '@/features/cms/components/AdminNewPostComposerLauncher';
+import { loadPostEditorOptions } from '@/features/cms/utils/loadEditorOptions';
 import { AdminPostsClient } from './AdminPostsClient';
 
 export const dynamic = 'force-dynamic';
@@ -32,7 +35,11 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
   const q = typeof sp.q === 'string' ? sp.q : '';
   const search = q.trim() || undefined;
 
-  const result = await contentRepository.listPostsForAdmin({ status, page, limit, search });
+  const [result, editorOptions] = await Promise.all([
+    contentRepository.listPostsForAdmin({ status, page, limit, search }),
+    loadPostEditorOptions(),
+  ]);
+  const firstCategoryId = editorOptions.categories[0]?.id ?? '';
 
   const filterHref = (nextStatus: AdminPostStatusFilter) =>
     `/admin/posts?${buildAdminPostsListQuery({
@@ -49,10 +56,22 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
         subtitle={t('postsPage.subtitle')}
         icon={<Newspaper className="h-6 w-6" aria-hidden />}
         action={
-          <Link href={'/admin/posts/new' as Route} className={ADMIN_CMS_HERO_CTA_CLASS}>
-            <PenSquare className="h-4 w-4" aria-hidden />
-            {t('postsPage.newPostCta')}
-          </Link>
+          <Suspense
+            fallback={
+              <Link href={'/admin/posts?compose=1' as Route} className={ADMIN_CMS_HERO_CTA_CLASS}>
+                <PenSquare className="h-4 w-4" aria-hidden />
+                {t('postsPage.newPostCta')}
+              </Link>
+            }
+          >
+            <AdminNewPostComposerLauncher
+              fields={editorOptions.fields}
+              categories={editorOptions.categories}
+              tags={editorOptions.tags}
+              ctaLabel={t('postsPage.newPostCta')}
+              firstCategoryId={firstCategoryId}
+            />
+          </Suspense>
         }
       />
 
@@ -84,6 +103,9 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
         limit={result.pagination.limit}
         totalCount={result.pagination.total}
         searchQuery={q}
+        fields={editorOptions.fields}
+        categories={editorOptions.categories}
+        tags={editorOptions.tags}
       />
     </div>
   );

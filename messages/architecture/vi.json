@@ -81,6 +81,12 @@
             "name": "@tanstack/react-table",
             "purpose": "Bảng trong CMS admin: cột, phân trang client/server, tìm trong toolbar.",
             "detail": "features/admin/components/AdminDataTable; ô tìm AdminTableToolbarSearchField; danh sách bài viết debounce tham số q trên URL; skeleton khi isLoading."
+          },
+          {
+            "icon": "tiptap",
+            "name": "TipTap (+ React)",
+            "purpose": "Soạn thảo WYSIWYG nội dung bài: định dạng, bảng, ảnh, YouTube, mã; xuất HTML vào pipeline bài viết.",
+            "detail": "features/cms/components/RichTextEditor.tsx; mở rộng StarterKit, TableKit, TextAlign, Highlight, Image, Youtube; nút toolbar dùng RichTextToolbarButton; modal/full-page qua PostComposerSplitWorkspace."
           }
         ]
       },
@@ -210,7 +216,7 @@
             "icon": "dompurify",
             "name": "isomorphic-dompurify",
             "purpose": "Làm sạch HTML giàu thẻ trước khi hiển thị nội dung từ editor hoặc người dùng.",
-            "detail": "Chạy khi môi trường cung cấp DOM cho sanitizer; giảm bề mặt XSS cho nội dung CMS."
+            "detail": "sanitizeHtmlClient trong lib/security/sanitize.client.ts (hooks cho style hẹp, iframe chỉ YouTube). API lưu bài gọi sanitizeHtml (lib/security/sanitize.ts) đồng bộ allowlist iframe với client."
           }
         ]
       },
