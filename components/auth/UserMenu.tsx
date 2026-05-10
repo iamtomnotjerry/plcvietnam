@@ -11,13 +11,14 @@ import { Link } from '@/i18n/navigation';
 
 /**
  * UserMenu - Only shows when user is logged in.
- * Avatar opens a menu with name, admin (if editor), and sign out.
+ * Avatar opens a menu with name, admin (if editor), checklog (admin only), and sign out.
  */
 export function UserMenu() {
   const { user, status } = useSupabaseAuth();
-  const { isEditor } = useAdminRole();
+  const { isEditor, role } = useAdminRole();
   const t = useTranslations('auth.session');
   const tFooter = useTranslations('footer');
+  const tAdmin = useTranslations('admin');
   const [signingOut, setSigningOut] = useState(false);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -108,12 +109,32 @@ export function UserMenu() {
               {tFooter('admin')}
             </Link>
           ) : null}
+          {role === 'admin' ? (
+            <Link
+              href="/checklog"
+              role="menuitem"
+              className="block px-3 py-2 text-sm text-foreground hover:bg-muted"
+              onClick={() => setOpen(false)}
+            >
+              {tAdmin('sidebar.checklog')}
+            </Link>
+          ) : null}
           <button
             type="button"
             role="menuitem"
             disabled={signingOut}
             onClick={async () => {
               setSigningOut(true);
+              try {
+                await fetch('/api/checklog/session-event', {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'signout' }),
+                });
+              } catch {
+                /* best-effort audit */
+              }
               await supabase.auth.signOut();
               setSigningOut(false);
               setOpen(false);

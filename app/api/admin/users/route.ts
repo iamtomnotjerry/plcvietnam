@@ -9,6 +9,7 @@ import { getServiceClient } from '@/lib/supabase/client-singleton';
 import type { Database } from '@/lib/supabase/database.types';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireAdminAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 type UserRole = Database['public']['Enums']['user_role'];
 
@@ -72,5 +73,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) return apiInternalError('Không thể cập nhật role người dùng');
+
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'users.role_update',
+    outcome: 'success',
+    metadata: { targetUserId: body.id, role: body.role },
+  });
+
   return NextResponse.json(data);
 }

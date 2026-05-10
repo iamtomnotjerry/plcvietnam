@@ -335,5 +335,279 @@
   },
   "tags": {
     "chipAriaLabel": "Xem bài viết với tag {name}"
+  },
+  "checklog": {
+    "badge": "Vận hành & bảo mật",
+    "title": "Checklog",
+    "subtitle": "Nhật ký dễ đọc: ai đã làm gì trên hệ thống (đăng nhập, bình luận, chỉnh CMS…). Chỉ quản trị viên; thông tin nhạy cảm được giảm tối đa trên màn hình.",
+    "viewerLabel": "Phiên xem",
+    "viewerRole": "Admin",
+    "securityNotice": "Không chia sẻ ảnh chụp màn hình checklog công khai. Metadata có thể chứa thông tin nhận dạng — tuân thủ nội bộ và chính sách bảo mật.",
+    "guideTitle": "Cách đọc Checklog (không cần biết IT)",
+    "guideIntro": "Mỗi dòng là một sự kiện đã được hệ thống ghi lại. Chọn tab để lọc theo nhóm; cột đầu giải thích bằng ngôn ngữ thường, mã kỹ thuật nằm bên dưới nếu cần.",
+    "guideHttpTitle": "HTTP / thao tác gửi lên máy chủ",
+    "guideHttpBody": "Các lần gửi dữ liệu (tạo/sửa/xóa qua API). Thường là hoạt động kỹ thuật; hữu ích khi cần truy vết yêu cầu.",
+    "guideSecurityTitle": "Bảo mật & phiên",
+    "guideSecurityBody": "Đăng nhập, đăng ký, đặt lại mật khẩu, đăng xuất, hoàn tất đăng nhập Google… Giúp trả lời: ai đã thử vào tài khoản và kết quả ra sao.",
+    "guideContentTitle": "Nội dung công khai",
+    "guideContentBody": "Ví dụ: ai đã gửi bình luận. Gắn với hoạt động người dùng thấy trên trang.",
+    "guideAdminTitle": "Quản trị CMS",
+    "guideAdminBody": "Thao tác trong khu vực quản trị: tạo/sửa/xóa lĩnh vực, bài viết… Giúp biết biên tập viên đã thay đổi gì.",
+    "statTotal": "Tổng sự kiện",
+    "statHttp": "HTTP / mutation",
+    "statSecurity": "Xác thực & phiên",
+    "statContent": "Nội dung (VD: bình luận)",
+    "statAdmin": "Quản trị CMS",
+    "statOther": "+ {count} sự kiện danh mục khác",
+    "statsHintAll": "Thống kê trên toàn bộ dữ liệu đã lưu.",
+    "statsHintRange": "Thống kê chỉ trong khoảng ngày bạn chọn bên dưới.",
+    "categoryNavAria": "Lọc theo danh mục",
+    "cat": {
+      "all": "Tất cả",
+      "http": "HTTP",
+      "security": "Bảo mật",
+      "content": "Nội dung",
+      "admin": "Quản trị CMS"
+    },
+    "dateFrom": "Từ ngày",
+    "dateTo": "Đến ngày",
+    "searchChannel": "Kênh",
+    "searchChannelPh": "Gõ một phần mã kênh (VD: auth, posts, comments)",
+    "presetToday": "Hôm nay",
+    "preset7d": "7 ngày",
+    "preset30d": "30 ngày",
+    "presetClearDates": "Xóa ngày",
+    "filterOutcome": "Kết quả",
+    "filterOutcomeAll": "Mọi kết quả",
+    "filterActorMine": "Chỉ thao tác của tôi",
+    "clearFilters": "Xóa bộ lọc",
+    "exportJson": "Xuất JSON (trang này)",
+    "exportCsv": "Xuất CSV",
+    "copyId": "Sao chép ID sự kiện",
+    "copyRowJson": "Sao chép JSON dòng",
+    "copied": "Đã chép",
+    "searchPath": "Tiền tố đường dẫn",
+    "searchPathPh": "VD: /api/auth",
+    "refresh": "Tìm & làm mới",
+    "loadError": "Không tải được checklog.",
+    "loading": "Đang tải",
+    "rangeSummary": "Hiển thị {from}–{to} trong {total} bản ghi",
+    "rangeEmpty": "Không có dòng trên trang này · tổng {total} bản ghi",
+    "pageOf": "Trang {page} / {pages}",
+    "empty": "Không có bản ghi khớp bộ lọc.",
+    "emptyHint": "Thử đổi tab danh mục, xóa bộ lọc kênh/đường dẫn hoặc làm mới sau vài thao tác.",
+    "colEvent": "Sự kiện",
+    "colWhatHappened": "Điều gì đã xảy ra",
+    "colTime": "Thời gian",
+    "colCategory": "Danh mục",
+    "colChannel": "Kênh",
+    "colSource": "Nguồn",
+    "colRequest": "IP / yêu cầu",
+    "colActor": "Người thực hiện",
+    "colOutcome": "Kết quả",
+    "detailTitle": "Chi tiết sự kiện",
+    "detailClose": "Đóng",
+    "detailRequestId": "Request ID",
+    "detailActorId": "ID người dùng (profile)",
+    "detailActorProfile": "Hồ sơ",
+    "detailMetadata": "Metadata (JSON)",
+    "detailPlainSummary": "Tóm tắt",
+    "detailTechnical": "Chi tiết kỹ thuật",
+    "detailTechnicalMeta": "Metadata đầy đủ (JSON)",
+    "techChannelLabel": "Mã kênh: {channel}",
+    "prev": "Trước",
+    "next": "Sau",
+    "human": {
+      "sources": {
+        "edge": "Ghi tại biên mạng (Edge)",
+        "server": "Ghi trên máy chủ ứng dụng"
+      },
+      "outcomes": {
+        "success": "Thành công",
+        "failure": "Thất bại",
+        "rate_limited": "Quá nhiều lần thử",
+        "input_invalid": "Dữ liệu không hợp lệ",
+        "requested": "Đã gửi yêu cầu",
+        "info": "Thông tin"
+      },
+      "channels": {
+        "_unknown": {
+          "title": "Sự kiện {channel}",
+          "subtitle": "Xem thêm chi tiết bên phải hoặc mở phần kỹ thuật."
+        },
+        "mutation": {
+          "title": "Có yêu cầu gửi dữ liệu lên máy chủ",
+          "subtitle": "Thường là thao tác tạo, sửa hoặc xóa qua API (POST/PUT/PATCH/DELETE)."
+        },
+        "comments_create": {
+          "title": "Ai đó đã gửi bình luận",
+          "subtitle": "Bình luận mới trên bài viết (đã đăng nhập)."
+        },
+        "session_signout": {
+          "title": "Đăng xuất",
+          "subtitle": "Người dùng đã kết thúc phiên đăng nhập trên trình duyệt này."
+        },
+        "session_oauth_callback": {
+          "title": "Hoàn tất đăng nhập Google (OAuth)",
+          "subtitle": "Phiên đăng nhập được thiết lập sau khi Google xác nhận."
+        },
+        "auth_signin_success": {
+          "title": "Đăng nhập thành công",
+          "subtitle": "Mật khẩu hoặc phương thức đăng nhập đã được chấp nhận."
+        },
+        "auth_signin_failure": {
+          "title": "Đăng nhập không thành công",
+          "subtitle": "Sai mật khẩu hoặc tài khoản không hợp lệ (xem metadata nếu cần)."
+        },
+        "auth_signin_rate_limited": {
+          "title": "Đăng nhập bị tạm chặn",
+          "subtitle": "Quá nhiều lần thử — hệ thống giới hạn để bảo vệ tài khoản."
+        },
+        "auth_signin_input_invalid": {
+          "title": "Đăng nhập: dữ liệu không hợp lệ",
+          "subtitle": "Email hoặc mật khẩu không đúng định dạng yêu cầu."
+        },
+        "auth_signup_success": {
+          "title": "Đăng ký tài khoản thành công",
+          "subtitle": "Tài khoản mới đã được tạo (có thể cần xác nhận email)."
+        },
+        "auth_signup_failure": {
+          "title": "Đăng ký không thành công",
+          "subtitle": "Email đã dùng hoặc lỗi hệ thống khi tạo tài khoản."
+        },
+        "auth_signup_rate_limited": {
+          "title": "Đăng ký bị tạm chặn",
+          "subtitle": "Quá nhiều lần đăng ký từ cùng một mạng."
+        },
+        "auth_signup_input_invalid": {
+          "title": "Đăng ký: dữ liệu không hợp lệ",
+          "subtitle": "Thông tin gửi lên không đủ hoặc không đúng quy tắc."
+        },
+        "auth_forgot_password_requested": {
+          "title": "Đã yêu cầu email khôi phục mật khẩu",
+          "subtitle": "Hệ thống đã gửi (hoặc sẽ gửi) hướng dẫn đặt lại mật khẩu."
+        },
+        "auth_forgot_password_rate_limited": {
+          "title": "Quên mật khẩu: quá nhiều lần gửi",
+          "subtitle": "Giới hạn tần suất để tránh lạm dụng."
+        },
+        "auth_forgot_password_input_invalid": {
+          "title": "Quên mật khẩu: email không hợp lệ",
+          "subtitle": "Email không đúng định dạng hoặc thiếu."
+        },
+        "auth_resend_confirmation_requested": {
+          "title": "Đã yêu cầu gửi lại email xác nhận",
+          "subtitle": "Người dùng nhờ gửi lại link xác nhận đăng ký."
+        },
+        "auth_resend_confirmation_rate_limited": {
+          "title": "Gửi lại xác nhận: quá nhiều lần",
+          "subtitle": "Cần chờ trước khi yêu cầu lại."
+        },
+        "auth_resend_confirmation_input_invalid": {
+          "title": "Gửi lại xác nhận: dữ liệu không hợp lệ",
+          "subtitle": "Email hoặc thông tin gửi lên không hợp lệ."
+        },
+        "auth_reset_password_success": {
+          "title": "Đặt lại mật khẩu thành công",
+          "subtitle": "Mật khẩu mới đã được lưu."
+        },
+        "auth_reset_password_failure": {
+          "title": "Đặt lại mật khẩu thất bại",
+          "subtitle": "Token hết hạn hoặc mật khẩu không đạt yêu cầu."
+        },
+        "auth_reset_password_rate_limited": {
+          "title": "Đặt lại mật khẩu: quá nhiều lần thử",
+          "subtitle": "Tạm thời bị giới hạn để bảo vệ tài khoản."
+        },
+        "auth_reset_password_input_invalid": {
+          "title": "Đặt lại mật khẩu: dữ liệu không hợp lệ",
+          "subtitle": "Mật khẩu xác nhận không khớp hoặc không đủ mạnh."
+        },
+        "fields_create": {
+          "title": "Đã tạo lĩnh vực mới",
+          "subtitle": "Một lĩnh vực (field) trong CMS vừa được thêm."
+        },
+        "fields_update": {
+          "title": "Đã cập nhật lĩnh vực",
+          "subtitle": "Thông tin lĩnh vực trong CMS đã được sửa."
+        },
+        "fields_delete": {
+          "title": "Đã xóa lĩnh vực",
+          "subtitle": "Một lĩnh vực đã bị gỡ khỏi CMS."
+        },
+        "posts_create": {
+          "title": "Đã tạo bài viết mới",
+          "subtitle": "Bản nháp hoặc bài đăng mới trong CMS."
+        },
+        "posts_update": {
+          "title": "Đã cập nhật bài viết",
+          "subtitle": "Nội dung hoặc cài đặt bài viết đã được lưu."
+        },
+        "posts_delete": {
+          "title": "Đã xóa bài viết",
+          "subtitle": "Bài viết đã được gỡ khỏi hệ thống."
+        },
+        "categories_create": {
+          "title": "Đã tạo danh mục",
+          "subtitle": "Danh mục trong cây điều hướng vừa được thêm."
+        },
+        "categories_update": {
+          "title": "Đã cập nhật danh mục",
+          "subtitle": "Tên hoặc thông tin danh mục đã được sửa."
+        },
+        "categories_delete": {
+          "title": "Đã xóa danh mục",
+          "subtitle": "Danh mục đã bị gỡ khỏi CMS."
+        },
+        "tags_create": {
+          "title": "Đã tạo thẻ (tag)",
+          "subtitle": "Tag mới để gắn bài viết."
+        },
+        "tags_update": {
+          "title": "Đã cập nhật thẻ",
+          "subtitle": "Tên hoặc slug tag đã đổi."
+        },
+        "tags_delete": {
+          "title": "Đã xóa thẻ",
+          "subtitle": "Tag đã bị gỡ khỏi hệ thống."
+        },
+        "books_create": {
+          "title": "Đã tạo sách mới",
+          "subtitle": "Một mục sách trong thư viện vừa được thêm."
+        },
+        "books_update": {
+          "title": "Đã cập nhật sách",
+          "subtitle": "Thông tin sách đã được lưu."
+        },
+        "books_delete": {
+          "title": "Đã xóa sách",
+          "subtitle": "Mục sách đã bị gỡ."
+        },
+        "author_update": {
+          "title": "Đã cập nhật hồ sơ tác giả",
+          "subtitle": "Tên, tiểu sử hoặc liên hệ công khai của tác giả đã đổi."
+        },
+        "comments_moderate": {
+          "title": "Đã duyệt hoặc ẩn bình luận",
+          "subtitle": "Quản trị viên đổi trạng thái hiển thị bình luận."
+        },
+        "comments_admin_delete": {
+          "title": "Đã xóa bình luận (quản trị)",
+          "subtitle": "Bình luận bị gỡ bởi admin, không phải người viết tự xóa."
+        },
+        "navigation_reorder": {
+          "title": "Đã sắp xếp lại thứ tự",
+          "subtitle": "Thứ tự lĩnh vực, danh mục hoặc bài viết trong cây điều hướng đã kéo thả."
+        },
+        "media_upload": {
+          "title": "Đã tải ảnh lên",
+          "subtitle": "File hình ảnh được đưa vào kho lưu trữ (thumbnail, avatar, sách…)."
+        },
+        "users_role_update": {
+          "title": "Đã đổi quyền người dùng",
+          "subtitle": "Vai trò (admin / tác giả / độc giả) của một tài khoản đã được cập nhật."
+        }
+      }
+    }
   }
 }

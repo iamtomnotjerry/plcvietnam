@@ -3,6 +3,7 @@ import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { revalidatePath } from 'next/cache';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 const MAX_REORDER_ITEMS = 200;
 
@@ -12,7 +13,8 @@ const MAX_REORDER_ITEMS = 200;
  */
 export async function PATCH(request: NextRequest) {
   try {
-    if (!(await requireEditorAuth())) {
+    const auth = await requireEditorAuth();
+    if (!auth) {
       return apiUnauthorized('Unauthorized');
     }
 
@@ -70,6 +72,14 @@ export async function PATCH(request: NextRequest) {
     revalidatePath('/api/navigation');
     revalidatePath('/');
     revalidatePath('/posts');
+
+    logAdminChecklogEvent({
+      request,
+      auth,
+      channel: 'navigation.reorder',
+      outcome: 'success',
+      metadata: { reorderType: type, itemCount: items.length },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

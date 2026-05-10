@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { uploadFile } from '@/lib/supabase/storage';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -64,6 +65,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   try {
     const url = await uploadFile(targetBucket, targetPath, file, file.type);
+    logAdminChecklogEvent({
+      request,
+      auth,
+      channel: 'media.upload',
+      outcome: 'success',
+      metadata: {
+        bucket: targetBucket,
+        bytes: file.size,
+        contentType: file.type,
+      },
+    });
     return NextResponse.json({ url }, { status: 201 });
   } catch (e) {
     console.error('[upload]', e);

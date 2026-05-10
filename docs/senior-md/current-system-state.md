@@ -6,7 +6,8 @@ Update this file whenever API contracts, security posture, or architecture behav
 ## Last Updated
 
 - Date: 2026-05-10
-- Scope: **Navigation tree UX**: `NavigationTreeDataProvider` in `AppLayout` dedupes client `/api/navigation` for sidebar + mobile drawer; **`NavigationTreeSearch`** (`Input` + lucide); **`NavigationNodeRow`** + lucide type icons; expand/collapse via CSS grid rows + Framer chevron (respects reduced motion); sidebar topic header with icon + gradient; skeleton via **`SkeletonNavigationTree`**. Prior: **UX motion layer** (`lib/ui/motion.ts`, `TiltCard`, `SectionReveal`, `AmbientBackground`, etc.); resend-confirmation, auth hardening, i18n
+- Docs/rules: Checklog contracts in `api-contracts.md`; conventions in `engineering-standards.md`; env note in `environment-variables.md`; agent checklist in `.cursor/rules/agent-source-awareness.mdc`.
+- Scope: **Checklog** (admin-only): table `checklog_events` (migration `20260510160000_checklog_events.sql`); auth audit persisted from `logAuthAudit`; HTTP **mutation** requests logged from **middleware** (Edge → PostgREST) when `CHECKLOG_MUTATION_LOG_ENABLED` is not `false`, excluding `POST /api/posts/[id]/view`; `POST /api/checklog/session-event` for sign-out + OAuth callback; **CMS / admin** mutations across `app/api/admin/*` (fields, categories, tags, posts, books, author, comments moderation, reorder, upload, users role) record `category: admin` via `logAdminChecklogEvent`; `GET /api/admin/checklog` supports filters: `from`/`to`, `channelSearch` (ILIKE), optional exact `channel`, `pathPrefix`, `outcome`, `actorUserId`; `GET /api/admin/checklog/stats` accepts `from`/`to`; UI `/checklog` gated in **middleware** to **admin** only. Prior: **Navigation tree UX** (`NavigationTreeDataProvider`, etc.)
 
 ## API Contract Status
 

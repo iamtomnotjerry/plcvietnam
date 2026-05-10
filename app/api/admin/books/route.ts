@@ -21,6 +21,7 @@ import {
   apiUnauthorized,
 } from '@/lib/api/responses';
 import { requireAdminAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdminAuth())) {
@@ -45,7 +46,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) {
+  const auth = await requireAdminAuth();
+  if (!auth) {
     return apiUnauthorized('Unauthorized');
   }
 
@@ -103,6 +105,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     return apiInternalError('Không thể tạo sách');
   }
+
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'books.create',
+    outcome: 'success',
+    metadata: { bookId: data.id, slug: data.slug },
+  });
 
   return NextResponse.json(data, { status: 201 });
 }

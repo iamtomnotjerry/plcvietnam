@@ -24,6 +24,7 @@ import {
   apiUnauthorized,
 } from '@/lib/api/responses';
 import { requireAdminAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -42,7 +43,8 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
 }
 
 export async function PATCH(request: NextRequest, { params }: Params): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) {
+  const auth = await requireAdminAuth();
+  if (!auth) {
     return apiUnauthorized('Unauthorized');
   }
 
@@ -97,11 +99,20 @@ export async function PATCH(request: NextRequest, { params }: Params): Promise<N
     return apiInternalError('Không thể cập nhật sách');
   }
 
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'books.update',
+    outcome: 'success',
+    metadata: { bookId: id },
+  });
+
   return NextResponse.json(data);
 }
 
-export async function DELETE(_req: NextRequest, { params }: Params): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) {
+export async function DELETE(request: NextRequest, { params }: Params): Promise<NextResponse> {
+  const auth = await requireAdminAuth();
+  if (!auth) {
     return apiUnauthorized('Unauthorized');
   }
 
@@ -109,5 +120,14 @@ export async function DELETE(_req: NextRequest, { params }: Params): Promise<Nex
   const supabase = getServiceClient();
   const { error } = await supabase.from('books').delete().eq('id', id);
   if (error) return apiInternalError('Không thể xóa sách');
+
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'books.delete',
+    outcome: 'success',
+    metadata: { bookId: id },
+  });
+
   return NextResponse.json({ success: true });
 }

@@ -1,4 +1,4 @@
-﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -155,6 +155,71 @@ export type Database = {
             columns: ['field_id'];
             isOneToOne: false;
             referencedRelation: 'fields';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      checklog_events: {
+        Row: {
+          actor_user_id: string | null;
+          category: string;
+          channel: string;
+          created_at: string;
+          email_hash: string | null;
+          http_method: string | null;
+          id: string;
+          ip: string | null;
+          metadata: Json;
+          outcome: string | null;
+          path: string | null;
+          query_redacted: string | null;
+          request_id: string | null;
+          source: string;
+          status_code: number | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          category: string;
+          channel: string;
+          created_at?: string;
+          email_hash?: string | null;
+          http_method?: string | null;
+          id?: string;
+          ip?: string | null;
+          metadata?: Json;
+          outcome?: string | null;
+          path?: string | null;
+          query_redacted?: string | null;
+          request_id?: string | null;
+          source: string;
+          status_code?: number | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          category?: string;
+          channel?: string;
+          created_at?: string;
+          email_hash?: string | null;
+          http_method?: string | null;
+          id?: string;
+          ip?: string | null;
+          metadata?: Json;
+          outcome?: string | null;
+          path?: string | null;
+          query_redacted?: string | null;
+          request_id?: string | null;
+          source?: string;
+          status_code?: number | null;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'checklog_events_actor_user_id_fkey';
+            columns: ['actor_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
         ];

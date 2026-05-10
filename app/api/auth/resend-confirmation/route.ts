@@ -21,7 +21,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const rateLimit = await checkRateLimit(ip, 'auth');
 
   if (!rateLimit.success) {
-    logAuthAudit('auth.resend_confirmation.rate_limited', { ip, reason: 'ip_limit', requestId });
+    await logAuthAudit('auth.resend_confirmation.rate_limited', {
+      ip,
+      reason: 'ip_limit',
+      requestId,
+    });
     return apiTooManyRequests('Quá nhiều yêu cầu. Vui lòng thử lại sau.', {
       limit: rateLimit.limit,
       remaining: rateLimit.remaining,
@@ -31,7 +35,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const parsedJson = await parseRequestJson(request);
   if (!parsedJson.ok) {
-    logAuthAudit('auth.resend_confirmation.input_invalid', {
+    await logAuthAudit('auth.resend_confirmation.input_invalid', {
       ip,
       reason: 'invalid_json',
       requestId,
@@ -44,14 +48,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     validated = ResendConfirmationSchema.parse(parsedJson.body);
   } catch (error) {
     if (error instanceof ZodError) {
-      logAuthAudit('auth.resend_confirmation.input_invalid', {
+      await logAuthAudit('auth.resend_confirmation.input_invalid', {
         ip,
         reason: 'schema_validation',
         requestId,
       });
       return apiBadRequest(error.issues[0].message);
     }
-    logAuthAudit('auth.resend_confirmation.input_invalid', {
+    await logAuthAudit('auth.resend_confirmation.input_invalid', {
       ip,
       reason: 'schema_unknown',
       requestId,
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (isCaptchaEnabled()) {
     const captchaValid = await verifyCaptchaToken(validated.captchaToken ?? '', ip);
     if (!captchaValid) {
-      logAuthAudit('auth.resend_confirmation.input_invalid', {
+      await logAuthAudit('auth.resend_confirmation.input_invalid', {
         ip,
         emailHash,
         reason: 'captcha_failed',
@@ -76,7 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const resendCooldown = await checkRateLimit(`confirm-resend:${ip}:${emailHash}`, 'forgotResend');
   if (!resendCooldown.success) {
-    logAuthAudit('auth.resend_confirmation.rate_limited', {
+    await logAuthAudit('auth.resend_confirmation.rate_limited', {
       ip,
       emailHash,
       reason: 'resend_cooldown',
@@ -98,6 +102,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Do not reveal whether the email exists or is already confirmed
   }
 
-  logAuthAudit('auth.resend_confirmation.requested', { ip, emailHash, requestId });
+  await logAuthAudit('auth.resend_confirmation.requested', { ip, emailHash, requestId });
   return NextResponse.json({ ok: true });
 }

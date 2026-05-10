@@ -7,7 +7,7 @@ alwaysApply: true
 
 Before making any code change, always do all checks below:
 
-1. Read `docs/senior-md/` (especially `current-system-state.md` for the latest auth/API/rate-limit snapshot) and active rules in `.cursor/rules/`.
+1. Read `docs/senior-md/` (especially `current-system-state.md` for the latest auth/API/rate-limit snapshot, and `api-contracts.md` for Checklog query contracts when touching audit or admin list routes) and active rules in `.cursor/rules/`.
 2. Read the target file(s) completely and inspect adjacent call sites.
 3. Validate assumptions with project scripts (`type-check`, `lint`, relevant tests).
 4. Keep changes surgical: no unrelated refactors, no style churn.
@@ -15,6 +15,7 @@ Before making any code change, always do all checks below:
 
 ## Common mistakes to avoid
 
+- Adding or changing **mutating** `app/api/admin/*` routes without considering Checklog (`logAdminChecklogEvent`) and `messages/*/checklog` human labels when introducing new channels (see `docs/senior-md/engineering-standards.md` and `api-contracts.md`).
 - Changing APIs without updating all call sites.
 - Introducing `any` in production code when concrete types are available.
 - Silent behavior changes without tests or verification.

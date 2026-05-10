@@ -29,11 +29,21 @@ export function AdminSidebar() {
     },
     {
       groupKey: 'groupOther' as const,
-      links: [{ href: '/admin/about/edit', labelKey: 'aboutEdit' as const }],
+      links: [
+        { href: '/checklog', labelKey: 'checklog' as const },
+        { href: '/admin/about/edit', labelKey: 'aboutEdit' as const },
+      ],
     },
   ];
 
   const isActive = (href: string) => {
+    if (href === '/checklog') {
+      return (
+        pathname === '/checklog' ||
+        pathname.startsWith('/checklog/') ||
+        pathname.startsWith('/en/checklog')
+      );
+    }
     // Exact match for /admin/posts/new, otherwise prefix match
     if (href === '/admin/posts') {
       return pathname === '/admin/posts' || /^\/admin\/posts\/[^/]+\/edit/.test(pathname);

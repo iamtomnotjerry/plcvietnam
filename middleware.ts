@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 import { pathForLocale, localeFromPathname } from '@/lib/i18n/urls';
+import { logChecklogMutationFromMiddleware } from '@/lib/checklog/mutation-log-middleware';
 import { routing } from './i18n/routing';
 
 type UserRole = 'admin' | 'author' | 'reader';
@@ -21,6 +22,15 @@ function isApiAdmin(pathname: string) {
 /** Locale-prefixed or default-locale admin UI (not API). */
 function isAdminUi(pathname: string) {
   return pathname.startsWith('/admin') || pathname.startsWith('/en/admin');
+}
+
+/** Checklog UI: default locale `/checklog`, English `/en/checklog`. */
+function isChecklogUi(pathname: string) {
+  return (
+    pathname === '/checklog' ||
+    pathname.startsWith('/checklog/') ||
+    pathname.startsWith('/en/checklog')
+  );
 }
 
 async function supabaseAdminGateForApi(request: NextRequest): Promise<NextResponse> {
@@ -117,11 +127,78 @@ async function supabaseAdminGateForUi(
   return intlResponse;
 }
 
+/**
+ * Checklog UI: signed-in users with role admin only (not author).
+ */
+async function supabaseAdminOnlyGateForUi(
+  request: NextRequest,
+  intlResponse: NextResponse
+): Promise<NextResponse> {
+  const pathname = request.nextUrl.pathname;
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            intlResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    const returnTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+    const signIn = localizedAuthUrl(request, pathname, '/auth/sign-in');
+    signIn.searchParams.set('callbackUrl', returnTo);
+    return NextResponse.redirect(signIn);
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+  const role = (profile?.role ?? 'reader') as UserRole;
+
+  if (role !== 'admin') {
+    return NextResponse.redirect(
+      new URL(pathForLocale(localeFromPathname(pathname), '/'), request.url)
+    );
+  }
+
+  return intlResponse;
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  logChecklogMutationFromMiddleware(request);
+
   if (isApiAdmin(pathname)) {
     return supabaseAdminGateForApi(request);
+  }
+
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
+  if (isChecklogUi(pathname)) {
+    const intlResponse = intlMiddleware(request);
+    if (intlResponse.status !== 200) {
+      return intlResponse;
+    }
+    return supabaseAdminOnlyGateForUi(request, intlResponse);
   }
 
   if (isAdminUi(pathname)) {
@@ -136,5 +213,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)', '/api/admin/:path*'],
+  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)', '/api/:path*'],
 };

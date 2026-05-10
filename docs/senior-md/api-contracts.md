@@ -48,6 +48,20 @@ Exact windows: **`auth`** = 10 requests / 15 minutes (memory or Upstash); **`for
 - Mutating admin routes must apply rate limiting.
 - Input from request body/query params must be validated at route boundaries.
 
+## Checklog (admin audit)
+
+Admin-only operational audit trail. Canonical behavior snapshot: `current-system-state.md` (Last Updated).
+
+| Route                              | Role    | Notes                                                                                                                                                                                                               |
+| ---------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/admin/checklog`          | `admin` | Paginated list; query: `limit`, `offset`, `category`, `channel` (exact), `channelSearch` (ILIKE substring, sanitized), `pathPrefix`, `outcome`, `actorUserId` (UUID), `from` / `to` (`YYYY-MM-DD`, UTC day bounds). |
+| `GET /api/admin/checklog/stats`    | `admin` | Counts by category; query: `from`, `to` (same date format).                                                                                                                                                         |
+| `POST /api/checklog/session-event` | Session | Sign-out / OAuth callback events (allowlisted actions).                                                                                                                                                             |
+
+**Persistence:** table `checklog_events` (Supabase). **Edge HTTP mutations:** middleware → `logChecklogMutationFromMiddleware` (disable with `CHECKLOG_MUTATION_LOG_ENABLED=false`). **Auth:** `logAuthAudit` → `recordChecklogEvent`. **CMS mutations:** after successful mutating handler, call `logAdminChecklogEvent` from `lib/checklog/log-admin-event.ts` with a stable dotted `channel` (e.g. `posts.update`). **Do not** log high-noise paths already excluded in middleware (e.g. post view counter).
+
+**UI:** locale route `/checklog`, middleware-gated to admins. Client: `features/checklog/`.
+
 ## Versioning Rule
 
 - Non-backward-compatible API changes require:

@@ -15,6 +15,7 @@ import { sanitizeHtml } from '@/lib/security/sanitize';
 import { ZodError } from 'zod';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { createClient } from '@/lib/supabase/server';
+import { recordChecklogEvent } from '@/lib/checklog/record-checklog-event';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -127,6 +128,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       userName,
       userAvatar,
       content: sanitizedContent,
+    });
+
+    void recordChecklogEvent({
+      category: 'content',
+      channel: 'comments.create',
+      source: 'server',
+      http_method: 'POST',
+      path: '/api/comments',
+      actor_user_id: userId,
+      ip: identifier,
+      user_agent: request.headers.get('user-agent')?.slice(0, 512) ?? null,
+      request_id: request.headers.get('x-request-id'),
+      outcome: 'success',
+      metadata: { postId: validated.post_id, commentId: comment.id },
     });
 
     return NextResponse.json(comment, { status: 201 });

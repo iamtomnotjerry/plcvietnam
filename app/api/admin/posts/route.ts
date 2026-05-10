@@ -22,6 +22,7 @@ import {
   apiUnauthorized,
 } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 // Helper to check editor role
 function unauthorized() {
@@ -78,8 +79,8 @@ export async function GET(request: NextRequest) {
 // ── POST: Create Post ─────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
-  // Check authentication
-  if (!(await requireEditorAuth())) return unauthorized();
+  const auth = await requireEditorAuth();
+  if (!auth) return unauthorized();
 
   // Rate limiting
   const identifier = getClientIdentifier(request);
@@ -128,6 +129,14 @@ export async function POST(request: NextRequest) {
         description: validated.meta_description || '',
         keywords: validated.meta_keywords || [],
       },
+    });
+
+    logAdminChecklogEvent({
+      request,
+      auth,
+      channel: 'posts.create',
+      outcome: 'success',
+      metadata: { postId: post.id, slug: post.slug },
     });
 
     // Revalidate posts page and homepage

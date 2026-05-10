@@ -3,6 +3,7 @@ import { contentRepository } from '@/lib/data/factory';
 import { z } from 'zod';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +27,8 @@ function unauthorized() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    if (!(await requireEditorAuth())) return unauthorized();
+    const auth = await requireEditorAuth();
+    if (!auth) return unauthorized();
 
     const payload = UpdateAuthorPayloadSchema.safeParse(await request.json());
     if (!payload.success) {
@@ -43,6 +45,14 @@ export async function PUT(request: NextRequest) {
       expertise: body.expertise ?? [],
       certifications: body.certifications ?? [],
       socialLinks: body.socialLinks ?? {},
+    });
+
+    logAdminChecklogEvent({
+      request,
+      auth,
+      channel: 'author.update',
+      outcome: 'success',
+      metadata: { authorId: updatedAuthor.id },
     });
 
     return NextResponse.json({ success: true, author: updatedAuthor }, { status: 200 });

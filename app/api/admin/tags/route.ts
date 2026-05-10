@@ -7,6 +7,7 @@ import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { revalidatePath } from 'next/cache';
 import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireAdminAuth, requireEditorAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 function unauthorized() {
   return apiUnauthorized();
@@ -22,7 +23,8 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) return unauthorized();
+  const auth = await requireAdminAuth();
+  if (!auth) return unauthorized();
 
   let body: { slug?: string; name?: string };
   try {
@@ -42,6 +44,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return apiInternalError('Không thể tạo tag');
   }
 
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'tags.create',
+    outcome: 'success',
+    metadata: { tagId: data.id, slug },
+  });
+
   // Revalidate tags and posts cache
   revalidatePath('/api/tags');
   revalidatePath('/');
@@ -51,7 +61,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) return unauthorized();
+  const auth = await requireAdminAuth();
+  if (!auth) return unauthorized();
 
   let body: { id?: string; slug?: string; name?: string };
   try {
@@ -78,6 +89,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     return apiInternalError('Không thể cập nhật tag');
   }
 
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'tags.update',
+    outcome: 'success',
+    metadata: { tagId: id },
+  });
+
   // Revalidate tags and posts cache
   revalidatePath('/api/tags');
   revalidatePath('/');
@@ -87,7 +106,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) return unauthorized();
+  const auth = await requireAdminAuth();
+  if (!auth) return unauthorized();
 
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return apiBadRequest('Thiếu id');
@@ -95,6 +115,14 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const db = getServiceClient();
   const { error } = await db.from('tags').delete().eq('id', id);
   if (error) return apiInternalError('Không thể xóa tag');
+
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'tags.delete',
+    outcome: 'success',
+    metadata: { tagId: id },
+  });
 
   // Revalidate tags and posts cache
   revalidatePath('/api/tags');

@@ -35,6 +35,12 @@
 - Prefer fail-safe defaults for security-sensitive flows.
 - Keep monitoring hooks lightweight and non-blocking.
 
+### Checklog (audit trail)
+
+- New or changed **mutating** `app/api/admin/*` handlers should record successful operator actions via `logAdminChecklogEvent` unless the action is already fully covered by another persisted channel (avoid duplicate rows for the same user action).
+- Use a **dotted channel name** and small **metadata** (ids, slugs, enums)—no passwords, tokens, or full upload paths unless explicitly required.
+- Keep human-readable copy for the Checklog UI in `messages/*/checklog` (`human.channels.*`) when adding channels.
+
 ## 6) Testing Standards
 
 - Unit-test pure logic and edge cases.

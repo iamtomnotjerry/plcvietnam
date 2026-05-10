@@ -5,6 +5,7 @@ This file is the wording source-of-truth entrypoint referenced by `.cursor/rules
 For actual engineering policy and implementation standards, use:
 
 - `docs/senior-md/engineering-standards.md`
+- `docs/senior-md/api-contracts.md` (includes Checklog admin audit routes)
 - `docs/senior-md/scalability-and-operations.md`
 - `docs/senior-md/agent-strict-rules.md`
 

@@ -15,6 +15,7 @@ import {
   apiUnauthorized,
 } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 function unauthorized() {
   return apiUnauthorized();
@@ -29,7 +30,8 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
 }
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  if (!(await requireEditorAuth())) return unauthorized();
+  const auth = await requireEditorAuth();
+  if (!auth) return unauthorized();
 
   // Rate limiting
   const identifier = getClientIdentifier(request);
@@ -85,6 +87,14 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     const post = await contentRepository.updatePost(id, input);
     if (!post) return apiNotFound('Không tìm thấy');
 
+    logAdminChecklogEvent({
+      request,
+      auth,
+      channel: 'posts.update',
+      outcome: 'success',
+      metadata: { postId: id },
+    });
+
     // Revalidate posts page and homepage
     revalidatePath('/posts');
     revalidatePath('/');
@@ -111,11 +121,20 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   }
 }
 
-export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  if (!(await requireEditorAuth())) return unauthorized();
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const auth = await requireEditorAuth();
+  if (!auth) return unauthorized();
   const { id } = await context.params;
   const ok = await contentRepository.deletePost(id);
   if (!ok) return apiNotFound('Không tìm thấy');
+
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'posts.delete',
+    outcome: 'success',
+    metadata: { postId: id },
+  });
 
   // Revalidate posts page and homepage
   revalidatePath('/posts');

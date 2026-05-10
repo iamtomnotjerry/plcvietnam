@@ -335,5 +335,279 @@
   },
   "tags": {
     "chipAriaLabel": "View posts tagged {name}"
+  },
+  "checklog": {
+    "badge": "Operations & security",
+    "title": "Checklog",
+    "subtitle": "Plain-language audit trail: who did what (sign-in, comments, CMS changes, etc.). Admin-only; sensitive details are minimized on screen.",
+    "viewerLabel": "Viewer session",
+    "viewerRole": "Admin",
+    "securityNotice": "Do not share checklog screenshots publicly. Metadata may contain identifiable information — follow internal security policy.",
+    "guideTitle": "How to read Checklog (non-technical)",
+    "guideIntro": "Each row is something the system recorded. Use tabs to filter groups; the first column explains in everyday language, with technical codes below when needed.",
+    "guideHttpTitle": "HTTP / server writes",
+    "guideHttpBody": "Requests that send data (create/update/delete via API). Often technical; useful when tracing a specific request.",
+    "guideSecurityTitle": "Security & session",
+    "guideSecurityBody": "Sign-in, sign-up, password reset, sign-out, finishing Google login… Answers who tried to access an account and what happened.",
+    "guideContentTitle": "Public content",
+    "guideContentBody": "For example: someone posted a comment. Tied to what visitors see on the site.",
+    "guideAdminTitle": "CMS admin",
+    "guideAdminBody": "Changes in the admin area: create/update/delete fields, posts, etc. Shows what editors changed.",
+    "statTotal": "Total events",
+    "statHttp": "HTTP / mutation",
+    "statSecurity": "Auth & session",
+    "statContent": "Content (e.g. comments)",
+    "statAdmin": "CMS admin",
+    "statOther": "+ {count} events in other categories",
+    "statsHintAll": "Counts include all stored events.",
+    "statsHintRange": "Counts only include the date range selected below.",
+    "categoryNavAria": "Filter by category",
+    "cat": {
+      "all": "All",
+      "http": "HTTP",
+      "security": "Security",
+      "content": "Content",
+      "admin": "CMS admin"
+    },
+    "dateFrom": "From date",
+    "dateTo": "To date",
+    "searchChannel": "Channel",
+    "searchChannelPh": "Part of a channel code (e.g. auth, posts, comments)",
+    "presetToday": "Today",
+    "preset7d": "Last 7 days",
+    "preset30d": "Last 30 days",
+    "presetClearDates": "Clear dates",
+    "filterOutcome": "Outcome",
+    "filterOutcomeAll": "Any outcome",
+    "filterActorMine": "My actions only",
+    "clearFilters": "Clear filters",
+    "exportJson": "Export JSON (this page)",
+    "exportCsv": "Export CSV",
+    "copyId": "Copy event ID",
+    "copyRowJson": "Copy row JSON",
+    "copied": "Copied",
+    "searchPath": "Path prefix",
+    "searchPathPh": "e.g. /api/auth",
+    "refresh": "Search & refresh",
+    "loadError": "Could not load checklog.",
+    "loading": "Loading",
+    "rangeSummary": "Showing {from}–{to} of {total} rows",
+    "rangeEmpty": "No rows on this page · {total} total",
+    "pageOf": "Page {page} / {pages}",
+    "empty": "No rows match the current filters.",
+    "emptyHint": "Try another category tab, clear channel/path filters, or refresh after generating new activity.",
+    "colEvent": "Event",
+    "colWhatHappened": "What happened",
+    "colTime": "Time",
+    "colCategory": "Category",
+    "colChannel": "Channel",
+    "colSource": "Source",
+    "colRequest": "IP / request",
+    "colActor": "Actor",
+    "colOutcome": "Outcome",
+    "detailTitle": "Event detail",
+    "detailClose": "Close",
+    "detailRequestId": "Request ID",
+    "detailActorId": "User ID (profile)",
+    "detailActorProfile": "Profile",
+    "detailMetadata": "Metadata (JSON)",
+    "detailPlainSummary": "Summary",
+    "detailTechnical": "Technical details",
+    "detailTechnicalMeta": "Full metadata (JSON)",
+    "techChannelLabel": "Channel code: {channel}",
+    "prev": "Previous",
+    "next": "Next",
+    "human": {
+      "sources": {
+        "edge": "Recorded at the edge",
+        "server": "Recorded on the app server"
+      },
+      "outcomes": {
+        "success": "Success",
+        "failure": "Failed",
+        "rate_limited": "Rate limited",
+        "input_invalid": "Invalid input",
+        "requested": "Requested",
+        "info": "Info"
+      },
+      "channels": {
+        "_unknown": {
+          "title": "Event: {channel}",
+          "subtitle": "See the side panel or expand technical details below."
+        },
+        "mutation": {
+          "title": "A data write hit the server",
+          "subtitle": "Usually create/update/delete via API (POST/PUT/PATCH/DELETE)."
+        },
+        "comments_create": {
+          "title": "Someone posted a comment",
+          "subtitle": "New comment on a post (signed-in user)."
+        },
+        "session_signout": {
+          "title": "Signed out",
+          "subtitle": "The user ended their session in this browser."
+        },
+        "session_oauth_callback": {
+          "title": "Finished Google sign-in (OAuth)",
+          "subtitle": "Session established after Google confirmed identity."
+        },
+        "auth_signin_success": {
+          "title": "Sign-in succeeded",
+          "subtitle": "Password or sign-in method was accepted."
+        },
+        "auth_signin_failure": {
+          "title": "Sign-in failed",
+          "subtitle": "Wrong password or invalid account (see metadata if needed)."
+        },
+        "auth_signin_rate_limited": {
+          "title": "Sign-in temporarily blocked",
+          "subtitle": "Too many attempts — limits protect accounts."
+        },
+        "auth_signin_input_invalid": {
+          "title": "Sign-in: invalid input",
+          "subtitle": "Email or password did not meet validation rules."
+        },
+        "auth_signup_success": {
+          "title": "Sign-up succeeded",
+          "subtitle": "A new account was created (email confirmation may be required)."
+        },
+        "auth_signup_failure": {
+          "title": "Sign-up failed",
+          "subtitle": "Email already used or system error while creating the account."
+        },
+        "auth_signup_rate_limited": {
+          "title": "Sign-up temporarily blocked",
+          "subtitle": "Too many sign-up attempts from the same network."
+        },
+        "auth_signup_input_invalid": {
+          "title": "Sign-up: invalid input",
+          "subtitle": "Submitted information was incomplete or invalid."
+        },
+        "auth_forgot_password_requested": {
+          "title": "Password reset email requested",
+          "subtitle": "The system sent (or will send) reset instructions."
+        },
+        "auth_forgot_password_rate_limited": {
+          "title": "Forgot password: too many requests",
+          "subtitle": "Frequency limited to prevent abuse."
+        },
+        "auth_forgot_password_input_invalid": {
+          "title": "Forgot password: invalid email",
+          "subtitle": "Email format invalid or missing."
+        },
+        "auth_resend_confirmation_requested": {
+          "title": "Confirmation email resend requested",
+          "subtitle": "User asked to resend the sign-up confirmation link."
+        },
+        "auth_resend_confirmation_rate_limited": {
+          "title": "Resend confirmation: too many requests",
+          "subtitle": "Please wait before requesting again."
+        },
+        "auth_resend_confirmation_input_invalid": {
+          "title": "Resend confirmation: invalid input",
+          "subtitle": "Email or payload was invalid."
+        },
+        "auth_reset_password_success": {
+          "title": "Password reset succeeded",
+          "subtitle": "The new password was saved."
+        },
+        "auth_reset_password_failure": {
+          "title": "Password reset failed",
+          "subtitle": "Token expired or password did not meet policy."
+        },
+        "auth_reset_password_rate_limited": {
+          "title": "Password reset: too many attempts",
+          "subtitle": "Temporarily limited to protect the account."
+        },
+        "auth_reset_password_input_invalid": {
+          "title": "Password reset: invalid input",
+          "subtitle": "Passwords mismatch or strength rules not met."
+        },
+        "fields_create": {
+          "title": "Created a field",
+          "subtitle": "A CMS field (topic area) was added."
+        },
+        "fields_update": {
+          "title": "Updated a field",
+          "subtitle": "Field details in the CMS were changed."
+        },
+        "fields_delete": {
+          "title": "Deleted a field",
+          "subtitle": "A field was removed from the CMS."
+        },
+        "posts_create": {
+          "title": "Created a post",
+          "subtitle": "A new draft or published post in the CMS."
+        },
+        "posts_update": {
+          "title": "Updated a post",
+          "subtitle": "Post content or settings were saved."
+        },
+        "posts_delete": {
+          "title": "Deleted a post",
+          "subtitle": "A post was removed from the system."
+        },
+        "categories_create": {
+          "title": "Created a category",
+          "subtitle": "A navigation category was added."
+        },
+        "categories_update": {
+          "title": "Updated a category",
+          "subtitle": "Category name or details were changed."
+        },
+        "categories_delete": {
+          "title": "Deleted a category",
+          "subtitle": "A category was removed from the CMS."
+        },
+        "tags_create": {
+          "title": "Created a tag",
+          "subtitle": "A new tag for posts was added."
+        },
+        "tags_update": {
+          "title": "Updated a tag",
+          "subtitle": "Tag name or slug was changed."
+        },
+        "tags_delete": {
+          "title": "Deleted a tag",
+          "subtitle": "A tag was removed."
+        },
+        "books_create": {
+          "title": "Created a book",
+          "subtitle": "A new library book entry was added."
+        },
+        "books_update": {
+          "title": "Updated a book",
+          "subtitle": "Book details were saved."
+        },
+        "books_delete": {
+          "title": "Deleted a book",
+          "subtitle": "A book entry was removed."
+        },
+        "author_update": {
+          "title": "Updated author profile",
+          "subtitle": "Public author name, bio, or contact info changed."
+        },
+        "comments_moderate": {
+          "title": "Moderated a comment",
+          "subtitle": "An admin changed whether a comment is visible."
+        },
+        "comments_admin_delete": {
+          "title": "Deleted a comment (admin)",
+          "subtitle": "A comment was removed by an administrator."
+        },
+        "navigation_reorder": {
+          "title": "Reordered navigation",
+          "subtitle": "Order of fields, categories, or posts in the tree was updated."
+        },
+        "media_upload": {
+          "title": "Uploaded media",
+          "subtitle": "An image file was stored (thumbnail, avatar, books, etc.)."
+        },
+        "users_role_update": {
+          "title": "Changed a user role",
+          "subtitle": "An account’s role (admin / author / reader) was updated."
+        }
+      }
+    }
   }
 }

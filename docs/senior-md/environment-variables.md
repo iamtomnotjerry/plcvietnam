@@ -18,6 +18,7 @@ Canonical reference is `.env.example`.
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (required together with Turnstile secret)
 - `TURNSTILE_SECRET_KEY` (required together with Turnstile site key)
 - OAuth provider keys when enabled
+- `CHECKLOG_MUTATION_LOG_ENABLED` — when set to `false`, middleware stops inserting generic HTTP mutation rows into `checklog_events` (default / omitted: enabled). See `docs/senior-md/api-contracts.md` (Checklog).
 
 ## Operational Guidance
 

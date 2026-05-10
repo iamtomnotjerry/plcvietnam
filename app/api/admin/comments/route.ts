@@ -14,6 +14,7 @@ import {
 } from '@/lib/api/responses';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { requireAdminAuth } from '@/lib/auth/server-auth';
+import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
 
 function unauthorized() {
   return apiUnauthorized();
@@ -56,7 +57,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 /** PATCH /api/admin/comments  body: { id, approved } */
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) return unauthorized();
+  const auth = await requireAdminAuth();
+  if (!auth) return unauthorized();
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {
@@ -83,12 +85,22 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) return apiInternalError('Không thể cập nhật trạng thái bình luận');
+
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'comments.moderate',
+    outcome: 'success',
+    metadata: { commentId: body.id, approved: body.approved },
+  });
+
   return NextResponse.json(data);
 }
 
 /** DELETE /api/admin/comments?id= */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  if (!(await requireAdminAuth())) return unauthorized();
+  const auth = await requireAdminAuth();
+  if (!auth) return unauthorized();
   const identifier = getClientIdentifier(request);
   const rateLimit = await checkRateLimit(identifier, 'api');
   if (!rateLimit.success) {
@@ -101,5 +113,14 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const db = getServiceClient();
   const { error } = await db.from('comments').delete().eq('id', id);
   if (error) return apiInternalError('Không thể xóa bình luận');
+
+  logAdminChecklogEvent({
+    request,
+    auth,
+    channel: 'comments.admin_delete',
+    outcome: 'success',
+    metadata: { commentId: id },
+  });
+
   return NextResponse.json({ ok: true });
 }

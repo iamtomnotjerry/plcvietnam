@@ -74,6 +74,26 @@ function AuthCallbackContent() {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) throw error;
 
+          try {
+            const {
+              data: { session },
+            } = await supabase.auth.getSession();
+            const provider =
+              (session?.user?.app_metadata as { provider?: string } | undefined)?.provider ??
+              'oauth';
+            await fetch('/api/checklog/session-event', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'oauth_callback',
+                metadata: { provider: String(provider) },
+              }),
+            });
+          } catch {
+            /* best-effort audit */
+          }
+
           if (typeof window !== 'undefined') {
             sessionStorage.setItem(dedupeKey, '1');
           }
