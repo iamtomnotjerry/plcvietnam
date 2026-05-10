@@ -64,10 +64,13 @@
     "emptyBody": "Blog đang được xây dựng. Hãy quay lại sau để xem các bài viết mới nhất!",
     "loadErrorTitle": "Không thể tải trang chủ",
     "loadErrorUnknown": "Đã xảy ra lỗi không xác định",
+    "recentEyebrow": "Mới cập nhật",
     "recentHeading": "Bài viết mới nhất",
     "recentSub": "Cập nhật gần đây từ blog.",
+    "fieldsEyebrow": "Chủ đề",
     "fieldsHeading": "Lĩnh vực",
     "fieldsSub": "Khám phá các chủ đề tự động hóa công nghiệp",
+    "booksEyebrow": "Thư viện",
     "categoriesCount": "{count} danh mục",
     "featuredBooks": "Sách nổi bật",
     "seeAllBooks": "Xem tất cả sách",
@@ -188,6 +191,7 @@
       "cta": "Đăng nhập"
     },
     "session": {
+      "userMenuOpen": "Mở menu tài khoản",
       "signOut": "Đăng xuất",
       "signingOut": "Đang đăng xuất..."
     },

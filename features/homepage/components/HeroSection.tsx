@@ -17,8 +17,12 @@ export interface HeroSectionProps {
 export function HeroSection({ title, tagline, description }: HeroSectionProps) {
   const t = useTranslations('home');
   return (
-    <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-primary/[0.07] via-background to-accent/[0.06] py-20 md:py-28">
-      <div className="container relative z-10 mx-auto max-w-6xl px-4">
+    <section className="relative overflow-hidden border-b border-border/50 bg-gradient-to-br from-primary/[0.09] via-background to-accent/[0.07] py-20 shadow-[inset_0_1px_0_0_color-mix(in_oklab,white_45%,transparent)] md:py-28 dark:shadow-[inset_0_1px_0_0_color-mix(in_oklab,white_8%,transparent)]">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent"
+        aria-hidden
+      />
+      <div className="editorial-container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

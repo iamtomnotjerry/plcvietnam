@@ -4,7 +4,6 @@ import { Suspense } from 'react';
 import { SearchInput } from '@/features/search/components/SearchInput';
 import { MobileSearchOverlay } from '@/components/ui/MobileSearchOverlay';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { AdminHeaderLink } from '@/features/cms/components/AdminHeaderLink';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { LanguageSwitcher } from '@/components/i18n/LanguageSwitcher';
 import { HeaderBrand } from '@/features/layout/header/HeaderBrand';
@@ -22,10 +21,14 @@ export function SiteHeader({ mobileNavOpen = false, onMobileNavToggle }: SiteHea
     <header className="sticky top-0 z-30">
       <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent" />
       <div
-        className="relative border-b border-border/70 bg-background/80 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.12),0_1px_0_0_color-mix(in_oklab,var(--color-primary)_8%,transparent)] backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/65 dark:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.45)]"
+        className="relative border-b border-border/60 bg-background/75 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1),0_1px_0_0_color-mix(in_oklab,var(--color-primary)_10%,transparent),inset_0_1px_0_0_color-mix(in_oklab,white_40%,transparent)] backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/58 dark:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.45),inset_0_1px_0_0_color-mix(in_oklab,white_6%,transparent)]"
         style={{ transformStyle: 'preserve-3d' }}
       >
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent opacity-80" />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-accent/[0.05]"
+          aria-hidden
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/90 to-transparent opacity-90" />
         <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
           {onMobileNavToggle && (
             <div className="shrink-0 xl:hidden">
@@ -57,7 +60,6 @@ export function SiteHeader({ mobileNavOpen = false, onMobileNavToggle }: SiteHea
             </Suspense>
             <ThemeToggle />
             <UserMenu />
-            <AdminHeaderLink />
           </div>
         </div>
       </div>

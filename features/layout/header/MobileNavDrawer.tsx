@@ -100,7 +100,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
         className={`
           fixed top-0 left-0 z-50
           flex h-full w-72 max-w-[85vw] flex-col
-          border-r border-border/80 bg-background/95 shadow-2xl shadow-black/15 backdrop-blur-xl
+          border-r border-border/55 bg-background/88 shadow-2xl shadow-black/15 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/72
           transition-transform duration-300 ease-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
@@ -109,7 +109,11 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
             '8px 0 40px -12px rgba(0,0,0,0.2), inset 1px 0 0 0 color-mix(in oklab, var(--color-primary) 12%, transparent)',
         }}
       >
-        <div className="flex items-center justify-between border-b border-border/80 bg-gradient-to-r from-muted/40 via-background to-background px-4 py-3">
+        <div className="relative flex items-center justify-between border-b border-border/55 bg-gradient-to-br from-primary/[0.08] via-background/90 to-accent/[0.05] px-4 py-3 shadow-[inset_0_-1px_0_0_color-mix(in_oklab,white_35%,transparent)] backdrop-blur-md dark:shadow-[inset_0_-1px_0_0_color-mix(in_oklab,white_6%,transparent)]">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+            aria-hidden
+          />
           <span className="text-sm font-semibold tracking-tight text-foreground">
             {tNav('drawerTitle')}
           </span>

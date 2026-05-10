@@ -207,7 +207,7 @@
         "selectField": "— Chọn lĩnh vực —",
         "labelCategory": "Danh mục",
         "selectCategory": "— Chọn danh mục —",
-        "noCategoriesInField": "Lĩnh vực này chưa có danh mục nào.",
+        "noCategoriesInField": "Lĩnh vực này chưa có danh mục. Tạo danh mục trong Admin → Phân loại → Danh mục trước khi xuất bản bài.",
         "labelExcerpt": "Tóm tắt",
         "labelContent": "Nội dung (HTML)",
         "labelThumbnail": "Ảnh thumbnail",

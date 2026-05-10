@@ -1,6 +1,6 @@
 /**
  * Navigation Tree Hook
- * Fetches and manages navigation tree data with localStorage persistence
+ * Consumes shared navigation data from NavigationTreeDataProvider; expansion + localStorage
  * Validates Requirements: 1.1, 1.5
  */
 
@@ -8,13 +8,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { NavigationNode } from '@/lib/types/domain';
-import { onNavigationRefresh } from '@/lib/events/navigation';
+import { useNavigationTreeData } from '../components/NavigationTreeDataProvider';
 
 const STORAGE_KEY = 'navigation-tree-expanded';
 
-/**
- * Load expanded node IDs from localStorage
- */
 function loadExpandedState(): string[] {
   if (typeof window === 'undefined') return [];
 
@@ -31,9 +28,6 @@ function loadExpandedState(): string[] {
   return [];
 }
 
-/**
- * Save expanded node IDs to localStorage
- */
 function saveExpandedState(expandedIds: string[]): void {
   if (typeof window === 'undefined') return;
 
@@ -44,123 +38,34 @@ function saveExpandedState(expandedIds: string[]): void {
   }
 }
 
-/**
- * Hook return type
- */
 interface UseNavigationTreeReturn {
-  /**
-   * Navigation tree data (Fields → Categories → Posts)
-   */
   tree: NavigationNode[];
-
-  /**
-   * Set of currently expanded node IDs
-   */
   expandedIds: Set<string>;
-
-  /**
-   * Toggle expansion state of a node
-   */
   toggleNode: (nodeId: string) => void;
-
-  /**
-   * Expand a specific node
-   */
   expandNode: (nodeId: string) => void;
-
-  /**
-   * Collapse a specific node
-   */
   collapseNode: (nodeId: string) => void;
-
-  /**
-   * Expand all nodes
-   */
   expandAll: () => void;
-
-  /**
-   * Collapse all nodes
-   */
   collapseAll: () => void;
-
-  /**
-   * Loading state
-   */
   isLoading: boolean;
-
-  /**
-   * Error state
-   */
   error: Error | null;
-
-  /**
-   * Refresh navigation tree data
-   */
   refresh: () => Promise<void>;
 }
 
 /**
- * Custom hook to fetch and manage navigation tree
- *
- * Features:
- * - Fetches navigation tree from repository
- * - Manages expansion state with localStorage persistence
- * - Provides helper functions to toggle, expand, collapse nodes
- *
- * Requirement 1.1: Display hierarchical tree structure
- * Requirement 1.5: Persist expansion state in localStorage
- *
  * @param initialExpanded - Optional array of initially expanded node IDs
- * @returns Navigation tree data and expansion state management functions
  */
 export function useNavigationTree(initialExpanded?: string[]): UseNavigationTreeReturn {
-  const [tree, setTree] = useState<NavigationNode[]>([]);
+  const { tree, isLoading, error, refresh } = useNavigationTreeData();
+
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
-    // Initialize from localStorage or use provided initial state
     const stored = loadExpandedState();
     return new Set(initialExpanded || stored);
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  // Fetch navigation tree
-  const fetchTree = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const res = await fetch('/api/navigation');
-      if (!res.ok) throw new Error('Failed to fetch navigation');
-      const data: NavigationNode[] = await res.json();
-
-      setTree(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch navigation tree'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Fetch navigation tree on mount
-  useEffect(() => {
-    fetchTree();
-  }, [fetchTree]);
-
-  // Listen for refresh events
-  useEffect(() => {
-    return onNavigationRefresh(() => {
-      fetchTree();
-    });
-  }, [fetchTree]);
-
-  // Persist expansion state to localStorage whenever it changes
   useEffect(() => {
     saveExpandedState(Array.from(expandedIds));
   }, [expandedIds]);
 
-  /**
-   * Toggle expansion state of a node
-   */
   const toggleNode = useCallback((nodeId: string) => {
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -173,9 +78,6 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
     });
   }, []);
 
-  /**
-   * Expand a specific node
-   */
   const expandNode = useCallback((nodeId: string) => {
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -184,9 +86,6 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
     });
   }, []);
 
-  /**
-   * Collapse a specific node
-   */
   const collapseNode = useCallback((nodeId: string) => {
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -195,9 +94,6 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
     });
   }, []);
 
-  /**
-   * Expand all nodes in the tree
-   */
   const expandAll = useCallback(() => {
     const allIds = new Set<string>();
 
@@ -214,9 +110,6 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
     setExpandedIds(allIds);
   }, [tree]);
 
-  /**
-   * Collapse all nodes in the tree
-   */
   const collapseAll = useCallback(() => {
     setExpandedIds(new Set());
   }, []);
@@ -231,6 +124,6 @@ export function useNavigationTree(initialExpanded?: string[]): UseNavigationTree
     collapseAll,
     isLoading,
     error,
-    refresh: fetchTree,
+    refresh,
   };
 }

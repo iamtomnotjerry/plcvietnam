@@ -64,10 +64,13 @@
     "emptyBody": "The blog is being set up. Check back soon for new posts!",
     "loadErrorTitle": "Could not load the homepage",
     "loadErrorUnknown": "An unknown error occurred",
+    "recentEyebrow": "Fresh",
     "recentHeading": "Latest posts",
     "recentSub": "Recently updated from the blog.",
+    "fieldsEyebrow": "Topics",
     "fieldsHeading": "Fields",
     "fieldsSub": "Explore industrial automation topics",
+    "booksEyebrow": "Library",
     "categoriesCount": "{count} categories",
     "featuredBooks": "Featured books",
     "seeAllBooks": "See all books",
@@ -188,6 +191,7 @@
       "cta": "Sign in"
     },
     "session": {
+      "userMenuOpen": "Open account menu",
       "signOut": "Sign out",
       "signingOut": "Signing out..."
     },

@@ -56,8 +56,8 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-auto overflow-hidden border-t border-border bg-muted/25">
-      <div className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent" />
+    <footer className="relative mt-auto overflow-hidden border-t border-border/40 bg-gradient-to-b from-background/55 via-muted/20 to-muted/32 shadow-[inset_0_1px_0_0_color-mix(in_oklab,white_40%,transparent)] backdrop-blur-2xl supports-[backdrop-filter]:from-background/42 dark:shadow-[inset_0_1px_0_0_color-mix(in_oklab,white_7%,transparent)]">
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <FooterDecorativeBg reducedMotion={!!reducedMotion} />
 
       <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">

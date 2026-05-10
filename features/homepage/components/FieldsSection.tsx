@@ -7,9 +7,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Folder, FolderTree } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import type { Field } from '@/lib/types/domain';
 import { fieldHref } from '@/lib/utils/routes';
+import { HomeSectionHeader } from './HomeSectionHeader';
 
 export interface FieldsSectionProps {
   fields: Field[];
@@ -29,41 +31,20 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
     return null;
   }
 
-  /**
-   * Get icon component for field
-   * Default to folder icon if no icon specified
-   */
-  const getFieldIcon = () => {
-    // Default folder icon for fields
-    return (
-      <svg
-        className="w-8 h-8"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-        />
-      </svg>
-    );
-  };
-
   return (
-    <section className="py-16 md:py-20 bg-muted/30">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Section Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t('fieldsHeading')}</h2>
-          <p className="text-muted-foreground mt-2">{t('fieldsSub')}</p>
-        </div>
+    <section className="section-surface-glass-primary py-16 md:py-20">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,color-mix(in_oklab,var(--color-primary)_12%,transparent),transparent)] opacity-90 motion-reduce:opacity-100"
+        aria-hidden
+      />
+      <div className="editorial-container relative">
+        <HomeSectionHeader
+          eyebrow={t('fieldsEyebrow')}
+          title={t('fieldsHeading')}
+          subtitle={t('fieldsSub')}
+        />
 
-        {/* Fields Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {fields.map((field) => {
             // Navigate to field page
             const fieldUrl = fieldHref(field.slug);
@@ -72,40 +53,33 @@ export function FieldsSection({ fields }: FieldsSectionProps) {
               <Link
                 key={field.id}
                 href={fieldUrl}
-                className="group block bg-card border border-border rounded-lg p-6 transition-all duration-200 hover:shadow-lg hover:border-primary/50 cursor-pointer"
+                className="group relative block cursor-pointer overflow-hidden rounded-2xl border border-border/50 bg-card/90 p-6 shadow-sm ring-1 ring-black/[0.03] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-lg hover:shadow-primary/10 dark:bg-card/80 dark:ring-white/[0.06]"
               >
-                {/* Icon */}
-                <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-lg mb-4 text-primary group-hover:bg-primary/20 transition-colors duration-200">
-                  {getFieldIcon()}
-                </div>
+                <div
+                  className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/[0.07] blur-2xl transition-opacity duration-300 group-hover:opacity-100 opacity-70"
+                  aria-hidden
+                />
+                <div className="relative">
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary shadow-sm ring-1 ring-primary/10 transition-colors duration-200 group-hover:border-primary/30 group-hover:bg-primary/[0.18]">
+                    <FolderTree className="h-8 w-8" strokeWidth={2} aria-hidden />
+                  </div>
 
-                {/* Field Name */}
-                <h3 className="text-xl font-semibold text-card-foreground mb-2 group-hover:text-primary transition-colors duration-200">
-                  {field.name}
-                </h3>
+                  <h3 className="mb-2 text-xl font-semibold text-card-foreground transition-colors duration-200 group-hover:text-primary">
+                    {field.name}
+                  </h3>
 
-                {/* Description */}
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {field.description}
-                </p>
+                  <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">
+                    {field.description}
+                  </p>
 
-                {/* Category Count */}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Folder
+                      className="h-4 w-4 shrink-0 text-muted-foreground"
                       strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      aria-hidden
                     />
-                  </svg>
-                  <span>{t('categoriesCount', { count: field.postCount })}</span>
+                    <span>{t('categoriesCount', { count: field.postCount })}</span>
+                  </div>
                 </div>
               </Link>
             );

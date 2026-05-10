@@ -42,7 +42,7 @@ export default async function HomePage({ params }: Props) {
     ]);
 
     return (
-      <main className="min-h-screen">
+      <main className="min-h-screen overflow-x-hidden">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -61,8 +61,8 @@ export default async function HomePage({ params }: Props) {
         <RecentPostsSection posts={recentPosts} />
 
         {recentPosts.length === 0 && fieldsWithFirstCategory.length === 0 && (
-          <section className="py-24 bg-background">
-            <div className="container mx-auto px-4 max-w-2xl text-center">
+          <section className="section-surface-glass py-24">
+            <div className="editorial-container relative max-w-2xl text-center">
               <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
                 <svg
                   className="w-10 h-10 text-muted-foreground"

@@ -12,7 +12,7 @@ export function HeaderDesktopNav() {
 
   return (
     <nav className="hidden lg:flex" aria-label={t('mainLabel')}>
-      <ul className="flex items-center gap-0.5 rounded-2xl border border-border/50 bg-muted/30 p-1 shadow-inner backdrop-blur-sm">
+      <ul className="flex items-center gap-0.5 rounded-2xl border border-border/45 bg-background/50 p-1 shadow-inner shadow-black/[0.03] backdrop-blur-md dark:bg-background/25">
         {HEADER_MAIN_NAV.map(({ href, navKey, Icon }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
           return (

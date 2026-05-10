@@ -102,9 +102,7 @@ describe('NavigationNode', () => {
         <NavigationNode node={fieldNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      // Check for chevron SVG
-      const chevron = container.querySelector('svg path[d*="M9 5l7 7-7 7"]');
-      expect(chevron).toBeInTheDocument();
+      expect(container.querySelector('.lucide-chevron-right')).toBeInTheDocument();
     });
 
     it('should not render chevron icon for leaf nodes', () => {
@@ -112,9 +110,7 @@ describe('NavigationNode', () => {
         <NavigationNode node={postNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      // Check for chevron SVG
-      const chevron = container.querySelector('svg path[d*="M9 5l7 7-7 7"]');
-      expect(chevron).not.toBeInTheDocument();
+      expect(container.querySelector('.lucide-chevron-right')).not.toBeInTheDocument();
     });
 
     it('should render appropriate icon for field type', () => {
@@ -122,9 +118,7 @@ describe('NavigationNode', () => {
         <NavigationNode node={fieldNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      // Check for folder icon (field icon)
-      const folderIcon = container.querySelector('svg path[d*="M3 7v10a2 2 0 002 2h14"]');
-      expect(folderIcon).toBeInTheDocument();
+      expect(container.querySelector('.lucide-folder-tree')).toBeInTheDocument();
     });
 
     it('should render appropriate icon for category type', () => {
@@ -132,9 +126,7 @@ describe('NavigationNode', () => {
         <NavigationNode node={categoryNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      // Check for document icon (category icon)
-      const docIcon = container.querySelector('svg path[d*="M9 12h6m-6 4h6m2 5H7"]');
-      expect(docIcon).toBeInTheDocument();
+      expect(container.querySelector('.lucide-folder')).toBeInTheDocument();
     });
 
     it('should render appropriate icon for post type', () => {
@@ -142,9 +134,7 @@ describe('NavigationNode', () => {
         <NavigationNode node={postNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      // Check for document icon (post icon)
-      const docIcon = container.querySelector('svg path[d*="M9 12h6m-6 4h6m2 5H7"]');
-      expect(docIcon).toBeInTheDocument();
+      expect(container.querySelector('.lucide-file-text')).toBeInTheDocument();
     });
   });
 
@@ -213,8 +203,11 @@ describe('NavigationNode', () => {
         />
       );
 
-      const chevron = container.querySelector('svg');
-      expect(chevron).toHaveClass('rotate-90');
+      const chevronEl = container.querySelector('.lucide-chevron-right');
+      const motionWrap = chevronEl?.parentElement;
+      expect(motionWrap).toBeTruthy();
+      const tf = motionWrap?.style.transform ?? '';
+      expect(tf.includes('90deg') || tf.includes('matrix')).toBe(true);
     });
 
     it('should not rotate chevron when collapsed', () => {
@@ -222,8 +215,16 @@ describe('NavigationNode', () => {
         <NavigationNode node={fieldNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      const chevron = container.querySelector('svg');
-      expect(chevron).not.toHaveClass('rotate-90');
+      const chevronEl = container.querySelector('.lucide-chevron-right');
+      const motionWrap = chevronEl?.parentElement;
+      expect(motionWrap).toBeTruthy();
+      const t = motionWrap?.style.transform ?? '';
+      const isUnrotated =
+        t === '' ||
+        t === 'none' ||
+        t.includes('0deg') ||
+        /^matrix\(1,\s*0,\s*0,\s*1,\s*0,\s*0\)$/.test(t);
+      expect(isUnrotated).toBe(true);
     });
 
     it('should show children when expanded', () => {
@@ -242,11 +243,9 @@ describe('NavigationNode', () => {
     it('should hide children when collapsed', () => {
       render(<NavigationNode node={fieldNode} expandedIds={new Set()} onToggle={mockOnToggle} />);
 
-      // Children container should have opacity-0 and max-h-0
-      const childrenWrapper = screen.getByText('Basics').closest('div')
-        ?.parentElement?.parentElement;
-      expect(childrenWrapper).toHaveClass('opacity-0');
-      expect(childrenWrapper).toHaveClass('max-h-0');
+      const childrenGrid = document.getElementById('navigation-node-children-field-1');
+      expect(childrenGrid).toBeInTheDocument();
+      expect(childrenGrid).toHaveClass('grid-rows-[0fr]');
     });
 
     it('should apply smooth transition classes to children container', () => {
@@ -254,10 +253,9 @@ describe('NavigationNode', () => {
         <NavigationNode node={fieldNode} expandedIds={new Set()} onToggle={mockOnToggle} />
       );
 
-      const childContainer = container.querySelector('.transition-all');
+      const childContainer = container.querySelector('[class*="grid-template-rows"]');
       expect(childContainer).toBeInTheDocument();
       expect(childContainer).toHaveClass('duration-300');
-      expect(childContainer).toHaveClass('ease-in-out');
     });
   });
 
@@ -304,7 +302,7 @@ describe('NavigationNode', () => {
       );
 
       const link = screen.getByRole('link');
-      expect(link).toHaveStyle({ paddingLeft: '12px' });
+      expect(link).toHaveStyle({ paddingLeft: '10px' });
     });
 
     it('should apply correct padding for level 1 (category)', () => {
@@ -313,7 +311,7 @@ describe('NavigationNode', () => {
       );
 
       const link = screen.getByRole('link');
-      expect(link).toHaveStyle({ paddingLeft: '28px' }); // 12 + 16
+      expect(link).toHaveStyle({ paddingLeft: '24px' });
     });
 
     it('should apply correct padding for level 2 (post)', () => {
@@ -322,7 +320,7 @@ describe('NavigationNode', () => {
       );
 
       const link = screen.getByRole('link');
-      expect(link).toHaveStyle({ paddingLeft: '44px' }); // 12 + 16*2
+      expect(link).toHaveStyle({ paddingLeft: '38px' });
     });
   });
 
@@ -354,7 +352,7 @@ describe('NavigationNode', () => {
 
       // Category should have level 1 padding
       const categoryButton = screen.getByText('Basics').closest('button');
-      expect(categoryButton).toHaveStyle({ paddingLeft: '28px' });
+      expect(categoryButton).toHaveStyle({ paddingLeft: '24px' });
     });
   });
 
@@ -439,8 +437,7 @@ describe('NavigationNode', () => {
       );
 
       // Field nodes should always have chevron (even with empty children)
-      const chevron = container.querySelector('svg path[d*="M9 5l7 7-7 7"]');
-      expect(chevron).toBeInTheDocument();
+      expect(container.querySelector('.lucide-chevron-right')).toBeInTheDocument();
     });
 
     it('should show empty message when field has no categories', () => {

@@ -8,53 +8,44 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { PostCard } from '@/features/posts/components';
 import type { Post } from '@/lib/types/domain';
+import { HomeSectionHeader } from './HomeSectionHeader';
 
 export interface RecentPostsSectionProps {
-  posts: Post[]; // 6 most recent
+  posts: Post[];
 }
 
-/**
- * RecentPostsSection Component
- *
- * Displays:
- * - Section heading: "Bài viết mới nhất"
- * - Grid of 6 PostCard components (variant='compact')
- * - "Xem tất cả" link to all posts
- */
 export function RecentPostsSection({ posts }: RecentPostsSectionProps) {
   const t = useTranslations('home');
-  // Limit to 6 posts
   const displayPosts = posts.slice(0, 6);
 
   if (displayPosts.length === 0) {
     return null;
   }
 
+  const seeAll = (
+    <Link
+      href="/posts"
+      prefetch
+      className="inline-flex w-fit items-center gap-2 rounded-full border border-border/60 bg-card/75 px-4 py-2.5 text-sm font-semibold text-primary shadow-sm backdrop-blur-sm transition-all hover:border-primary/35 hover:bg-primary/10"
+    >
+      {t('seeAllPosts')}
+      <ChevronRight className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+    </Link>
+  );
+
   return (
-    <section id="recent-posts" className="py-16 md:py-24 bg-background">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-              style={{ fontFamily: 'var(--font-serif), ui-serif, Georgia, serif' }}
-            >
-              {t('recentHeading')}
-            </h2>
-            <p className="mt-2 text-muted-foreground">{t('recentSub')}</p>
-          </div>
-          <Link
-            href="/posts"
-            prefetch
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary hover:underline"
-          >
-            {t('seeAllPosts')}
-            <span aria-hidden>→</span>
-          </Link>
-        </div>
+    <section id="recent-posts" className="section-surface-glass py-16 md:py-24">
+      <div className="editorial-container relative">
+        <HomeSectionHeader
+          eyebrow={t('recentEyebrow')}
+          title={t('recentHeading')}
+          subtitle={t('recentSub')}
+          action={seeAll}
+        />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {displayPosts.map((post, index) => (

@@ -98,18 +98,16 @@ describe('NavigationTree', () => {
 
       render(<NavigationTree />);
 
-      // Should show skeleton placeholders
-      const skeletons = screen.getAllByRole('generic').filter(
-        el => el.className.includes('animate-pulse')
-      );
-      expect(skeletons.length).toBeGreaterThan(0);
+      expect(screen.getByTestId('skeleton-navigation-tree')).toBeInTheDocument();
+      const skeletonRoot = screen.getByTestId('skeleton-navigation-tree');
+      expect(skeletonRoot.querySelector('.animate-pulse')).toBeTruthy();
     });
   });
 
   describe('Error State', () => {
     it('should display error message when error occurs', () => {
       const mockError = new Error('Failed to fetch navigation tree');
-      
+
       mockUseNavigationTree.mockReturnValue({
         tree: [],
         expandedIds: new Set(),
@@ -173,7 +171,7 @@ describe('NavigationTree', () => {
 
     it('should pass expanded state to NavigationNode components', () => {
       const expandedIds = new Set(['field-1']);
-      
+
       mockUseNavigationTree.mockReturnValue({
         tree: mockTree,
         expandedIds,
@@ -506,7 +504,9 @@ describe('NavigationTree', () => {
 
       render(<NavigationTree />);
 
-      expect(screen.getByRole('navigation', { name: 'Cây điều hướng nội dung' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('navigation', { name: 'Cây điều hướng nội dung' })
+      ).toBeInTheDocument();
     });
 
     it('should have accessible clear button label', async () => {

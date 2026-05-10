@@ -1,12 +1,13 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { ReactNode } from 'react';
 import { useNavigationTree } from './useNavigationTree';
+import { NavigationTreeDataProvider } from '../components/NavigationTreeDataProvider';
 import type { NavigationNode } from '@/lib/types/domain';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-// Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
@@ -54,6 +55,10 @@ function jsonRes(data: unknown) {
   );
 }
 
+function wrapper({ children }: { children: ReactNode }) {
+  return <NavigationTreeDataProvider>{children}</NavigationTreeDataProvider>;
+}
+
 describe('useNavigationTree', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -62,17 +67,17 @@ describe('useNavigationTree', () => {
 
   it('should fetch navigation tree on mount', async () => {
     mockFetch.mockReturnValue(jsonRes(mockTree));
-    const { result } = renderHook(() => useNavigationTree());
+    const { result } = renderHook(() => useNavigationTree(), { wrapper });
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.tree).toHaveLength(1);
     expect(result.current.tree[0].label).toBe('PLC');
-    expect(mockFetch).toHaveBeenCalledWith('/api/navigation');
+    expect(mockFetch).toHaveBeenCalledWith('/api/navigation', { cache: 'no-store' });
   });
 
   it('should expand all nodes', async () => {
     mockFetch.mockReturnValue(jsonRes(mockTree));
-    const { result } = renderHook(() => useNavigationTree());
+    const { result } = renderHook(() => useNavigationTree(), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     act(() => result.current.expandAll());
     expect(result.current.expandedIds.has('field-1')).toBe(true);
@@ -81,7 +86,7 @@ describe('useNavigationTree', () => {
 
   it('should handle fetch errors gracefully', async () => {
     mockFetch.mockRejectedValue(new Error('Network error'));
-    const { result } = renderHook(() => useNavigationTree());
+    const { result } = renderHook(() => useNavigationTree(), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.error).toBeInstanceOf(Error);
     expect(result.current.tree).toHaveLength(0);
@@ -89,7 +94,7 @@ describe('useNavigationTree', () => {
 
   it('should toggle node expansion', async () => {
     mockFetch.mockReturnValue(jsonRes(mockTree));
-    const { result } = renderHook(() => useNavigationTree());
+    const { result } = renderHook(() => useNavigationTree(), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     act(() => result.current.toggleNode('field-1'));
     expect(result.current.expandedIds.has('field-1')).toBe(true);
@@ -99,7 +104,7 @@ describe('useNavigationTree', () => {
 
   it('should collapse all nodes', async () => {
     mockFetch.mockReturnValue(jsonRes(mockTree));
-    const { result } = renderHook(() => useNavigationTree());
+    const { result } = renderHook(() => useNavigationTree(), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     act(() => result.current.expandAll());
     act(() => result.current.collapseAll());

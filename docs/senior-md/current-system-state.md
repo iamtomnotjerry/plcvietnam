@@ -6,7 +6,7 @@ Update this file whenever API contracts, security posture, or architecture behav
 ## Last Updated
 
 - Date: 2026-05-10
-- Scope: **UX motion layer**: shared tokens in `lib/ui/motion.ts`; **`AuthCallbackPending`** spinner/skeleton + `role="status"` on `/auth/callback`; **`TiltCard`** (3D tilt, desktop-only, off when `prefers-reduced-motion`, safe without `matchMedia` in tests); **`SectionReveal`** (`whileInView` fade-up) on post detail header, book detail hero, about hero; **`AmbientBackground`** + **`AmbientCursorGlow`** in `AppLayout` (cursor glow skips coarse pointer + reduced motion); footer/header motion presets re-export from `lib/ui/motion`; ambient blob keyframes in `app/globals.css`. Prior: resend-confirmation, auth hardening, i18n
+- Scope: **Navigation tree UX**: `NavigationTreeDataProvider` in `AppLayout` dedupes client `/api/navigation` for sidebar + mobile drawer; **`NavigationTreeSearch`** (`Input` + lucide); **`NavigationNodeRow`** + lucide type icons; expand/collapse via CSS grid rows + Framer chevron (respects reduced motion); sidebar topic header with icon + gradient; skeleton via **`SkeletonNavigationTree`**. Prior: **UX motion layer** (`lib/ui/motion.ts`, `TiltCard`, `SectionReveal`, `AmbientBackground`, etc.); resend-confirmation, auth hardening, i18n
 
 ## API Contract Status
 
@@ -74,6 +74,8 @@ Update this file whenever API contracts, security posture, or architecture behav
 - Navigation tree semantics improved:
   - expandable nodes use `button` semantics
   - `aria-expanded` and `aria-controls` added
+- Navigation tree data: single fetch per layout via **`NavigationTreeDataProvider`** (shared by desktop sidebar and **`MobileNavDrawer`**); expansion state remains per-`useNavigationTree` instance + `localStorage`.
+- **Ambient layer**: `AmbientBackground` uses `z-0` under an **`isolate`** app shell (no opaque `bg-background` on the root layout wrapper) so blobs stay visible through glass sections on all viewports; homepage bands use **`section-surface-glass*`** + **`editorial-container`** (`max-w-7xl` parity with header) in `app/globals.css`; **`HomeSectionHeader`** unifies homepage section titles (eyebrow bar + serif heading); header / sidebar topic rail / mobile drawer / footer share the same gradient + frosted chrome; desktop topic tree sits in a **rounded inset panel** with shared shadows.
 - Navigation fetch no longer forces `no-store`, allowing route cache policy to apply.
 - Mobile search overlay now restores focus and traps focus while dialog is open.
 - Post delete flow in `PostDetail` now uses inline error surface instead of blocking alert popup.

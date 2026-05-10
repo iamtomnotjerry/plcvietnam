@@ -207,7 +207,7 @@
         "selectField": "— Select field —",
         "labelCategory": "Category",
         "selectCategory": "— Select category —",
-        "noCategoriesInField": "This field has no categories yet.",
+        "noCategoriesInField": "This field has no categories yet. Add a category under Admin → Classification → Categories before publishing.",
         "labelExcerpt": "Excerpt",
         "labelContent": "Content (HTML)",
         "labelThumbnail": "Thumbnail image",

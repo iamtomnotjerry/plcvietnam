@@ -7,57 +7,44 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { ChevronRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { BookCard } from '@/features/books/components';
 import type { Book } from '@/lib/types/domain';
+import { HomeSectionHeader } from './HomeSectionHeader';
 
 export interface FeaturedBooksSectionProps {
-  books: Book[]; // 3 featured
+  books: Book[];
 }
 
-/**
- * FeaturedBooksSection Component
- *
- * Displays:
- * - Section heading: "Sách nổi bật"
- * - Horizontal carousel of 3 BookCard components
- * - "Xem tất cả sách" link to books page
- */
 export function FeaturedBooksSection({ books }: FeaturedBooksSectionProps) {
   const t = useTranslations('home');
-  // Limit to 3 books
   const displayBooks = books.slice(0, 3);
 
   if (displayBooks.length === 0) {
-    return null; // Books section is optional - hide if empty
+    return null;
   }
 
+  const seeAll = (
+    <Link
+      href="/books"
+      className="inline-flex w-fit items-center gap-2 rounded-full border border-border/60 bg-card/75 px-4 py-2.5 text-sm font-semibold text-primary shadow-sm backdrop-blur-sm transition-all hover:border-primary/35 hover:bg-primary/10"
+    >
+      {t('seeAllBooks')}
+      <ChevronRight className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+    </Link>
+  );
+
   return (
-    <section className="py-16 md:py-20 bg-background">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Section Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t('featuredBooks')}</h2>
+    <section className="section-surface-glass-accent py-16 md:py-20">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_80%_100%,color-mix(in_oklab,var(--color-accent)_12%,transparent),transparent)] opacity-90 motion-reduce:opacity-100"
+        aria-hidden
+      />
+      <div className="editorial-container relative">
+        <HomeSectionHeader eyebrow={t('booksEyebrow')} title={t('featuredBooks')} action={seeAll} />
 
-          <Link
-            href="/books"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors duration-200 font-medium cursor-pointer"
-          >
-            <span>{t('seeAllBooks')}</span>
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
-
-        {/* Books Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {displayBooks.map((book) => (
             <BookCard key={book.id} book={book} variant="grid" />
           ))}
