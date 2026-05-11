@@ -9,6 +9,7 @@ import type { Database } from '@/lib/supabase/database.types';
 import { apiBadRequest, apiConflict, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireAdminAuth } from '@/lib/auth/server-auth';
 import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
+import { logRouteError } from '@/lib/api/request-id';
 import { HOMEPAGE_FIELDS_LIMIT } from '@/lib/data/pick-homepage-fields';
 
 function unauthorized() {
@@ -29,7 +30,7 @@ async function countFeaturedOnHomeExcluding(
   return count ?? 0;
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!(await requireAdminAuth())) return unauthorized();
   try {
     const db = getServiceClient();
@@ -37,7 +38,7 @@ export async function GET(): Promise<NextResponse> {
     if (error) return apiInternalError('Không thể tải lĩnh vực');
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[api/admin/fields GET] Error:', error);
+    logRouteError('[api/admin/fields GET]', request, error);
     return apiInternalError('Không thể tải lĩnh vực');
   }
 }

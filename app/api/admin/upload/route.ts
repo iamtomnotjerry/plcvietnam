@@ -9,6 +9,7 @@ import { uploadFile } from '@/lib/supabase/storage';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
 import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
+import { logRouteError } from '@/lib/api/request-id';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
     return NextResponse.json({ url }, { status: 201 });
   } catch (e) {
-    console.error('[upload]', e);
+    logRouteError('[upload]', request, e);
     return apiInternalError('Upload thất bại');
   }
 }

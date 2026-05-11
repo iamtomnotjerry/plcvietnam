@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   X,
 } from 'lucide-react';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import { useSupabaseAuth } from '@/features/comments/hooks/useSupabaseAuth';
 import { Input } from '@/components/ui/Input';
 import {
@@ -161,12 +162,12 @@ export function ChecklogClient() {
       if (appliedDateFrom) params.set('from', appliedDateFrom);
       if (appliedDateTo) params.set('to', appliedDateTo);
       const qs = params.toString();
-      const res = await fetch(`/api/admin/checklog/stats${qs ? `?${qs}` : ''}`, {
-        credentials: 'include',
-      });
-      if (!res.ok) return;
-      const data = (await res.json()) as Stats;
-      setStats(data);
+      try {
+        const data = await adminFetchJson<Stats>(`/api/admin/checklog/stats${qs ? `?${qs}` : ''}`);
+        setStats(data);
+      } catch {
+        // stats are optional; keep prior stats on failure
+      }
     } finally {
       setStatsLoading(false);
     }
@@ -188,13 +189,9 @@ export function ChecklogClient() {
         if (appliedDateTo) params.set('to', appliedDateTo);
         if (appliedOutcome) params.set('outcome', appliedOutcome);
         if (appliedActorMine && user?.id) params.set('actorUserId', user.id);
-        const res = await fetch(`/api/admin/checklog?${params}`, { credentials: 'include' });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          const msg = data?.error?.message ?? t('loadError');
-          throw new Error(msg);
-        }
-        const data = (await res.json()) as { items: ChecklogRow[]; count: number };
+        const data = await adminFetchJson<{ items: ChecklogRow[]; count: number }>(
+          `/api/admin/checklog?${params}`
+        );
         setItems(data.items);
         setCount(data.count);
       } catch (e) {

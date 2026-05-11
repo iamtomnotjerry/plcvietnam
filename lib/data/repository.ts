@@ -95,6 +95,8 @@ export interface AdminPostListOptions {
   status?: AdminPostStatusFilter;
   page?: number;
   limit?: number;
+  /** Filter posts in a single category (admin reorder / scoped lists). */
+  categoryId?: string;
   /** Case-insensitive match on title or slug (server-side ilike where supported). */
   search?: string;
 }

@@ -41,6 +41,7 @@ const linkIcon = (href: string): LucideIcon => {
 
 export function AdminSidebar() {
   const t = useTranslations('admin');
+  const tSite = useTranslations('site');
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -157,6 +158,7 @@ export function AdminSidebar() {
       ))}
       <Link
         href={'/' as Route}
+        aria-label={t('sidebar.backToSite')}
         className="mx-3 mt-4 flex items-center gap-2 rounded-lg border border-border/80 bg-muted/30 px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
@@ -172,7 +174,7 @@ export function AdminSidebar() {
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {t('sidebar.cms')}
           </p>
-          <p className="truncate text-sm font-medium text-foreground">PLC Việt Nam</p>
+          <p className="truncate text-sm font-medium text-foreground">{tSite('brand')}</p>
         </div>
         <Button
           type="button"
@@ -212,7 +214,7 @@ export function AdminSidebar() {
               {t('sidebar.cms')}
             </p>
             <p className="truncate font-serif text-lg font-semibold tracking-tight text-foreground">
-              PLC Việt Nam
+              {tSite('brand')}
             </p>
           </div>
           <Button

@@ -29,6 +29,7 @@ import { AdminTablePill } from '@/features/admin/components/AdminTablePill';
 import { AdminTruncatedCell } from '@/features/admin/components/AdminTruncatedCell';
 import { Button } from '@/components/ui/Button';
 import { DeleteConfirmDialog } from '@/components/ui/DeleteConfirmDialog';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -98,15 +99,13 @@ export function AdminBooksClient() {
   const fetchBooks = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/books');
-      if (!res.ok) throw new Error(t('loadFailed'));
-      setBooks(await res.json());
+      setBooks(await adminFetchJson<BookRow[]>('/api/admin/books'));
     } catch (e) {
       setError(e instanceof Error ? e.message : tc('errUnknown'));
     } finally {
       setLoading(false);
     }
-  }, [t, tc]);
+  }, [tc]);
 
   useEffect(() => {
     fetchBooks();
@@ -197,22 +196,11 @@ export function AdminBooksClient() {
 
       const url = editingId ? `/api/admin/books/${editingId}` : '/api/admin/books';
       const method = editingId ? 'PATCH' : 'POST';
-      const res = await fetch(url, {
+      await adminFetchJson(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        const msg =
-          data?.error && typeof data.error === 'object' && 'message' in data.error
-            ? String((data.error as { message: string }).message)
-            : typeof data.error === 'string'
-              ? data.error
-              : t('saveFailed');
-        throw new Error(msg);
-      }
 
       setShowForm(false);
       await fetchBooks();
@@ -231,11 +219,7 @@ export function AdminBooksClient() {
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/books/${deleteState.bookId}`, { method: 'DELETE' });
-      if (!res.ok) {
-        alert(t('deleteFailed'));
-        return;
-      }
+      await adminFetchJson(`/api/admin/books/${deleteState.bookId}`, { method: 'DELETE' });
       setDeleteState(null);
       await fetchBooks();
       if (typeof window !== 'undefined') {

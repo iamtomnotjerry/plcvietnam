@@ -15,6 +15,7 @@ import {
   Trash2,
   Wrench,
 } from 'lucide-react';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import { triggerNavigationRefresh } from '@/lib/events/navigation';
 import {
   ADMIN_CMS_HERO_CTA_CLASS,
@@ -100,13 +101,12 @@ export function AdminCategoriesClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const [catRes, fieldRes] = await Promise.all([
-        fetch(`/api/admin/categories${filterFieldId ? `?fieldId=${filterFieldId}` : ''}`),
-        fetch('/api/admin/fields'),
+      const [catData, fieldData] = await Promise.all([
+        adminFetchJson<Category[]>(
+          `/api/admin/categories${filterFieldId ? `?fieldId=${filterFieldId}` : ''}`
+        ),
+        adminFetchJson<Field[]>('/api/admin/fields'),
       ]);
-      if (!catRes.ok) throw new Error(t('loadCategoriesFailed'));
-      if (!fieldRes.ok) throw new Error(t('loadFieldsFailed'));
-      const [catData, fieldData] = await Promise.all([catRes.json(), fieldRes.json()]);
       setCategories(catData);
       setFields(fieldData);
     } catch (err) {
@@ -114,7 +114,7 @@ export function AdminCategoriesClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [filterFieldId, t, tc]);
+  }, [filterFieldId, tc]);
 
   useEffect(() => {
     fetchData();
@@ -132,8 +132,9 @@ export function AdminCategoriesClient() {
       try {
         const params = new URLSearchParams({ slug });
         if (editingCategory?.id) params.append('excludeId', editingCategory.id);
-        const res = await fetch(`/api/admin/categories/check-slug?${params}`);
-        const data = await res.json();
+        const data = await adminFetchJson<{ available: boolean }>(
+          `/api/admin/categories/check-slug?${params}`
+        );
         setSlugStatus(data.available ? 'available' : 'taken');
       } catch {
         setSlugStatus('idle');
@@ -196,13 +197,11 @@ export function AdminCategoriesClient() {
         description: formDescription.trim() || null,
         fieldId: formFieldId,
       };
-      const res = await fetch('/api/admin/categories', {
+      await adminFetchJson('/api/admin/categories', {
         method: editingCategory ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? tc('errSave'));
       closeForm();
       fetchData();
       triggerNavigationRefresh();
@@ -218,13 +217,9 @@ export function AdminCategoriesClient() {
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/categories?id=${deleteState.categoryId}`, {
+      await adminFetchJson(`/api/admin/categories?id=${deleteState.categoryId}`, {
         method: 'DELETE',
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? tc('errCannotDelete'));
-      }
       setDeleteState(null);
       fetchData();
       triggerNavigationRefresh();

@@ -47,6 +47,7 @@ import {
   RichTextToolbarButton,
   RichTextToolbarSeparator,
 } from '@/features/cms/components/RichTextToolbarButton';
+import { adminFetchFormDataJson } from '@/lib/admin/admin-fetch';
 
 export interface RichTextEditorProps {
   value: string;
@@ -183,20 +184,7 @@ export function RichTextEditor({ value, onChange, ariaLabel }: RichTextEditorPro
       const formData = new FormData();
       formData.append('file', file);
       formData.append('bucket', 'post_media');
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
-      const data = (await res.json().catch(() => ({}))) as {
-        url?: string;
-        error?: string | { message?: string };
-      };
-      if (!res.ok) {
-        const msg =
-          typeof data.error === 'string'
-            ? data.error
-            : typeof data.error?.message === 'string'
-              ? data.error.message
-              : t('uploadFailed');
-        throw new Error(msg);
-      }
+      const data = await adminFetchFormDataJson<{ url?: string }>('/api/admin/upload', formData);
       if (!data.url) throw new Error(t('uploadFailed'));
       const alt = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ') || '';
       editor.chain().focus().setImage({ src: data.url, alt }).run();

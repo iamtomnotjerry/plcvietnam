@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import { useSupabaseAuth } from '@/features/comments/hooks/useSupabaseAuth';
 
 type UserRole = 'admin' | 'author' | 'reader';
@@ -27,12 +28,9 @@ export function useAdminRole(): { role: UserRole | null; isEditor: boolean; load
 
     (async () => {
       try {
-        const response = await fetch('/api/admin/me', { cache: 'no-store' });
-        if (!response.ok) {
-          if (mounted) setRole(null);
-          return;
-        }
-        const data = (await response.json()) as { role?: UserRole };
+        const data = await adminFetchJson<{ role?: UserRole }>('/api/admin/me', {
+          cache: 'no-store',
+        });
         if (mounted) setRole(data.role ?? null);
       } catch {
         if (mounted) setRole(null);

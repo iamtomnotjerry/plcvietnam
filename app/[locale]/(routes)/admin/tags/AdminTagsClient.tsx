@@ -18,6 +18,7 @@ import {
   ADMIN_DATA_TABLE_SHELL_CLASS,
   ADMIN_ROW_ACTIONS_TRIGGER_CLASS,
 } from '@/features/admin/admin-table-styles';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
 import { AdminDataTable } from '@/features/admin/components/AdminDataTable';
 import { AdminTableColumnHeader } from '@/features/admin/components/AdminTableColumnHeader';
@@ -84,16 +85,14 @@ export function AdminTagsClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/tags');
-      if (!res.ok) throw new Error(t('loadFailed'));
-      const data = await res.json();
+      const data = await adminFetchJson<Tag[]>('/api/admin/tags');
       setTags(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : tc('errUnknown'));
     } finally {
       setIsLoading(false);
     }
-  }, [t, tc]);
+  }, [tc]);
 
   useEffect(() => {
     fetchTags();
@@ -111,8 +110,9 @@ export function AdminTagsClient() {
       try {
         const params = new URLSearchParams({ slug });
         if (editingTag?.id) params.append('excludeId', editingTag.id);
-        const res = await fetch(`/api/admin/tags/check-slug?${params}`);
-        const data = await res.json();
+        const data = await adminFetchJson<{ available: boolean }>(
+          `/api/admin/tags/check-slug?${params}`
+        );
         setSlugStatus(data.available ? 'available' : 'taken');
       } catch {
         setSlugStatus('idle');
@@ -169,13 +169,11 @@ export function AdminTagsClient() {
         name: formName.trim(),
         slug: formSlug.trim(),
       };
-      const res = await fetch('/api/admin/tags', {
+      await adminFetchJson('/api/admin/tags', {
         method: editingTag ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? tc('errSave'));
       closeForm();
       fetchTags();
       if (typeof window !== 'undefined') {
@@ -193,11 +191,7 @@ export function AdminTagsClient() {
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/tags?id=${deleteState.tagId}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? tc('errCannotDelete'));
-      }
+      await adminFetchJson(`/api/admin/tags?id=${deleteState.tagId}`, { method: 'DELETE' });
       setDeleteState(null);
       fetchTags();
       if (typeof window !== 'undefined') {

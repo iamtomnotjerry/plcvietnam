@@ -8,6 +8,7 @@ import {
   normalizeChecklogOutcomeParam,
   sanitizeChannelSearchFragment,
 } from '@/lib/checklog/checklog-list-filters';
+import { logRouteError } from '@/lib/api/request-id';
 
 const MAX_LIMIT = 100;
 
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { data, error, count } = await q;
 
     if (error) {
-      console.error('[api/admin/checklog]', error);
+      logRouteError('[api/admin/checklog]', request, error);
       return apiInternalError('Không thể tải checklog');
     }
 
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       offset,
     });
   } catch (e) {
-    console.error('[api/admin/checklog]', e);
+    logRouteError('[api/admin/checklog]', request, e);
     return apiInternalError('Không thể tải checklog');
   }
 }

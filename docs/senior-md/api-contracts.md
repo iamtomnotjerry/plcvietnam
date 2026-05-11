@@ -47,6 +47,13 @@ Exact windows: **`auth`** = 10 requests / 15 minutes (memory or Upstash); **`for
 - `/api/admin/*` routes require role checks in each handler (defense-in-depth).
 - Mutating admin routes must apply rate limiting.
 - Input from request body/query params must be validated at route boundaries.
+- **Request correlation:** middleware for `/api/admin/*` sets **`x-request-id`** on the forwarded request and on the response (see `middleware.ts` + `lib/api/request-id.ts`). Clients may send a safe `x-request-id` (8–128 chars `[a-zA-Z0-9._-]`) to correlate logs; otherwise a UUID is generated.
+
+## Admin CMS — posts list (editor/admin)
+
+| Route                  | Role               | Query                                                                                                                                                                                                                                                                                                                                                    | Notes                                                                      |
+| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `GET /api/admin/posts` | `author` / `admin` | `page`, `limit` (default **10** when omitted; max **100** unless **`for_reorder=1`** with **`category_id`**, then max **500** for large-category reorder), `status` (`all` \| `draft` \| `published`), `q` (search, max 200 chars), **`category_id`** (optional, 1–64 chars `[a-zA-Z0-9_-]`), **`for_reorder=1`** (optional; **requires** `category_id`) | Reorder UI uses `for_reorder=1` + scoped `category_id` + elevated `limit`. |
 
 ## Checklog (admin audit)
 

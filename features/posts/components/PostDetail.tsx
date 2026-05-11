@@ -18,6 +18,7 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { categoryHref, fieldHref, tagHref } from '@/lib/utils/routes';
 import { PostComments } from '@/features/comments/components/PostComments';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import { useAdminRole } from '@/features/auth/hooks/useAdminRole';
 import { useLocale, useTranslations } from 'next-intl';
 import { SectionReveal } from '@/components/ui/SectionReveal';
@@ -87,17 +88,9 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
     setDeleteError(null);
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/posts/${post.id}`, {
+      await adminFetchJson(`/api/admin/posts/${post.id}`, {
         method: 'DELETE',
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        const message =
-          typeof data?.error?.message === 'string' ? data.error.message : t('deleteFail');
-        setDeleteError(message);
-        return;
-      }
 
       // Trigger navigation refresh
       if (typeof window !== 'undefined') {
@@ -109,7 +102,7 @@ export function PostDetail({ post, relatedPosts, className = '' }: PostDetailPro
       router.refresh();
     } catch (error) {
       console.error('Delete error:', error);
-      setDeleteError(t('deleteFail'));
+      setDeleteError(error instanceof Error ? error.message : t('deleteFail'));
     } finally {
       setIsDeleting(false);
     }

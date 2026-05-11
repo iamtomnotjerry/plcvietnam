@@ -1,14 +1,13 @@
-import type { LucideIcon } from 'lucide-react';
 import { Suspense } from 'react';
-import { CheckCircle2, FilePenLine, LayoutList, Newspaper, PenSquare } from 'lucide-react';
+import { Newspaper, PenSquare } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import type { Route } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { contentRepository } from '@/lib/data/factory';
 import type { AdminPostStatusFilter } from '@/lib/data/repository';
+import { ADMIN_POSTS_LIST_DEFAULT_PAGE_SIZE } from '@/lib/admin/constants';
 import { ADMIN_CMS_HERO_CTA_CLASS } from '@/features/admin/admin-table-styles';
 import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
-import { buildAdminPostsListQuery } from '@/lib/admin/build-admin-posts-list-query';
 import { AdminNewPostComposerLauncher } from '@/features/cms/components/AdminNewPostComposerLauncher';
 import { loadPostEditorOptions } from '@/features/cms/utils/loadEditorOptions';
 import { AdminPostsClient } from './AdminPostsClient';
@@ -30,8 +29,10 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
       ? statusParam
       : 'all';
   const page = Math.max(1, parseInt(sp.page || '1', 10) || 1);
-  const limitRaw = parseInt(sp.limit || '10', 10);
-  const limit = Number.isFinite(limitRaw) ? Math.min(100, Math.max(1, limitRaw)) : 10;
+  const limitRaw = parseInt(sp.limit || String(ADMIN_POSTS_LIST_DEFAULT_PAGE_SIZE), 10);
+  const limit = Number.isFinite(limitRaw)
+    ? Math.min(100, Math.max(1, limitRaw))
+    : ADMIN_POSTS_LIST_DEFAULT_PAGE_SIZE;
   const q = typeof sp.q === 'string' ? sp.q : '';
   const search = q.trim() || undefined;
 
@@ -40,14 +41,6 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
     loadPostEditorOptions(),
   ]);
   const firstCategoryId = editorOptions.categories[0]?.id ?? '';
-
-  const filterHref = (nextStatus: AdminPostStatusFilter) =>
-    `/admin/posts?${buildAdminPostsListQuery({
-      status: nextStatus,
-      page: 1,
-      limit,
-      q: search,
-    })}` as Route;
 
   return (
     <div className="space-y-8">
@@ -75,27 +68,6 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
         }
       />
 
-      <div className="flex flex-wrap gap-2">
-        <FilterLink
-          href={filterHref('all')}
-          label={t('postsPage.filterAll')}
-          active={status === 'all'}
-          icon={LayoutList}
-        />
-        <FilterLink
-          href={filterHref('published')}
-          label={t('postsPage.filterPublished')}
-          active={status === 'published'}
-          icon={CheckCircle2}
-        />
-        <FilterLink
-          href={filterHref('draft')}
-          label={t('postsPage.filterDraft')}
-          active={status === 'draft'}
-          icon={FilePenLine}
-        />
-      </div>
-
       <AdminPostsClient
         posts={result.data}
         status={status}
@@ -108,31 +80,5 @@ export default async function AdminPostsPage({ params, searchParams }: AdminPost
         tags={editorOptions.tags}
       />
     </div>
-  );
-}
-
-function FilterLink({
-  href,
-  label,
-  active,
-  icon: Icon,
-}: {
-  href: Route;
-  label: string;
-  active: boolean;
-  icon: LucideIcon;
-}) {
-  return (
-    <Link
-      href={href}
-      className={
-        active
-          ? 'inline-flex items-center gap-2 rounded-full bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/25'
-          : 'inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-3.5 py-1.5 text-sm text-muted-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-muted/70 hover:text-foreground'
-      }
-    >
-      <Icon className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
-      {label}
-    </Link>
   );
 }

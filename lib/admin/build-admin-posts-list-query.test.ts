@@ -19,4 +19,27 @@ describe('buildAdminPostsListQuery', () => {
     expect(q).toContain('page=1');
     expect(q).toContain('limit=50');
   });
+
+  it('includes category_id when set', () => {
+    const q = buildAdminPostsListQuery({
+      status: 'all',
+      page: 1,
+      limit: 100,
+      categoryId: 'cat-1',
+    });
+    expect(q).toContain('category_id=cat-1');
+    expect(q).toContain('limit=100');
+  });
+
+  it('includes for_reorder when requested', () => {
+    const q = buildAdminPostsListQuery({
+      status: 'all',
+      page: 1,
+      limit: 500,
+      categoryId: 'cat-1',
+      forReorder: true,
+    });
+    expect(q).toContain('for_reorder=1');
+    expect(q).toContain('limit=500');
+  });
 });

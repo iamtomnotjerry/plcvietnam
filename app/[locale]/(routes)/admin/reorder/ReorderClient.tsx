@@ -22,6 +22,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/navigation';
 import { ListOrdered } from 'lucide-react';
 import { AdminCmsPageHero } from '@/features/admin/components/AdminCmsPageHero';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
+import { buildAdminPostsListQuery } from '@/lib/admin/build-admin-posts-list-query';
 
 interface Field {
   id: string;
@@ -96,8 +98,7 @@ export function ReorderClient() {
   async function fetchFields() {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/fields');
-      const data = await res.json();
+      const data = await adminFetchJson<Field[]>('/api/admin/fields');
       setFields(data.sort((a: Field, b: Field) => a.order - b.order));
     } catch (error) {
       console.error('Failed to fetch fields:', error);
@@ -109,9 +110,8 @@ export function ReorderClient() {
   async function fetchCategories(fieldId: string) {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/categories');
-      const data = await res.json();
-      const filtered = (data as CategoryApi[])
+      const data = await adminFetchJson<CategoryApi[]>('/api/admin/categories');
+      const filtered = data
         .filter((c) => c.fieldId === fieldId || c.field_id === fieldId)
         .sort((a, b) => a.order - b.order);
       setCategories(filtered);
@@ -125,13 +125,16 @@ export function ReorderClient() {
   async function fetchPosts(categoryId: string) {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/posts');
-      const result = await res.json();
-      const posts = (result.data ?? []) as PostApi[];
-      const filtered = posts
-        .filter((p) => p.categoryId === categoryId || p.category_id === categoryId)
-        .sort((a, b) => a.order - b.order);
-      setPosts(filtered);
+      const qs = buildAdminPostsListQuery({
+        status: 'all',
+        page: 1,
+        limit: 500,
+        categoryId,
+        forReorder: true,
+      });
+      const result = await adminFetchJson<{ data: PostApi[] }>(`/api/admin/posts?${qs}`);
+      const posts = (result.data ?? []).sort((a, b) => a.order - b.order);
+      setPosts(posts);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
     } finally {
@@ -147,13 +150,11 @@ export function ReorderClient() {
         order: index,
       }));
 
-      const res = await fetch('/api/admin/reorder', {
+      await adminFetchJson('/api/admin/reorder', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, items: itemsWithOrder }),
       });
-
-      if (!res.ok) throw new Error('Failed to save order');
 
       // Trigger navigation refresh
       window.dispatchEvent(new CustomEvent('navigation:refresh'));

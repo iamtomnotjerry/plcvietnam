@@ -7,8 +7,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ADMIN_POSTS_LIST_DEFAULT_PAGE_SIZE } from '@/lib/admin/constants';
 import { contentRepository } from '@/lib/data/factory';
-import { CreatePostSchema, PaginationSchema } from '@/lib/validation/schemas';
+import { z } from 'zod';
+import { CreatePostSchema } from '@/lib/validation/schemas';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { revalidatePath } from 'next/cache';
@@ -23,6 +25,7 @@ import {
 } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
 import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
+import { logRouteError } from '@/lib/api/request-id';
 
 // Helper to check editor role
 function unauthorized() {
@@ -45,18 +48,6 @@ export async function GET(request: NextRequest) {
   // Parse and validate query params
   const { searchParams } = new URL(request.url);
 
-  let pagination;
-  try {
-    pagination = PaginationSchema.parse({
-      page: searchParams.get('page'),
-      limit: searchParams.get('limit'),
-    });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return apiBadRequest('Tham số không hợp lệ');
-    }
-  }
-
   const statusParam = searchParams.get('status');
   const status: AdminPostStatusFilter =
     statusParam === 'draft' || statusParam === 'published' || statusParam === 'all'
@@ -66,16 +57,54 @@ export async function GET(request: NextRequest) {
   const qRaw = searchParams.get('q')?.trim();
   const search = qRaw && qRaw.length <= 200 ? qRaw : undefined;
 
+  const categoryRaw = searchParams.get('category_id')?.trim();
+  let categoryId: string | undefined;
+  if (categoryRaw) {
+    // UUID (prod) or short stable ids (mock / fixtures); reject odd characters.
+    if (!/^[a-zA-Z0-9_-]{1,64}$/.test(categoryRaw)) {
+      return apiBadRequest('category_id không hợp lệ');
+    }
+    categoryId = categoryRaw;
+  }
+
+  const forReorder = searchParams.get('for_reorder') === '1';
+  if (forReorder && !categoryId) {
+    return apiBadRequest('for_reorder cần category_id');
+  }
+  const maxLimit = forReorder && categoryId ? 500 : 100;
+
+  let pagination;
+  try {
+    // Default limit 10 when omitted — aligned with `/admin/posts` list UI and `current-system-state.md`.
+    pagination = z
+      .object({
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce
+          .number()
+          .int()
+          .min(1)
+          .max(maxLimit)
+          .default(ADMIN_POSTS_LIST_DEFAULT_PAGE_SIZE),
+      })
+      .parse({
+        page: searchParams.get('page') || undefined,
+        limit: searchParams.get('limit') ?? String(ADMIN_POSTS_LIST_DEFAULT_PAGE_SIZE),
+      });
+  } catch {
+    return apiBadRequest('Tham số không hợp lệ');
+  }
+
   try {
     const result = await contentRepository.listPostsForAdmin({
       status,
-      page: pagination?.page ?? 1,
-      limit: pagination?.limit ?? 50,
+      page: pagination.page,
+      limit: pagination.limit,
       search,
+      categoryId,
     });
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[admin/posts GET]', error);
+    logRouteError('[admin/posts GET]', request, error);
     return apiInternalError('Không thể tải danh sách bài viết');
   }
 }
@@ -171,7 +200,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.error('[admin/posts POST]', error);
+    logRouteError('[admin/posts POST]', request, error);
     return apiInternalError('Tạo bài viết thất bại');
   }
 }

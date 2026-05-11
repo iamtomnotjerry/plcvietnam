@@ -44,9 +44,12 @@ export async function recordChecklogEvent(row: RecordChecklogInput): Promise<voi
         metadata: (row.metadata ?? {}) as Json,
       });
     if (error) {
-      console.error('[checklog] insert failed', error.message);
+      console.error('[checklog] insert failed', {
+        requestId: row.request_id ?? null,
+        message: error.message,
+      });
     }
   } catch (e) {
-    console.error('[checklog] insert exception', e);
+    console.error('[checklog] insert exception', { requestId: row.request_id ?? null }, e);
   }
 }

@@ -3,6 +3,7 @@ import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, NextRequest } from 'next/server';
 import { pathForLocale, localeFromPathname } from '@/lib/i18n/urls';
 import { logChecklogMutationFromMiddleware } from '@/lib/checklog/mutation-log-middleware';
+import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/api/request-id';
 import { routing } from './i18n/routing';
 
 type UserRole = 'admin' | 'author' | 'reader';
@@ -75,7 +76,12 @@ function isArchitectureUi(pathname: string) {
 }
 
 async function supabaseAdminGateForApi(request: NextRequest): Promise<NextResponse> {
-  const response = NextResponse.next({ request });
+  const rid = resolveRequestId(request);
+  const reqHeaders = new Headers(request.headers);
+  reqHeaders.set(REQUEST_ID_HEADER, rid);
+
+  const response = NextResponse.next({ request: { headers: reqHeaders } });
+  response.headers.set(REQUEST_ID_HEADER, rid);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -99,7 +105,10 @@ async function supabaseAdminGateForApi(request: NextRequest): Promise<NextRespon
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401, headers: { [REQUEST_ID_HEADER]: rid } }
+    );
   }
 
   const { data: profile } = await supabase
@@ -110,7 +119,10 @@ async function supabaseAdminGateForApi(request: NextRequest): Promise<NextRespon
   const role = (profile?.role ?? 'reader') as UserRole;
 
   if (role !== 'admin' && role !== 'author') {
-    return NextResponse.json({ error: 'Không có quyền truy cập' }, { status: 403 });
+    return NextResponse.json(
+      { error: 'Không có quyền truy cập' },
+      { status: 403, headers: { [REQUEST_ID_HEADER]: rid } }
+    );
   }
 
   return response;

@@ -545,8 +545,11 @@ export class MockProvider implements ContentRepository {
   }
 
   async listPostsForAdmin(options?: AdminPostListOptions): Promise<PaginatedResult<Post>> {
-    const { status = 'all', page = 1, limit = 50, search } = options || {};
+    const { status = 'all', page = 1, limit = 50, search, categoryId } = options || {};
     let list = [...this.posts];
+    if (categoryId) {
+      list = list.filter((p) => p.categoryId === categoryId);
+    }
     if (status === 'draft') {
       list = list.filter((p) => (p.status ?? 'published') === 'draft');
     } else if (status === 'published') {

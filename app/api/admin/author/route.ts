@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
 import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
+import { logRouteError } from '@/lib/api/request-id';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,7 +58,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true, author: updatedAuthor }, { status: 200 });
   } catch (error) {
-    console.error('Error updating author:', error);
+    logRouteError('[api/admin/author PUT]', request, error);
     return apiInternalError('Không thể cập nhật thông tin tác giả');
   }
 }

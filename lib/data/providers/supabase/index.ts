@@ -508,7 +508,7 @@ export class SupabaseProvider implements ContentRepository {
   // ── Admin Posts ───────────────────────────────────────────────────────────
 
   async listPostsForAdmin(options: AdminPostListOptions = {}): Promise<PaginatedResult<Post>> {
-    const { page = 1, limit = 20, status, search } = options;
+    const { page = 1, limit = 20, status, search, categoryId } = options;
 
     let query = this.admin
       .from('posts')
@@ -516,6 +516,7 @@ export class SupabaseProvider implements ContentRepository {
       .order('created_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1);
 
+    if (categoryId) query = query.eq('category_id', categoryId);
     if (status && status !== 'all') query = query.eq('status', status);
 
     const rawTerm = search?.trim();

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Activity,
@@ -67,12 +68,10 @@ export function IntegrationsStatusClient() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/integrations-status', { credentials: 'include' });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.error?.message ?? t('loadError'));
-      }
-      setData((await res.json()) as IntegrationHealthReport);
+      const report = await adminFetchJson<IntegrationHealthReport>(
+        '/api/admin/integrations-status'
+      );
+      setData(report);
     } catch (e) {
       setError(e instanceof Error ? e.message : t('loadError'));
       setData(null);

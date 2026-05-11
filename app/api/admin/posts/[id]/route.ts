@@ -16,6 +16,7 @@ import {
 } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
 import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
+import { logRouteError } from '@/lib/api/request-id';
 
 function unauthorized() {
   return apiUnauthorized();
@@ -116,7 +117,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
         return apiConflict('Slug đã tồn tại');
       }
     }
-    console.error('[admin/posts/[id] PATCH]', e);
+    logRouteError('[admin/posts/[id] PATCH]', request, e);
     return apiInternalError('Cập nhật thất bại');
   }
 }

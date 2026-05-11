@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { Route } from 'next';
-import type { PostPublicationStatus, SEOMetadata } from '@/lib/types/domain';
+import type { Post, PostPublicationStatus, SEOMetadata } from '@/lib/types/domain';
+import { adminFetchFormDataJson, adminFetchJson } from '@/lib/admin/admin-fetch';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -180,8 +181,9 @@ export function PostEditorForm({
         try {
           const params = new URLSearchParams({ slug: value });
           if (initial.id) params.set('excludeId', initial.id);
-          const res = await fetch(`/api/admin/posts/check-slug?${params}`);
-          const data = await res.json();
+          const data = await adminFetchJson<{ available: boolean }>(
+            `/api/admin/posts/check-slug?${params}`
+          );
           setSlugStatus(data.available ? 'available' : 'taken');
         } catch {
           setSlugStatus('idle');
@@ -247,16 +249,11 @@ export function PostEditorForm({
     };
     try {
       const url = mode === 'create' ? '/api/admin/posts' : `/api/admin/posts/${initial.id}`;
-      const res = await fetch(url, {
+      const data = await adminFetchJson<Post>(url, {
         method: mode === 'create' ? 'POST' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(typeof data.error === 'string' ? data.error : t('saveFailed'));
-        return;
-      }
 
       // Sidebar + admin lists that listen for this event
       triggerNavigationRefresh();
@@ -293,6 +290,8 @@ export function PostEditorForm({
       queueMicrotask(() => {
         router.refresh();
       });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('saveFailed'));
     } finally {
       setLoading(false);
     }
@@ -304,14 +303,11 @@ export function PostEditorForm({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/posts/${initial.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(typeof data.error === 'string' ? data.error : t('deleteFailed'));
-        return;
-      }
+      await adminFetchJson(`/api/admin/posts/${initial.id}`, { method: 'DELETE' });
       router.push('/admin/posts' as Route);
       router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('deleteFailed'));
     } finally {
       setLoading(false);
     }
@@ -634,9 +630,7 @@ function ThumbnailUploader({ value, onChange, postSlug }: ThumbnailUploaderProps
       formData.append('bucket', 'thumbnails');
       formData.append('path', `${slug}/thumbnail.${ext}`);
 
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? t('uploadFailed'));
+      const data = await adminFetchFormDataJson<{ url: string }>('/api/admin/upload', formData);
       onChange(data.url);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : t('uploadFailed'));

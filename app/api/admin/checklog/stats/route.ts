@@ -3,6 +3,7 @@ import { getServiceClient } from '@/lib/supabase/client-singleton';
 import { apiForbidden, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireAdminAuth, requireAuthenticatedAuth } from '@/lib/auth/server-auth';
 import { getChecklogCreatedAtRange } from '@/lib/checklog/checklog-created-at-range';
+import { logRouteError } from '@/lib/api/request-id';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const admin = await requireAdminAuth();
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       Boolean
     );
     if (errs.length) {
-      console.error('[api/admin/checklog/stats]', errs[0]);
+      logRouteError('[api/admin/checklog/stats]', request, errs[0]);
       return apiInternalError('Không thể tải thống kê checklog');
     }
 
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (e) {
-    console.error('[api/admin/checklog/stats]', e);
+    logRouteError('[api/admin/checklog/stats]', request, e);
     return apiInternalError('Không thể tải thống kê checklog');
   }
 }

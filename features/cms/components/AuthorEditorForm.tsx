@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import type { Author } from '@/lib/types/domain';
 
 interface AuthorEditorFormProps {
@@ -58,16 +59,11 @@ export function AuthorEditorForm({ author }: AuthorEditorFormProps) {
         },
       };
 
-      const response = await fetch('/api/admin/author', {
+      await adminFetchJson('/api/admin/author', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || t('updateFailed'));
-      }
 
       router.push('/about');
       router.refresh();

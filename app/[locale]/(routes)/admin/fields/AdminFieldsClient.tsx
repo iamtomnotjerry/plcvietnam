@@ -15,6 +15,7 @@ import {
   Trash2,
   Wrench,
 } from 'lucide-react';
+import { adminFetchJson } from '@/lib/admin/admin-fetch';
 import { triggerNavigationRefresh } from '@/lib/events/navigation';
 import {
   ADMIN_CMS_HERO_CTA_CLASS,
@@ -95,16 +96,14 @@ export function AdminFieldsClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/fields');
-      if (!res.ok) throw new Error(t('loadFailed'));
-      const data = await res.json();
+      const data = await adminFetchJson<Field[]>('/api/admin/fields');
       setFields(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : tc('errUnknown'));
     } finally {
       setIsLoading(false);
     }
-  }, [t, tc]);
+  }, [tc]);
 
   useEffect(() => {
     fetchFields();
@@ -149,8 +148,9 @@ export function AdminFieldsClient() {
       try {
         const params = new URLSearchParams({ slug });
         if (editingField?.id) params.append('excludeId', editingField.id);
-        const res = await fetch(`/api/admin/fields/check-slug?${params}`);
-        const data = await res.json();
+        const data = await adminFetchJson<{ available: boolean }>(
+          `/api/admin/fields/check-slug?${params}`
+        );
         setSlugStatus(data.available ? 'available' : 'taken');
       } catch {
         setSlugStatus('idle');
@@ -216,21 +216,11 @@ export function AdminFieldsClient() {
         icon: formIcon.trim() || null,
         featured_on_home: formFeaturedOnHome,
       };
-      const res = await fetch('/api/admin/fields', {
+      await adminFetchJson('/api/admin/fields', {
         method: editingField ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        const msg =
-          data?.error && typeof data.error === 'object' && 'message' in data.error
-            ? String((data.error as { message: string }).message)
-            : typeof data.error === 'string'
-              ? data.error
-              : tc('errSave');
-        throw new Error(msg);
-      }
       closeForm();
       fetchFields();
       triggerNavigationRefresh(); // Refresh navigation tree
@@ -246,11 +236,7 @@ export function AdminFieldsClient() {
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/fields?id=${deleteState.fieldId}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error ?? tc('errCannotDelete'));
-      }
+      await adminFetchJson(`/api/admin/fields?id=${deleteState.fieldId}`, { method: 'DELETE' });
       setDeleteState(null);
       fetchFields();
       triggerNavigationRefresh(); // Refresh navigation tree

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { apiBadRequest, apiInternalError, apiUnauthorized } from '@/lib/api/responses';
 import { requireEditorAuth } from '@/lib/auth/server-auth';
 import { logAdminChecklogEvent } from '@/lib/checklog/log-admin-event';
+import { logRouteError } from '@/lib/api/request-id';
 
 const MAX_REORDER_ITEMS = 200;
 
@@ -83,7 +84,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[api/admin/reorder] Error:', error);
+    logRouteError('[api/admin/reorder]', request, error);
     return apiInternalError('Failed to update order');
   }
 }
